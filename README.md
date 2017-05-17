@@ -1,4 +1,5 @@
 # WaterUp - arduino code
+[![Build Status](https://travis-ci.org/jorisrietveld/WaterUp-Arduino.svg?branch=master)](https://travis-ci.org/jorisrietveld/WaterUp-Arduino)
 We are developing an internet of things device as part of the project
 innovate at Stenden University of applied sciences. In this project
 we are free to develop an product based on the internet of things.
