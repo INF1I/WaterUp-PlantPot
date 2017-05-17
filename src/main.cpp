@@ -1,14 +1,14 @@
 #include "Arduino.h"
+#include <ESP8266WiFi.h>
 
-// the setup function runs once when you press reset or power the board
+WiFiServer server(80); //Initialize the server on Port 80
+
 void setup() {
-    pinMode(LED_BUILTIN, OUTPUT);
+
+    WiFi.mode(WIFI_AP); //Our ESP8266-12E is an AccessPoint
+    WiFi.softAP("Hello_IoT", "12345678"); // Provide the (SSID, password); .
+    server.begin(); // Start the HTTP Server
+
 }
 
-// the loop function runs over and over again forever
-void loop() {
-    digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-    delay(1000);                       // wait for a second
-    digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-    delay(1000);                       // wait for a second
-}
+void loop() { }
