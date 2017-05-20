@@ -3,11 +3,11 @@
  * Created: 17-05-2017 05:02
  * Licence: GPLv3 - General Public Licence version 3
  */
-#include "Arduino.h"
-#include <ESP8266WiFi.h>
-#include <PubSubClient.h>
-#include <ArduinoJson.h>
-#include <NewPing.h>
+#include "Arduino.h" // This library includes all functions etc to work with the Wemos D1 A2 board.
+#include <ESP8266WiFi.h> // This library includes all functions to work with the ESP8222 Wireless communication chip.
+#include <PubSubClient.h> // This library includes all functions to communicate messages over the MQTT protocol.
+#include <ArduinoJson.h> // This library includes all the functions to parse and construct json messages.
+#include <NewPing.h> // This library includes all the functions to work with the HC-SR04 ultra sonar sensor.
 
 #define ledYellow D3 // Output pin connected to the yellow led.
 #define ledRed D2 // Output pin connected to the red led.
