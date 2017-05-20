@@ -6,39 +6,54 @@
 #include "Arduino.h"
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
-#include "WaterUpTalk.h"
+#include <ArduinoJson.h>
+
+#define ledYellow D3
+#define ledRed D2
+#define ledPublish D5
 
 const char* ssid = "iot-test";
 const char* password = "test12345";
 const char* mqtt_server = "broker.mqttdashboard.com";
+int8 lastState = 0;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
+StaticJsonBuffer<200> jsonBuffer;
+int yellowLedStatus = 0;
+int redLedStatus = 0;
 
 long lastMsg = 0;
-char potMessage[50];
+char potMessage[200];
 int value = 0;
 
 void setup_wifi()
 {
-    delay(10); // Fix for more sable wifi.
-
-    // We start by connecting to a WiFi network
-    Serial.println();
-    Serial.printf("Connecting to %s", ssid); // Print the ssid from the network we are connecting to.
-
+    delay( 10 ); // Fix for more sable wifi.
+    Serial.printf("\nTrying to connect to SSID: %s", ssid); // Print the ssid from the network we are connecting to.
     WiFi.begin(ssid, password); // Start wifi communication.
+    Serial.println();
 
+    Serial.print( "BSSID is:");
+    Serial.print( WiFi.BSSIDstr() );
+    Serial.println();
+
+    Serial.print( "PlantPot mac address is: ");
+    Serial.print( WiFi.macAddress() );
+    Serial.println();
+
+    Serial.println( "Connecting." );
     while (WiFi.status() != WL_CONNECTED) // Keep trying to connect to wifi.
     {
-        delay(500);
-        Serial.print(".");
+        delay(1000);
+        Serial.print('.');
     }
 
     randomSeed( micros() );
 
     Serial.printf("\nWiFi connected\nIP address:" );
     Serial.print(WiFi.localIP());
+    Serial.println();
 }
 
 void callback( char* topic, byte* payload, unsigned int length )
@@ -46,26 +61,37 @@ void callback( char* topic, byte* payload, unsigned int length )
     Serial.print("Message arrived [");
     Serial.print(topic);
     Serial.print("] ");
+    char inData[80]; // Create an new string to convert to json.
+
+    Serial.println();
 
     for (int i = 0; i < length; i++)
     {
         Serial.print( (char)payload[i] );
+        inData[i] = (char)payload[i];
     }
 
-    Serial.println();
+    JsonObject& root = jsonBuffer.parseObject(inData);
+    String color = root["color"]; // the color of the led either RED, Yellow or Blue
+    int action = root["action"]; // "on" integer
 
-    // Switch on the LED if an 1 was received as first character
-    if ((char)payload[0] == '1')
+    if( color == "red" )
     {
-        digitalWrite(BUILTIN_LED, LOW);   // Turn the LED on (Note that LOW is the voltage level
-        // but actually the LED is on; this is because
-        // it is acive low on the ESP-01)
+        redLedStatus = action;
+        digitalWrite( ledRed, action == 1 ? HIGH : LOW );
+        Serial.println("action: RED");
+    }
+    else if( color == "yellow" )
+    {
+        yellowLedStatus = action;
+        digitalWrite( ledYellow, action == 1 ? HIGH : LOW );
+        Serial.println("action: YELLOW");
     }
     else
     {
-        digitalWrite(BUILTIN_LED, HIGH);  // Turn the LED off by making the voltage HIGH
+        Serial.println("Error no action found.");
     }
-
+    Serial.println();
 }
 
 void reconnect()
@@ -97,7 +123,13 @@ void reconnect()
 
 void setup()
 {
-    pinMode( BUILTIN_LED, OUTPUT );     // Initialize the BUILTIN_LED pin as an output
+    pinMode( ledRed, OUTPUT);
+    pinMode( ledYellow, OUTPUT);
+    pinMode( ledPublish, OUTPUT);
+    digitalWrite( ledRed, LOW );
+    digitalWrite( ledYellow, LOW );
+    digitalWrite( ledPublish, LOW );
+
     Serial.begin( 115200 ); // Initialize the serial port so we can send debug data over it.
     setup_wifi(); // Initialize the wifi module for network communication.
     client.setServer( mqtt_server, 1883 ); // Set the MQTT broker.
@@ -114,11 +146,32 @@ void loop()
     client.loop();
 
     long now = millis();
-    if (now - lastMsg > 2000) // Every 2 seconds spam the broker (y).
+
+    if (now - lastMsg > 10000) // Every 10 seconds spam the broker (y).
     {
+        lastState = !lastState;
+
+        if( lastState )
+        {
+            digitalWrite(ledPublish, HIGH );
+        }
+        else
+        {
+            digitalWrite(ledPublish, LOW );
+        }
+
         lastMsg = now;
         ++value;
-        snprintf ( potMessage, 75, "Your pot is on fire! It will burn your house down! #%ld", value);
+        snprintf (
+                potMessage,
+                200,
+                "{\"device\":\"plantpot\",\"time\": %ld,\"messageId\": %ld,\"status\":{\"red\":%d,\"yellow\":%d}}",
+                now,
+                (long)value,
+                redLedStatus,
+                yellowLedStatus
+        );
+
         Serial.printf("Send message to the broker: %s", potMessage );
 
         client.publish("stenden-waterup", potMessage);
