@@ -30,6 +30,7 @@ install:
     - pip install -U platformio
     - platformio lib -g install PubSubClient
     - platformio lib -g install ArduinoJson
+    - platformio lib -g install NewPing
 
 script:
     - platformio ci --board=d1_mini
