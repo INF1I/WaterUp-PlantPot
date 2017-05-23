@@ -6,4 +6,4 @@ Please submit an issue if you have any questions.
 
 
 ### Guides & documentation pages
- - [Setting up your development envirorment](installation.md)
+ - [Setting up your development envirorment](setup.md)
