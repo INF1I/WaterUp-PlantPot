@@ -1,4 +1,7 @@
 # WaterUp - arduino code
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c375becb249a4e36888096e5e78ecb58)](https://www.codacy.com/app/jorisrietveld/WaterUp-Arduino-joris?utm_source=github.com&utm_medium=referral&utm_content=INF1I/WaterUp-Arduino-joris&utm_campaign=badger)
+
 ![Build Status](https://travis-ci.org/INF1I/WaterUp-Arduino-joris.svg?branch=master)<br>
 We are developing an internet of things device as part of the project
 innovate at Stenden University of applied sciences. In this project
