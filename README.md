@@ -1,5 +1,11 @@
-# WaterUp - arduino code
-![Build Status](https://travis-ci.org/INF1I/WaterUp-Arduino-joris.svg?branch=master)<br>
+# WaterUp - Plant Pot Code
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c375becb249a4e36888096e5e78ecb58)](https://www.codacy.com/app/jorisrietveld/WaterUp-Arduino-joris?utm_source=github.com&utm_medium=referral&utm_content=INF1I/WaterUp-Arduino-joris&utm_campaign=badger) ![Build Status](https://travis-ci.org/INF1I/WaterUp-Arduino-joris.svg?branch=master)<br>
+This repository contains the source code that runs on the Huzzah/Arduino that
+powers the plant pot. It contains the code to read the data produced by
+the sensors and for communication with the backend server and mobile application.
+
+## About this project
 We are developing an internet of things device as part of the project
 innovate at Stenden University of applied sciences. In this project
 we are free to develop an product based on the internet of things.
@@ -18,7 +24,11 @@ will also be used to configure the right plant species by taking an
 picture of the plant, and let machine learning classify the species.
 
 ## Documentation
-Documentation for this project will follow.
+There is documentation available about configuring an development
+environment, our libraries and the hardware configuration used.
+You can find it [here](documentation/readme.md). If your having any trouble
+setting up your development environment, usage of our libraries, the hardware
+configuration or have some suggestions please submit an [issue here](https://github.com/INF1I/WaterUp-Arduino/issues/new).
 
 ## Repository Authors
 Joris Rietveld - jorisrietveld@gmail.com<br>
