@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2)
-project(WaterUp-Arduino)
+project(WaterUp-Arduino-joris)
 
 include(CMakeListsPrivate.txt)
 

@@ -31,6 +31,7 @@ install:
     - platformio lib -g install PubSubClient
     - platformio lib -g install ArduinoJson
     - platformio lib -g install NewPing
+    - platformio lib -g install Paho
 
 script:
     - platformio ci --board=d1_mini
