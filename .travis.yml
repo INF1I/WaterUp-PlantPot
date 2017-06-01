@@ -31,7 +31,7 @@ install:
     # Install an library with advanced MQTT functions for communicating with our broker.
     - platformio lib -g install Paho
     # Install an library for MQTT communication to our broker specifically written for the Adafruit Huzzah board.
-    - platformio lib -g install Adafruit MQTT Library
+    - platformio lib -g install "Adafruit MQTT Library"
 
 script:
      # Build the project with platformio for the Huzzah board.
