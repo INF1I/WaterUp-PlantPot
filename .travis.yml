@@ -1,18 +1,10 @@
-# Continuous Integration (CI) is the practice, in software
-# engineering, of merging all developer working copies with a shared mainline
-# several times a day < http://docs.platformio.org/page/ci/index.html >
-#
-# Documentation:
-#
-# * Travis CI Embedded Builds with PlatformIO
-#   < https://docs.travis-ci.com/user/integration/platformio/ >
-#
-# * PlatformIO integration with Travis CI
-#   < http://docs.platformio.org/page/ci/travis.html >
-#
-# * User Guide for `platformio ci` command
-#   < http://docs.platformio.org/page/userguide/cmd_ci.html >
-
+#######################################################################
+#                       Travis CI configuration                       #
+#######################################################################
+# Author: Joris Rietveld <jorisrieveld@gmail.com>                     #
+# Created: 17-05-2017 18:20                                           #
+# Project: WaterUp-Arduino-joris                                      #
+#---------------------------------------------------------------------#
 language: python
 python:
     - "2.7"
@@ -24,14 +16,23 @@ cache:
         - "~/.platformio"
 
 env:
+    # Configure the project's entry point as an environment variable so the compiler knows where to start.
     - PLATFORMIO_CI_SRC=src/main.cpp
 
 install:
+    # Install platformio with pip so we can test if the project compiles.
     - pip install -U platformio
+    # Install an library for MQTT communication to our broker.
     - platformio lib -g install PubSubClient
+    # Install an library for parsing an generating JSON messages that will be send from and to our broker.
     - platformio lib -g install ArduinoJson
+    # Install an library simplifying the usage of the ultrasonic sensor that measures the water level in the reservoir.
     - platformio lib -g install NewPing
+    # Install an library with advanced MQTT functions for communicating with our broker.
     - platformio lib -g install Paho
+    # Install an library for MQTT communication to our broker specifically written for the Adafruit Huzzah board.
+    - platformio lib -g install Adafruit MQTT Library
 
 script:
-    - platformio ci --board=d1_mini
+     # Build the project with platformio for the Huzzah board.
+     - platformio ci --board=huzzah
