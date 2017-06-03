@@ -32,6 +32,8 @@ install:
     - platformio lib -g install Paho
     # Install an library for MQTT communication to our broker specifically written for the Adafruit Huzzah board.
     - platformio lib -g install "Adafruit MQTT Library"
+    # Install an library for streaming C++ style output with operator <<
+    - platformio lib -g install Streaming
 
 script:
      # Build the project with platformio for the Huzzah board.
