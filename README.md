@@ -1,6 +1,6 @@
 # WaterUp - Plant Pot Code
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c375becb249a4e36888096e5e78ecb58)](https://www.codacy.com/app/jorisrietveld/WaterUp-Arduino-joris?utm_source=github.com&utm_medium=referral&utm_content=INF1I/WaterUp-Arduino-joris&utm_campaign=badger) ![Build Status](https://travis-ci.org/INF1I/WaterUp-Arduino-joris.svg?branch=master)<br>
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c375becb249a4e36888096e5e78ecb58)](https://www.codacy.com/app/jorisrietveld/WaterUp-Arduino-joris?utm_source=github.com&utm_medium=referral&utm_content=INF1I/WaterUp-Arduino-joris&utm_campaign=badger) [![Build Status](https://travis-ci.org/INF1I/WaterUp-PlantPot.svg?branch=master)](https://travis-ci.org/INF1I/WaterUp-PlantPot) ![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)<br>
 This repository contains the source code that runs on the Huzzah/Arduino that
 powers the plant pot. It contains the code to read the data produced by
 the sensors and for communication with the backend server and mobile application.
