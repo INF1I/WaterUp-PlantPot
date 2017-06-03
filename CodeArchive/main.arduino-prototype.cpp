@@ -25,7 +25,7 @@ const char* mqtt_server = "broker.mqttdashboard.com"; // The address of the MQTT
 
 int8 lastState = 0;
 
-WiFiClient espClient; // This object will be used to talk over Wifi.
+WiFiClientSecure espClient; // This object will be used to talk over Wifi.
 PubSubClient client(espClient); // This object will be used for MQTT communication.
 StaticJsonBuffer<200> jsonBuffer; // This object will be used for JSON parsing.
 NewPing sonar( triggerPin, echoPin, maxSonarDistance); // This object will be used to measure the distance to the water in the water reservoir.
