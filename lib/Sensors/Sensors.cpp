@@ -4,7 +4,7 @@
  * Created: 01-06-2017 13:00
  * Licence: GPLv3 - General Public Licence version 3
  */
-#include <Sensors.h>
+#include "Sensors.h"
 
 #define trigPin 13
 #define echoPin 12
