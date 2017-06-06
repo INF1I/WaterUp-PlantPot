@@ -6,7 +6,7 @@
  */
 #include "Arduino.h" // This is the basic Arduino/Huzzah library.
 #include "MQTT.h" // This is our library that is used to connect to the internet.
-#include <Sensors.h> // This is our library that is used to collect plant pot data.
+#include "Sensors.h" // This is our library that is used to collect plant pot data.
 
 MQTT mqtt; // Create an new MQTT object for communication with the broker.
 Sensors sensors; // Create an new  Sensors object for taking measurements about the pot state.

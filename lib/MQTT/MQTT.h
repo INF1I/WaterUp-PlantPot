@@ -7,8 +7,12 @@
 #ifndef MQTT_H
 #define MQTT_H
 
-#define wifiSSID "ASUS-ALWIN"
-#define wifiPassword "test12345"
+#ifndef MQTT_DEBUG_MODE
+    #define MQTT_DEBUG_MODE 0
+#endif
+
+#define wifiSSID "ASUS-ALWIN" // The SSID of the Wifi network to connect to.
+#define wifiPassword "test12345" // The password of the Wifi network.
 #define mqttBrokerHost "mqtt.inf1i.ga" // The address of the MQTT broker.
 #define mqttBrokerPort 8883 // The port to connect to at the MQTT broker.
 #define mqttBrokerUsername "inf1i-plantpot" // The pot's username authenticate at the MQTT broker.
@@ -18,16 +22,19 @@
 #define subscribeConfigTopic "/subscribe/config" // This MQTT topic is used receive new pot configuration.
 #define jsonBufferSize 200 // This holds the default string buffer size of json messages.
 
-#include <Arduino.h>
-#include <ESP8266WiFi.h>
-#include <Adafruit_MQTT.h>
-#include <Adafruit_MQTT_Client.h>
-#include "FS.h"
-#include <Streaming.h>
-#include "Sensors.h"
+#include <Arduino.h> // Include this library so we can use the arduino system functions and variables.
+#include <ESP8266WiFi.h> // Include this library so we can use the ESP8266 chip's functions.
+#include <Adafruit_MQTT.h> // Include this library for securely connecting to the internet using WiFi.
+#include <Adafruit_MQTT_Client.h> // Include this library for MQTT communication.
+#include "FS.h" // Include this library for access to the ESP8266's file system.
+#include <Streaming.h> // Include this library for using the << Streaming operator.
+#include "Sensors.h" // Include this library for taking pot mesurments.
 
 class MQTT;
 
+/**
+ * This collection is used to set the warning type of an MQTT warning message.
+ */
 enum WarningType
 {
     LOW_RESORVOIR = 1,
@@ -37,12 +44,15 @@ enum WarningType
     UNKNOWN_ERROR = 5
 };
 
+/**
+ * This class is used to publish and receive MQTT messages from and to the broker.
+ */
 class MQTT
 {
 private:
-    Sensors *sensorsLibrary;
-    unsigned long previousMillisStatistics;
-    unsigned long statisticMillisInterval = 10000;
+    Sensors *sensorsLibrary; // Sensors library instance for taking pot mesurements.
+    unsigned long previousMillisStatistics; // The last milliseconds an pot statistic was published to the broker.
+    unsigned long statisticMillisInterval = 10000; // The interval for publishing pot statistics to the broker.
 
     /**
      * This function will attempt to verify the TLS/SSL certificate send from the MQTT broker by its SHA1 fingerprint.
@@ -62,7 +72,7 @@ public:
      * This function is used to initiate the Arduino/Huzzah board. It gets executed whenever the board is
      * first powered up or after an rest.
      */
-    void setup( Sensors *sensorsLib);
+    void setup(Sensors *sensorsLib);
 
     /**
      * This function is used to publish statistics about the pot's state to the broker.

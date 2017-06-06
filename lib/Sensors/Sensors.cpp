@@ -10,25 +10,36 @@
 #define echoPin 12
 #define soilSensePin A0
 
+/**
+ * Initiate the I/O pin's connected to the ultrasonic sensor.
+ */
 void Sensors::setupUltraSonic()
 {
     pinMode(trigPin, OUTPUT);
     pinMode(echoPin, INPUT);
 }
 
+/**
+ * Initiate the I/O pin's connected to the soil moister sensor.
+ */
 void Sensors::setupMoistureDetector()
 {
-//    pinMode(wetIndicatorPin, OUTPUT);
-//    pinMode(dryIndicatorPin, OUTPUT);
+    pinMode( soilSensePin, INPUT );
 }
 
+/**
+ * Initiate all sensors.
+ */
 void Sensors::setup()
 {
     setupUltraSonic();
     setupMoistureDetector();
 }
 
-
+/**
+ * Get the distance in centimeters to the water in the water rersorvoir.
+ * @return long The distance to the water.
+ */
 long Sensors::getDistance()
 {
     digitalWrite(trigPin, LOW);
@@ -42,7 +53,10 @@ long Sensors::getDistance()
     return (Duration * 0.034 / 2);//Converting the reported number to CM
 }
 
-
+/**
+ * Get the soil resistance mesured by the soil moisture sensor.
+ * @return int The resistance of the soil.
+ */
 int Sensors::getMoistureLevel()
 {
     int v = analogRead(soilSensePin);
@@ -50,18 +64,15 @@ int Sensors::getMoistureLevel()
 }
 
 /**
- * Calculate water level in the pot
- *
- * @return waterLevel The percentage of water in the resorvoir.
+ * Calculate the percentage of water left in the water reservoir.
+ * @return waterLevel The percentage of water left in the reservoir.
  */
 int Sensors::calcWaterLevel()
 {
     float distance = getDistance();
-    long surface = (potLength * potWidth) - (innerPotLength * innerPotWidth);
-    float content = surface * potHeight;
+    float waterContent = waterReservoirSurfaceSize * ( potHeight - distance );
+    int waterLevel = (int) (waterContent / waterReservoirSize * 100);
+    waterLevel = waterLevel < 0 ? 0: waterLevel;
 
-    float waterContent = surface * ( potHeight - distance );
-    int waterLevel = (int) (waterContent / content * 100);
-    if(waterLevel < 0) waterLevel = 0;
     return waterLevel;
 }

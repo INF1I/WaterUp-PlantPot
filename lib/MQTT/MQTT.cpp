@@ -56,8 +56,10 @@ void MQTT::setup(Sensors *sensorsLib)
     Serial.begin(115200); // Start serial communication for sending debug messages to the serial port.
     delay(10); // Fix to make connecting to the wifi network more stable.
 
+#if( MQTT_DEBUG_MODE > 0 )
     Serial << F("[info] - Setting up the plant pot.") << endl;
     Serial << F("[info] - Connecting to ") << wifiSSID << endl;
+#endif
 
     delay(1000); // Wait a second before connecting to the wifi network.
     WiFi.begin(wifiSSID, wifiPassword); // Try to connect to the wifi network.
@@ -70,11 +72,12 @@ void MQTT::setup(Sensors *sensorsLib)
     }
     Serial.println();
 
+#if( MQTT_DEBUG_MODE > 0)
     Serial << F("[info] - Successfully connected to the wifi network.") << endl;
     Serial << F("[debug] - IP address assigned from the router: ") << WiFi.localIP() << endl;
     Serial << F("[info] - Successfully connected to the wifi network.") << endl;
     Serial << F("[debug] - Plant pot mac address: ") << WiFi.macAddress() << endl;
-
+#endif
     verifyFingerprint(); // Check SHA1 fingerprint of the MQTT broker.
 }
 
@@ -87,8 +90,9 @@ void MQTT::verifyFingerprint()
 {
     const char *host = mqttBrokerHost;
 
+#if( MQTT_DEBUG_MODE > 0)
     Serial << F("[info] - Attempting to open an secure connection to the MQTT broker at:") << host << endl;
-
+#endif
     if (!wifiClient.connect(host, mqttBrokerPort))
     {
         Serial << F("[error] - Connecting to the MQTT broker failed because we can't reach it.") << endl;
@@ -100,7 +104,9 @@ void MQTT::verifyFingerprint()
 
     if (wifiClient.verify(mqttInf1iGaFingerprint, host))
     {
+#if( MQTT_DEBUG_MODE > 0 )
         Serial << "[info] - Successfully verified the integrity of the TLS/SSL certificate send by the broker." << endl;
+#endif
     }
     else
     {
@@ -127,8 +133,9 @@ void MQTT::mqttConnect()
         return;
     }
 
-    Serial.println(F("[info] - Attempting to connect to the MQTT broker."));
-
+#if( MQTT_DEBUG_MODE > 0 )
+    Serial << F("[info] - Attempting to connect to the MQTT broker.") << endl;
+#endif
     while ((ret = mqttClient.connect()) != 0) // While we are not connected
     {
         Serial << F("[error] - Connecting to the MQTT broker failed because: ") << mqttClient.connectErrorString(ret) << endl; // Print an detailed error message.
@@ -147,10 +154,12 @@ void MQTT::mqttConnect()
             }
         }
     }
+#if( MQTT_DEBUG_MODE > 0 )
     /**
      * Everything went fine we are now connected to the MQTT broker.
      */
     Serial << "[info] - Successfully connected to the MQTT broker." << endl;
+#endif
 }
 
 /**
@@ -166,8 +175,10 @@ void MQTT::publishPotStatistic()
     }
     else
     {
-        Serial << F("[debug] - Message with id: ") << potStatisticCounter << endl;
+#if( MQTT_DEBUG_MODE > 0 )
+        Serial << F("[debug] - Message with id: ") << potStatisticCounter << F(" content: ") << jsonMessageSendBuffer << endl;
         Serial << F("[info] - Successfully published message to the MQTT broker.") << endl;
+#endif
     }
 }
 
