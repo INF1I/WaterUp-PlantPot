@@ -17,8 +17,9 @@ cache:
 
 env:
     # Configure the project'sensors entry point as an environment variable so the compiler knows where to start.
+    - PLATFORMIO_CI_SRC=lib/MQTT/MQTT.h
+    - PLATFORMIO_CI_SRC=lib/Sensors/Sensors.h
     - PLATFORMIO_CI_SRC=src/main.cpp
-    - PLATFORMIO_CI_SRC=lib/*
 
 install:
     # Install platformio with pip so we can test if the project compiles.
