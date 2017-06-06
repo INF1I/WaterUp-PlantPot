@@ -6,17 +6,6 @@
  */
 #include <MQTT.h>
 
-/*#define wifiSSID "ASUS-ALWIN"
-#define wifiPassword "test12345"
-#define mqttBrokerHost "mqtt.inf1i.ga" // The address of the MQTT broker.
-#define mqttBrokerPort 8883 // The port to connect to at the MQTT broker.
-#define mqttBrokerUsername "inf1i-plantpot" // The pot's username authenticate at the MQTT broker.
-#define mqttBrokerPassword "password" // The pot's password to authenticate at the MQTT broker.
-#define publishStatisticsTopic "/publish/statistics" // This MQTT topic is used to publish pot state statistics.
-#define publishWarningTopic "/publish/warning" // This MQTT topic is used to publish pot warnings such as empty water reservoir warnings.
-#define subscribeConfigTopic "/subscribe/config" // This MQTT topic is used receive new pot configuration.
-#define jsonBufferSize 200 // This holds the default string buffer size of json messages.*/
-
 /**
  * The SHA1 fingerprints taken from the backend server's SSL certificates.
  */
@@ -32,7 +21,7 @@ const char *potWarningJsonFormat = "{\"mac\":\"%s\",\"type\":\"warning-mesg\",\"
 char jsonMessageSendBuffer[jsonBufferSize]; // The buffer that will be filled with data to send to the MQTT broker.
 char jsonMessageReceiveBuffer[jsonBufferSize]; // The buffer that will be filled with data received fro the MQTT broker.
 
-const char *potMacAddress = ""; // The mac addess of the plant pot.
+const char *potMacAddress = "5C:CF:7F:19:9C:39"; // The mac addess of the plant pot.
 
 uint32_t potStatisticCounter = 0; // An statistic message publication counter.
 uint32_t potWarningCounter = 0; // An warning message publication counter.
@@ -60,8 +49,10 @@ Adafruit_MQTT_Subscribe configSubscriber = Adafruit_MQTT_Subscribe(&mqttClient, 
  * This function is used to initiate the Arduino/Huzzah board. It gets executed whenever the board is
  * first powered up or after an rest.
  */
-void MQTT::setup()
+void MQTT::setup(Sensors *sensorsLib)
 {
+    sensorsLibrary = sensorsLib;
+    sensorsLibrary->setup();
     Serial.begin(115200); // Start serial communication for sending debug messages to the serial port.
     delay(10); // Fix to make connecting to the wifi network more stable.
 
@@ -163,11 +154,11 @@ void MQTT::mqttConnect()
 }
 
 /**
- *
+ * This function is used to publish statistics about the pot's state to the broker.
  */
-void MQTT::publish()
+void MQTT::publishPotStatistic()
 {
-    statisticPublisher.publish(jsonMessageSendBuffer);
+    buildPotStatisticMessage((long) sensorsLibrary->getMoistureLevel(), (int) sensorsLibrary->calcWaterLevel());
 
     if (!statisticPublisher.publish(jsonMessageSendBuffer)) // Did we publish the message to the broker?
     {
@@ -175,8 +166,22 @@ void MQTT::publish()
     }
     else
     {
-        Serial << F( "[debug] - Message with id: " ) << potStatisticCounter << endl;
-        Serial << F( "[info] - Successfully published message to the MQTT broker." ) << endl;
+        Serial << F("[debug] - Message with id: ") << potStatisticCounter << endl;
+        Serial << F("[info] - Successfully published message to the MQTT broker.") << endl;
+    }
+}
+
+/**
+ * This function will publish pot statistic messages and warnings.
+ */
+void MQTT::runLoop()
+{
+    unsigned long currentMillis = millis();
+
+    if( currentMillis - previousMillisStatistics == statisticMillisInterval )
+    {
+        previousMillisStatistics = currentMillis;
+        publishPotStatistic();
     }
 }
 
@@ -186,7 +191,7 @@ void MQTT::publish()
  * @param groundMoistureLevel The measurement data from the soil humidity sensor.
  * @param waterReservoirLevel The measurement data from the ultra sonar sensor in the water reservoir.
  */
-void MQTT::buildPotStatisticMessage( long groundMoistureLevel, int waterReservoirLevel)
+void MQTT::buildPotStatisticMessage(long groundMoistureLevel, int waterReservoirLevel)
 {
     // Create the JSON message based on the specified format and write it to the send buffer.
     snprintf(jsonMessageSendBuffer, jsonBufferSize, potStatisticJsonFormat, potMacAddress, potStatisticCounter++, groundMoistureLevel, waterReservoirLevel);

@@ -1,3 +1,9 @@
+/**
+ * Author: Joris Rietveld <jorisrietveld@gmail.com>
+ * Author: Alwin Kroezen <alwin.kroesen@student.stenden.com>
+ * Created: 01-06-2017 13:00
+ * Licence: GPLv3 - General Public Licence version 3
+ */
 #ifndef MQTT_H
 #define MQTT_H
 
@@ -14,14 +20,16 @@
 
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include "Adafruit_MQTT.h"
-#include "Adafruit_MQTT_Client.h"
+#include <Adafruit_MQTT.h>
+#include <Adafruit_MQTT_Client.h>
 #include "FS.h"
 #include <Streaming.h>
+#include "Sensors.h"
 
 class MQTT;
 
-enum WarningType{
+enum WarningType
+{
     LOW_RESORVOIR = 1,
     EMPTY_RESORVOIR = 2,
     LOW_MOISTURE_LEVEL = 3,
@@ -29,16 +37,55 @@ enum WarningType{
     UNKNOWN_ERROR = 5
 };
 
-class MQTT{
-    private:
-        void verifyFingerprint();
-    public:
-        void MQTT_connect();
-        void setup();
-        void publish();
-        void buildPotStatisticMessage(long groundMoistureLevel, int waterReservoirLevel);
-        void buildPotStatisticMessage(WarningType warningType);
-        void mqttConnect();
+class MQTT
+{
+private:
+    Sensors *sensorsLibrary;
+    unsigned long previousMillisStatistics;
+    unsigned long statisticMillisInterval = 10000;
+
+    /**
+     * This function will attempt to verify the TLS/SSL certificate send from the MQTT broker by its SHA1 fingerprint.
+     * If the fingerprint doesn't match the one saved in the mqttInf1iGaFingerprint variable it will halt the execution
+     * and print an error message to the serial port.
+     */
+    void verifyFingerprint();
+
+public:
+    /**
+     * This function will connect to the MQTT broker if we aren't connected already. It will automatically try
+     * to reconnect when the connection is lost.
+     */
+    void mqttConnect();
+
+    /**
+     * This function is used to initiate the Arduino/Huzzah board. It gets executed whenever the board is
+     * first powered up or after an rest.
+     */
+    void setup( Sensors *sensorsLib);
+
+    /**
+     * This function is used to publish statistics about the pot's state to the broker.
+     */
+    void publishPotStatistic();
+
+    /**
+     * Function for constructing an JSON pot statistic message.
+     * @param groundMoistureLevel The measurement data from the soil humidity sensor.
+     * @param waterReservoirLevel The measurement data from the ultra sonar sensor in the water reservoir.
+     */
+    void buildPotStatisticMessage(long groundMoistureLevel, int waterReservoirLevel);
+
+    /**
+     * Function for constructing an JSON pot warning message.
+     * @param warningType The type of warning that needs to be send.
+     */
+    void buildPotStatisticMessage(WarningType warningType);
+
+    /**
+     * This function will publish pot statistic messages and warnings.
+     */
+    void runLoop();
 };
 
 #endif
