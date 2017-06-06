@@ -16,20 +16,20 @@ cache:
         - "~/.platformio"
 
 env:
-    # Configure the project's entry point as an environment variable so the compiler knows where to start.
+    # Configure the project'sensors entry point as an environment variable so the compiler knows where to start.
     - PLATFORMIO_CI_SRC=src/main.cpp
 
 install:
     # Install platformio with pip so we can test if the project compiles.
     - pip install -U platformio
     # Install an library for MQTT communication to our broker.
-    - platformio lib -g install PubSubClient
+    # - platformio lib -g install PubSubClient
     # Install an library for parsing an generating JSON messages that will be send from and to our broker.
-    - platformio lib -g install ArduinoJson
+    #- platformio lib -g install ArduinoJson
     # Install an library simplifying the usage of the ultrasonic sensor that measures the water level in the reservoir.
     - platformio lib -g install NewPing
     # Install an library with advanced MQTT functions for communicating with our broker.
-    - platformio lib -g install Paho
+    #- platformio lib -g install Paho
     # Install an library for MQTT communication to our broker specifically written for the Adafruit Huzzah board.
     - platformio lib -g install "Adafruit MQTT Library"
     # Install an library for streaming C++ style output with operator <<

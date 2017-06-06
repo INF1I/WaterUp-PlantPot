@@ -1,45 +1,21 @@
-
-/***************************************************
-  Adafruit MQTT Library ESP8266 Adafruit IO SSL/TLS example
-  Must use the latest version of ESP8266 Arduino from:
-
-  Works great with Adafruit's Huzzah ESP board & Feather
-  ----> https://www.adafruit.com/product/2471
-  ----> https://www.adafruit.com/products/2821
-  Adafruit invests time and resources providing this open source code,
-  please support Adafruit and open-source hardware by purchasing
-  products from Adafruit!
-  Written by Tony DiCola for Adafruit Industries.
-  SSL/TLS additions by Todd Treece for Adafruit Industries.
-  MIT license, all text above must be included in any redistribution
- ****************************************************/
-
+/**
+ * Author: Joris Rietveld <jorisrietveld@gmail.com>
+ * Author: Alwin Kroezen <alwin.kroesen@student.stenden.com>
+ * Created: 01-06-2017 13:00
+ * Licence: GPLv3 - General Public Licence version 3
+ */
 #include <MQTT.h>
 
-/************************* WiFi Access Point *********************************/
-
-//#define WLAN_SSID       "ZyXEL32C34A"
-//#define WLAN_PASS       "FamilieKroesen"
-#define WLAN_SSID       "ASUS-ALWIN"
-#define WLAN_PASS       "test12345"
-//
-//#define WLAN_SSID       "iot-test"
-//#define WLAN_PASS       "test12345"
-
-/************************* Adafruit.io Setup *********************************/
-
-#define mqttBrokerHost      "mqtt.inf1i.ga"
-#define mqttBrokerPort  8883                   // 8883 for MQTTS
-#define mqttBrokerUsername    "inf1i-plantpot"
-#define mqttBrokerPassword         "password"
-
-
+/*#define wifiSSID "ASUS-ALWIN"
+#define wifiPassword "test12345"
+#define mqttBrokerHost "mqtt.inf1i.ga" // The address of the MQTT broker.
+#define mqttBrokerPort 8883 // The port to connect to at the MQTT broker.
+#define mqttBrokerUsername "inf1i-plantpot" // The pot's username authenticate at the MQTT broker.
+#define mqttBrokerPassword "password" // The pot's password to authenticate at the MQTT broker.
 #define publishStatisticsTopic "/publish/statistics" // This MQTT topic is used to publish pot state statistics.
 #define publishWarningTopic "/publish/warning" // This MQTT topic is used to publish pot warnings such as empty water reservoir warnings.
 #define subscribeConfigTopic "/subscribe/config" // This MQTT topic is used receive new pot configuration.
-
-#define jsonBufferSize 200 // This holds the default string buffer size of json messages.
-
+#define jsonBufferSize 200 // This holds the default string buffer size of json messages.*/
 
 /**
  * The SHA1 fingerprints taken from the backend server's SSL certificates.
@@ -50,17 +26,16 @@ const char *mqttInf1iGaFingerprint = "A6 E4 A9 8C 92 B3 8D 81 73 CE 5B 33 33 F5 
 /**
  * Define JSON message templates that will be filled with data when send to an broker.
  */
-const char *potStatisticJsonFormat = "{\"mac\":\"%s\",\"type\":\"potstats-mesg\",\"counter\":%d,\"moisture\":%d,\"waterLevel\":%d}";
-const char *potWarningJsonFormat = "{\"mac\":\"%s\",\"type\":\"warning-mesg\",\"counter\":%d,\"warning\":\"%d\"}";
+const char *potStatisticJsonFormat = "{\"mac\":\"%s\",\"type\":\"potstats-mesg\",\"counter\":%d,\"moisture\":%lu,\"waterLevel\":%d}";
+const char *potWarningJsonFormat = "{\"mac\":\"%s\",\"type\":\"warning-mesg\",\"counter\":%d,\"warning\":\"%lu\"}";
 
-char jsonMessageSendBuffer[jsonBufferSize];
-char jsonMessageReceiveBuffer[jsonBufferSize];
+char jsonMessageSendBuffer[jsonBufferSize]; // The buffer that will be filled with data to send to the MQTT broker.
+char jsonMessageReceiveBuffer[jsonBufferSize]; // The buffer that will be filled with data received fro the MQTT broker.
 
-const char *potMacAddress = "";
+const char *potMacAddress = ""; // The mac addess of the plant pot.
 
 uint32_t potStatisticCounter = 0; // An statistic message publication counter.
 uint32_t potWarningCounter = 0; // An warning message publication counter.
-
 /**
  * Setup the Wifi client for wireless communication to the internet that will be used to
  * transmit and receive messages from the broker. This wifi client has build in SSL/TLS support
@@ -81,91 +56,76 @@ Adafruit_MQTT_Publish statisticPublisher = Adafruit_MQTT_Publish(&mqttClient, mq
 Adafruit_MQTT_Publish warningPublisher = Adafruit_MQTT_Publish(&mqttClient, mqttBrokerUsername publishWarningTopic);
 Adafruit_MQTT_Subscribe configSubscriber = Adafruit_MQTT_Subscribe(&mqttClient, mqttBrokerUsername subscribeConfigTopic);
 
+/**
+ * This function is used to initiate the Arduino/Huzzah board. It gets executed whenever the board is
+ * first powered up or after an rest.
+ */
+void MQTT::setup()
+{
+    Serial.begin(115200); // Start serial communication for sending debug messages to the serial port.
+    delay(10); // Fix to make connecting to the wifi network more stable.
 
+    Serial << F("[info] - Setting up the plant pot.") << endl;
+    Serial << F("[info] - Connecting to ") << wifiSSID << endl;
 
+    delay(1000); // Wait a second before connecting to the wifi network.
+    WiFi.begin(wifiSSID, wifiPassword); // Try to connect to the wifi network.
+    delay(2000); // Wait 2 seconds before checking if the connection was opened successfully.
 
-void MQTT::setup() {
-
-
-    // Connect to WiFi access point.
-    Serial.println(); Serial.println();
-    Serial.print("Connecting to ");
-    Serial.println(WLAN_SSID);
-
-    delay(1000);
-
-    WiFi.begin(WLAN_SSID, WLAN_PASS);
-    delay(2000);
-
-    while (WiFi.status() != WL_CONNECTED) {
+    while (WiFi.status() != WL_CONNECTED) // While we are not connected to the wifi network wait half a second.
+    {
         delay(500);
         Serial.print(".");
     }
     Serial.println();
 
-    Serial.println("WiFi connected");
-    Serial.println("IP address: "); Serial.println(WiFi.localIP());
+    Serial << F("[info] - Successfully connected to the wifi network.") << endl;
+    Serial << F("[debug] - IP address assigned from the router: ") << WiFi.localIP() << endl;
+    Serial << F("[info] - Successfully connected to the wifi network.") << endl;
+    Serial << F("[debug] - Plant pot mac address: ") << WiFi.macAddress() << endl;
 
-    // check the fingerprint of io.adafruit.com's SSL cert
-    verifyFingerprint();
-
+    verifyFingerprint(); // Check SHA1 fingerprint of the MQTT broker.
 }
 
+/**
+ * This function will attempt to verify the TLS/SSL certificate send from the MQTT broker by its SHA1 fingerprint.
+ * If the fingerprint doesn't match the one saved in the mqttInf1iGaFingerprint variable it will halt the execution
+ * and print an error message to the serial port.
+ */
+void MQTT::verifyFingerprint()
+{
+    const char *host = mqttBrokerHost;
 
-void MQTT::verifyFingerprint() {
+    Serial << F("[info] - Attempting to open an secure connection to the MQTT broker at:") << host << endl;
 
-    const char* host = mqttBrokerHost;
-
-
-    Serial.print("Connecting to ");
-    Serial.println(host);
-    if (! wifiClient.connect(host, mqttBrokerPort)) {
-        Serial.println("Connection failed. Halting execution.");
-        while(1);
-    }
-
-    if (wifiClient.verify(mqttInf1iGaFingerprint, host)) {
-        Serial.println("Connection secure.");
-    } else {
-        Serial.println("Connection insecure! Halting execution.");
-        while(1);
-    }
-
-}
-
-
-
-
-// Function to connect and reconnect as necessary to the MQTT server.
-// Should be called in the loop function and it will take care if connecting.
-void MQTT::MQTT_connect() {
-    int8_t ret;
-
-    // Stop if already connected.
-    if (mqttClient.connected()) {
-        return;
-    }
-
-    Serial.print("Connecting to MQTT... ");
-
-    uint8_t retries = 3;
-    while ((ret = mqttClient.connect()) != 0) { // connect will return 0 for connected
-        Serial.println(mqttClient.connectErrorString(ret));
-        Serial.println("Retrying MQTT connection in 5 seconds...");
-        mqttClient.disconnect();
-        delay(5000);  // wait 5 seconds
-        retries--;
-        if (retries == 0) {
-            // basically die and wait for WDT to reset me
-            while (1);
+    if (!wifiClient.connect(host, mqttBrokerPort))
+    {
+        Serial << F("[error] - Connecting to the MQTT broker failed because we can't reach it.") << endl;
+        Serial << F("[info] - Halting the execution of the program.") << endl;
+        while (1) // You shall not pass! Seriously this effectively kills the pot and you have to reset it or wait to the death of the universe.
+        {
         }
     }
 
-    Serial.println("MQTT Connected!");
+    if (wifiClient.verify(mqttInf1iGaFingerprint, host))
+    {
+        Serial << "[info] - Successfully verified the integrity of the TLS/SSL certificate send by the broker." << endl;
+    }
+    else
+    {
+        Serial << F("[error] - Connecting to the MQTT broker failed because the TLS/SSL certificate could not be verified.") << endl;
+        Serial << F("[debug] - TLS/SSL SHA1 certificate fingerprint allowed: ") << mqttInf1iGaFingerprint << endl;
+        Serial << F("[info] - Halting the execution of the program.") << endl;
+        while (1) // You shall not pass! Seriously this effectively kills the pot and you have to reset it or wait to the death of the universe.
+        {
+        }
+    }
 }
 
-
-
+/**
+ * This function will connect to the MQTT broker if we aren't connected already. It will automatically try
+ * to reconnect when the connection is lost.
+ */
 void MQTT::mqttConnect()
 {
     int8_t ret;
@@ -202,25 +162,21 @@ void MQTT::mqttConnect()
     Serial << "[info] - Successfully connected to the MQTT broker." << endl;
 }
 
-
-
-
-
-
-
-
-uint32_t x=0;
-void MQTT::publish() {
+/**
+ *
+ */
+void MQTT::publish()
+{
     statisticPublisher.publish(jsonMessageSendBuffer);
 
     if (!statisticPublisher.publish(jsonMessageSendBuffer)) // Did we publish the message to the broker?
     {
-//        Serial.println( "[error] - Unable to send message: " + String.valueOf( jsonMessageSendBuffer ) );
+        Serial << F("[error] - Unable to send message: ") << jsonMessageSendBuffer << endl;
     }
     else
     {
-//        Serial.println( "[debug] - Message with id: " + String.valueOf( potStatisticCounter ) );
-//        Serial.println( "[info] - Successfully published message to the MQTT broker." );
+        Serial << F( "[debug] - Message with id: " ) << potStatisticCounter << endl;
+        Serial << F( "[info] - Successfully published message to the MQTT broker." ) << endl;
     }
 }
 
@@ -230,9 +186,8 @@ void MQTT::publish() {
  * @param groundMoistureLevel The measurement data from the soil humidity sensor.
  * @param waterReservoirLevel The measurement data from the ultra sonar sensor in the water reservoir.
  */
-void MQTT::buildPotStatisticMessage(uint16_t groundMoistureLevel, uint8_t waterReservoirLevel)
+void MQTT::buildPotStatisticMessage( long groundMoistureLevel, int waterReservoirLevel)
 {
-
     // Create the JSON message based on the specified format and write it to the send buffer.
     snprintf(jsonMessageSendBuffer, jsonBufferSize, potStatisticJsonFormat, potMacAddress, potStatisticCounter++, groundMoistureLevel, waterReservoirLevel);
 }
@@ -241,8 +196,8 @@ void MQTT::buildPotStatisticMessage(uint16_t groundMoistureLevel, uint8_t waterR
  * Function for constructing an JSON pot warning message.
  * @param warningType The type of warning that needs to be send.
  */
-void MQTT::buildPotStatisticMessage( WarningType warningType )
+void MQTT::buildPotStatisticMessage(WarningType warningType)
 {
     // Create the JSON message based on the specified format and write it to the send buffer.
-    snprintf(jsonMessageSendBuffer, jsonBufferSize, potWarningJsonFormat, potMacAddress, potWarningCounter++, (char *)warningType);
+    snprintf(jsonMessageSendBuffer, jsonBufferSize, potWarningJsonFormat, potMacAddress, potWarningCounter++, (char *) warningType);
 }

@@ -29,7 +29,7 @@ Then in `src/main.c` you should use:
 
 // rest H/C/CPP code
 
-PlatformIO will find your libraries automatically, configure preprocessor's
+PlatformIO will find your libraries automatically, configure preprocessor'sensors
 include paths and build them.
 
 More information about PlatformIO Library Dependency Finder
