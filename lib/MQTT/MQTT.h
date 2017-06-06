@@ -6,6 +6,7 @@
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
 #include "FS.h"
+#include <Streaming.h>
 
 class MQTT;
 
@@ -26,6 +27,7 @@ class MQTT{
         void publish();
         void buildPotStatisticMessage(uint16_t groundMoistureLevel, uint8_t waterReservoirLevel);
         void buildPotStatisticMessage( WarningType warningType );
+        void mqttConnect();
 };
 
 #endif

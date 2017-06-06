@@ -63,7 +63,7 @@ void loop()
 {
     long distance = s.getDistance();
 
-    mqtt.MQTT_connect();
+    mqtt.mqttConnect();
     mqtt.buildPotStatisticMessage((uint8_t) s.getMoistureLevel(),(uint8_t) calcWaterLevel(distance));
 
     mqtt.publish();

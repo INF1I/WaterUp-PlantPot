@@ -18,8 +18,10 @@
 
 /************************* WiFi Access Point *********************************/
 
-#define WLAN_SSID       "ZyXEL32C34A"
-#define WLAN_PASS       "FamilieKroesen"
+//#define WLAN_SSID       "ZyXEL32C34A"
+//#define WLAN_PASS       "FamilieKroesen"
+#define WLAN_SSID       "ASUS-ALWIN"
+#define WLAN_PASS       "test12345"
 //
 //#define WLAN_SSID       "iot-test"
 //#define WLAN_PASS       "test12345"
@@ -27,7 +29,7 @@
 /************************* Adafruit.io Setup *********************************/
 
 #define mqttBrokerHost      "mqtt.inf1i.ga"
-#define mqttBrokerPort  8083                   // 8883 for MQTTS
+#define mqttBrokerPort  8883                   // 8883 for MQTTS
 #define mqttBrokerUsername    "inf1i-plantpot"
 #define mqttBrokerPassword         "password"
 
@@ -161,6 +163,50 @@ void MQTT::MQTT_connect() {
 
     Serial.println("MQTT Connected!");
 }
+
+
+
+void MQTT::mqttConnect()
+{
+    int8_t ret;
+    uint8_t maxRetries = 10;
+
+    if (mqttClient.connected()) // Are we already connected? If so continue caring for the plant.
+    {
+        return;
+    }
+
+    Serial.println(F("[info] - Attempting to connect to the MQTT broker."));
+
+    while ((ret = mqttClient.connect()) != 0) // While we are not connected
+    {
+        Serial << F("[error] - Connecting to the MQTT broker failed because: ") << mqttClient.connectErrorString(ret) << endl; // Print an detailed error message.
+        Serial << F("[info] - Retrying to connect to the MQTT broker in 5 seconds...") << endl;
+        mqttClient.disconnect(); // Send disconnect package.
+
+        delay(5000);  // Wait 5 seconds before attempting to reconnect to the MQTT broker.
+        maxRetries--; // Connecting failed so subtract one retry attempt.
+
+        if (maxRetries == 0) // It seems to be impossible to connect to the MQTT broker so halt the execution of the program.
+        {
+            Serial << F("[error] - Connecting to the MQTT broker failed it seems the broker is unavailable.") << endl;
+            Serial << F("[info] - Halting the execution of the program.") << endl;
+            while (1) // You shall not pass! Seriously this effectively kills the pot and you have to reset it or wait to the death of the universe.
+            {
+            }
+        }
+    }
+    /**
+     * Everything went fine we are now connected to the MQTT broker.
+     */
+    Serial << "[info] - Successfully connected to the MQTT broker." << endl;
+}
+
+
+
+
+
+
 
 
 uint32_t x=0;
