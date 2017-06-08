@@ -6,12 +6,12 @@
  */
 #include "Sensors.h"
 
-#define trigPin 13
-#define echoPin 12
-#define soilSensePin A0
-
 /**
- * Initiate the I/O pin's connected to the ultrasonic sensor.
+ * Initiate tha/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld: cannot find -lhandlers-sim
+/home/ubuntu/.platformio/packages/toolchain-xtensa/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld: cannot find -lhal
+collect2: error: ld returned 1 exit status
+CMakeFiles/WaterUp-PlantPot.dir/build.make:120: recipe for target 'WaterUp-PlantPot' failed
+make[3]: *** [WaterUp-PlantPot] Error 1e I/O pin's connected to the ultrasonic sensor.
  */
 void Sensors::setupUltraSonic()
 {

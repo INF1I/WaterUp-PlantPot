@@ -4,8 +4,8 @@
  * Created: 01-06-2017 13:00
  * Licence: GPLv3 - General Public Licence version 3
  */
-#ifndef MQTT_H
-#define MQTT_H
+#ifndef WATERUP_MQTT_MQTT_H
+#define WATERUP_MQTT_MQTT_H
 
 #ifndef MQTT_DEBUG_MODE
     #define MQTT_DEBUG_MODE 0
@@ -98,4 +98,4 @@ public:
     void runLoop();
 };
 
-#endif
+#endif // WATERUP_MQTT_MQTT_H

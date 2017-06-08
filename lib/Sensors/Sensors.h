@@ -4,12 +4,17 @@
  * Created: 01-06-2017 13:00
  * Licence: GPLv3 - General Public Licence version 3
  */
-#ifndef SENSORS_H
-#define SENSORS_H
+#ifndef WATERUP_SENSORS_SENSORS_H
+#define WATERUP_SENSORS_SENSORS_H
 
 #define potHeight 40 // Height what the water can reach
 #define waterReservoirSurfaceSize 500 // The cm2 surface of the water reservoir.
 #define waterReservoirSize 20000 // The cm3 content of the water reservoir.
+
+#define trigPin 13 // The pin connected trigger port of the ultra sonar sensor.
+#define echoPin 12 // The pin connected to the echo port of the ultra sonar sensor.
+#define soilSensePin A0 // The pin connected to the analog read of the soil moisture sensor.
+#define waterPumpPin 16 // The pin connected to the transistor base for switching the water pump.
 
 #include <Arduino.h> // Include this library so we can use the arduino system functions and variables.
 
@@ -51,6 +56,11 @@ public:
      * @return waterLevel The percentage of water left in the resorvoir.
      */
     int calcWaterLevel();
+
+    /**
+     * This function will activate the waterpump for an specified duration.
+     */
+    void activateWaterPump(unsigned long duration );
 };
 
-#endif
+#endif // WATERUP_SENSORS_SENSORS_H
