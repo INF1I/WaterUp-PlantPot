@@ -17,7 +17,6 @@ cache:
 
 env:
     # Configure the project'sensors entry point as an environment variable so the compiler knows where to start.
-    - PLATFORMIO_CI_SRC=lib/*
     - PLATFORMIO_CI_SRC=src/main.cpp
 
 install:

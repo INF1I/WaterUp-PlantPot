@@ -8,8 +8,16 @@
 #define WATERUP_MQTT_MQTT_H
 
 #ifndef MQTT_DEBUG_MODE
-    #define MQTT_DEBUG_MODE 0
+    #define MQTT_DEBUG_MODE 1
 #endif
+
+#include <Arduino.h> // Include this library so we can use the arduino system functions and variables.
+#include <ESP8266WiFi.h> // Include this library so we can use the ESP8266 chip's functions.
+#include <Adafruit_MQTT.h> // Include this library for securely connecting to the internet using WiFi.
+#include <Adafruit_MQTT_Client.h> // Include this library for MQTT communication.
+#include <FS.h> // Include this library for access to the ESP8266's file system.
+#include <Streaming.h> // Include this library for using the << Streaming operator.
+#include <Sensors.h> // Include this library for taking pot mesurments.
 
 #define wifiSSID "ASUS-ALWIN" // The SSID of the Wifi network to connect to.
 #define wifiPassword "test12345" // The password of the Wifi network.
@@ -21,14 +29,6 @@
 #define publishWarningTopic "/publish/warning" // This MQTT topic is used to publish pot warnings such as empty water reservoir warnings.
 #define subscribeConfigTopic "/subscribe/config" // This MQTT topic is used receive new pot configuration.
 #define jsonBufferSize 200 // This holds the default string buffer size of json messages.
-
-#include <Arduino.h> // Include this library so we can use the arduino system functions and variables.
-#include <ESP8266WiFi.h> // Include this library so we can use the ESP8266 chip's functions.
-#include <Adafruit_MQTT.h> // Include this library for securely connecting to the internet using WiFi.
-#include <Adafruit_MQTT_Client.h> // Include this library for MQTT communication.
-#include "FS.h" // Include this library for access to the ESP8266's file system.
-#include <Streaming.h> // Include this library for using the << Streaming operator.
-#include "Sensors.h" // Include this library for taking pot mesurments.
 
 class MQTT;
 

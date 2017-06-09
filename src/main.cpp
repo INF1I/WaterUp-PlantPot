@@ -4,9 +4,9 @@
  * Created: 01-06-2017 13:00
  * Licence: GPLv3 - General Public Licence version 3
  */
-#include "Arduino.h" // This is the basic Arduino/Huzzah library.
-#include "MQTT.h" // This is our library that is used to connect to the internet.
-#include "Sensors.h" // This is our library that is used to collect plant pot data.
+#include <Arduino.h> // This is the basic Arduino/Huzzah library.
+#include <MQTT.h> // This is our library that is used to connect to the internet.
+#include <Sensors.h> // This is our library that is used to collect plant pot data.
 
 MQTT mqtt; // Create an new MQTT object for communication with the broker.
 Sensors sensors; // Create an new  Sensors object for taking measurements about the pot state.
@@ -22,6 +22,8 @@ void setup()
     mqtt.setup( &sensors ); // Setup the mqtt library.
 
 }
+
+int currentState = 0;
 /**
  * This function will run as long as the board is powered on, it contains the main program code.
  */
@@ -29,4 +31,7 @@ void loop()
 {
     mqtt.mqttConnect(); // Connect to the broker if the connection is lost.
     mqtt.runLoop(); // Run the main program.
+    sensors.setup();
+    sensors.activateWaterPump(2000);
+    delay(2000);
 }

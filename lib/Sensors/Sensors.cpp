@@ -4,36 +4,19 @@
  * Created: 01-06-2017 13:00
  * Licence: GPLv3 - General Public Licence version 3
  */
-#include "Sensors.h"
-
-/**
- * Initiate tha/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld: cannot find -lhandlers-sim
-/home/ubuntu/.platformio/packages/toolchain-xtensa/bin/../lib/gcc/xtensa-lx106-elf/4.8.2/../../../../xtensa-lx106-elf/bin/ld: cannot find -lhal
-collect2: error: ld returned 1 exit status
-CMakeFiles/WaterUp-PlantPot.dir/build.make:120: recipe for target 'WaterUp-PlantPot' failed
-make[3]: *** [WaterUp-PlantPot] Error 1e I/O pin's connected to the ultrasonic sensor.
- */
-void Sensors::setupUltraSonic()
-{
-    pinMode(trigPin, OUTPUT);
-    pinMode(echoPin, INPUT);
-}
-
-/**
- * Initiate the I/O pin's connected to the soil moister sensor.
- */
-void Sensors::setupMoistureDetector()
-{
-    pinMode( soilSensePin, INPUT );
-}
+#include <Sensors.h>
 
 /**
  * Initiate all sensors.
  */
 void Sensors::setup()
 {
-    setupUltraSonic();
-    setupMoistureDetector();
+    pinMode( trigPin, OUTPUT );
+    pinMode( echoPin, OUTPUT );
+    pinMode( soilSensePin, INPUT );
+    pinMode( waterPumpPin, OUTPUT );
+    pinMode( ledDataPin, OUTPUT );
+    digitalWrite( waterPumpPin, LOW );
 }
 
 /**
@@ -75,4 +58,25 @@ int Sensors::calcWaterLevel()
     waterLevel = waterLevel < 0 ? 0: waterLevel;
 
     return waterLevel;
+}
+
+/**
+* This function will activate the water pump for an specified duration.
+*/
+void Sensors::activateWaterPump(unsigned long duration )
+{
+    Serial << F("[debug] Activating the water pump for: ") << duration << F("seconds") << endl;
+    activateWaterPump();
+    delay(duration);
+    deactivateWaterPump();
+}
+
+void Sensors::activateWaterPump()
+{
+    digitalWrite(waterPumpPin, HIGH );
+}
+
+void Sensors::deactivateWaterPump()
+{
+    digitalWrite(waterPumpPin, LOW );
 }

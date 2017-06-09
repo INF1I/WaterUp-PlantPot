@@ -7,6 +7,9 @@
 #ifndef WATERUP_SENSORS_SENSORS_H
 #define WATERUP_SENSORS_SENSORS_H
 
+#include <Arduino.h> // Include this library so we can use the arduino system functions and variables.
+#include <Streaming.h> // Include this library for using the << Streaming operator.
+
 #define potHeight 40 // Height what the water can reach
 #define waterReservoirSurfaceSize 500 // The cm2 surface of the water reservoir.
 #define waterReservoirSize 20000 // The cm3 content of the water reservoir.
@@ -15,23 +18,14 @@
 #define echoPin 12 // The pin connected to the echo port of the ultra sonar sensor.
 #define soilSensePin A0 // The pin connected to the analog read of the soil moisture sensor.
 #define waterPumpPin 16 // The pin connected to the transistor base for switching the water pump.
-
-#include <Arduino.h> // Include this library so we can use the arduino system functions and variables.
+#define ledDataPin 14 // The pin connected to the led's data pin.
 
 class Sensors;
 
 class Sensors
 {
 private:
-    /**
-     * Initiate the I/O pin's connected to the ultrasonic sensor.
-     */
-    void setupUltraSonic();
-
-    /**
-     * Initiate the I/O pin's connected to the soil moister sensor.
-     */
-    void setupMoistureDetector();
+    unsigned long previousWaterPumpMillis;
 
 public:
     /**
@@ -58,9 +52,19 @@ public:
     int calcWaterLevel();
 
     /**
-     * This function will activate the waterpump for an specified duration.
+     * This function will activate the water pump for an specified duration.
      */
     void activateWaterPump(unsigned long duration );
+
+    /**
+     * This function will start the water pump.
+     */
+    void activateWaterPump();
+
+    /**
+     * This function will stop the water pump.
+     */
+    void deactivateWaterPump();
 };
 
 #endif // WATERUP_SENSORS_SENSORS_H

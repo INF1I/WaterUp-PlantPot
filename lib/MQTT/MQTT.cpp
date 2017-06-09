@@ -4,7 +4,7 @@
  * Created: 01-06-2017 13:00
  * Licence: GPLv3 - General Public Licence version 3
  */
-#include "MQTT.h"
+#include <MQTT.h>
 
 /**
  * The SHA1 fingerprints taken from the backend server's SSL certificates.
@@ -71,7 +71,7 @@ void MQTT::setup(Sensors *sensorsLib)
         Serial.print(".");
     }
     Serial.println();
-
+    potMacAddress = WiFi.macAddress().c_str();
 #if( MQTT_DEBUG_MODE > 0)
     Serial << F("[info] - Successfully connected to the wifi network.") << endl;
     Serial << F("[debug] - IP address assigned from the router: ") << WiFi.localIP() << endl;
