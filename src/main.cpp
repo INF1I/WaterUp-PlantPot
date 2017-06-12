@@ -7,9 +7,11 @@
 #include <Arduino.h> // This is the basic Arduino/Huzzah library.
 #include <MQTT.h> // This is our library that is used to connect to the internet.
 #include <Sensors.h> // This is our library that is used to collect plant pot data.
+#include <LedController.h> // This is our library that is used to control the led-strip
 
 MQTT mqtt; // Create an new MQTT object for communication with the broker.
-Sensors sensors; // Create an new  Sensors object for taking measurements about the pot state.
+Sensors sensors; // Create an new Sensors object for taking measurements about the pot state.
+LedController ledStrip; // Create an new LedController object for handling led's on the led-strip
 
 /**
  * This function is used to initiate the Arduino/Huzzah board. It gets executed whenever the board is
@@ -17,10 +19,12 @@ Sensors sensors; // Create an new  Sensors object for taking measurements about 
  */
 void setup()
 {
+    delay(10000);
     Serial.begin(115200); // Start serial communication for sending debug messages to the serial port.
     delay(10); // Fix to make connecting to the wifi network more stable.
-    mqtt.setup( &sensors ); // Setup the mqtt library.
-
+//    mqtt.setup( &sensors ); // Setup the mqtt library.
+    Serial.println("test");
+    ledStrip.setup();
 }
 
 int currentState = 0;
@@ -29,9 +33,11 @@ int currentState = 0;
  */
 void loop()
 {
-    mqtt.mqttConnect(); // Connect to the broker if the connection is lost.
-    mqtt.runLoop(); // Run the main program.
-    sensors.setup();
-    sensors.activateWaterPump(2000);
+//    mqtt.mqttConnect(); // Connect to the broker if the connection is lost.
+//    mqtt.runLoop(); // Run the main program.
+//    sensors.setup();
+//    sensors.activateWaterPump(2000);
+    ledStrip.setColor(100,100,100);
+    Serial.println("Coloring");
     delay(2000);
 }

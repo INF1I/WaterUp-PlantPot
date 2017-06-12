@@ -15,7 +15,6 @@ void Sensors::setup()
     pinMode( echoPin, OUTPUT );
     pinMode( soilSensePin, INPUT );
     pinMode( waterPumpPin, OUTPUT );
-    pinMode( ledDataPin, OUTPUT );
     digitalWrite( waterPumpPin, LOW );
 }
 
@@ -43,7 +42,7 @@ long Sensors::getDistance()
 int Sensors::getMoistureLevel()
 {
     int v = analogRead(soilSensePin);
-    return v / 10;
+    return v;
 }
 
 /**

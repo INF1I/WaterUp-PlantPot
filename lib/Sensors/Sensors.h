@@ -18,7 +18,6 @@
 #define echoPin 12 // The pin connected to the echo port of the ultra sonar sensor.
 #define soilSensePin A0 // The pin connected to the analog read of the soil moisture sensor.
 #define waterPumpPin 16 // The pin connected to the transistor base for switching the water pump.
-#define ledDataPin 14 // The pin connected to the led's data pin.
 
 class Sensors;
 

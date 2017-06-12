@@ -19,8 +19,11 @@
 #include <Streaming.h> // Include this library for using the << Streaming operator.
 #include <Sensors.h> // Include this library for taking pot mesurments.
 
-#define wifiSSID "ASUS-ALWIN" // The SSID of the Wifi network to connect to.
-#define wifiPassword "test12345" // The password of the Wifi network.
+//#define wifiSSID "ASUS-ALWIN" // The SSID of the Wifi network to connect to.
+//#define wifiPassword "test12345" // The password of the Wifi network.
+#define wifiSSID "plant_pot" // The SSID of the Wifi network to connect to.
+#define wifiPassword "plant_pot" // The password of the Wifi network.
+
 #define mqttBrokerHost "mqtt.inf1i.ga" // The address of the MQTT broker.
 #define mqttBrokerPort 8883 // The port to connect to at the MQTT broker.
 #define mqttBrokerUsername "inf1i-plantpot" // The pot's username authenticate at the MQTT broker.
