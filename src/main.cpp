@@ -22,22 +22,16 @@ void setup()
     delay(10000);
     Serial.begin(115200); // Start serial communication for sending debug messages to the serial port.
     delay(10); // Fix to make connecting to the wifi network more stable.
-//    mqtt.setup( &sensors ); // Setup the mqtt library.
+    mqtt.setup( &sensors ); // Setup the mqtt library.
     Serial.println("test");
     ledStrip.setup();
 }
 
-int currentState = 0;
 /**
  * This function will run as long as the board is powered on, it contains the main program code.
  */
 void loop()
 {
-//    mqtt.mqttConnect(); // Connect to the broker if the connection is lost.
-//    mqtt.runLoop(); // Run the main program.
-//    sensors.setup();
-//    sensors.activateWaterPump(2000);
-    ledStrip.setColor(100,100,100);
-    Serial.println("Coloring");
-    delay(2000);
+    mqtt.mqttConnect(); // Connect to the broker if the connection is lost.
+    mqtt.runLoop(); // Run the main program.
 }
