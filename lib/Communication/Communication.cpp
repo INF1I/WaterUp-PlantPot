@@ -1,0 +1,120 @@
+//
+// Created by ubuntu on 17-6-17.
+//
+
+#include "Communication.h"
+
+const char *potStatisticJsonFormat = "{\"mac\":\"%s\",\"type\":\"potstats-mesg\",\"counter\":%d,\"moisture\":%lu,\"waterLevel\":%d}";
+
+String potMacAddress = "5C:CF:7F:19:9C:39"; // The mac addess of the plant pot.
+
+char jsonMessageSendBuffer[ JSON_BUFFER_SIZE ]; // The buffer that will be filled with data to send to the MQTT broker.
+
+uint32_t potStatisticCounter = 0; // An statistic message publication counter.
+
+WiFiClientSecure client;
+Adafruit_MQTT_Client mqtt(&client, MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_BROKER_USERNAME, MQTT_BROKER_PASSWORD );
+Adafruit_MQTT_Publish statisticPublisher = Adafruit_MQTT_Publish(&mqtt, MQTT_BROKER_USERNAME TOPIC_PUBLISH_STATISTIC );
+
+void Communication::setup()
+{
+    Serial.begin(115200);
+    delay(10);
+    Serial << endl;
+
+    WiFi.printDiag(Serial);
+
+    WiFiManager wifiManager;
+    wifiManager.autoConnect();
+
+    while (WiFi.waitForConnectResult() != WL_CONNECTED)
+    {
+        delay(500);
+        Serial << F(".");
+    }
+
+#ifdef COMMUNICATION_DEBUG
+    Serial << F("[info] - Successfully connected to the wifi network.") << endl;
+    Serial << F("[debug] - IP address assigned from the router: ") << WiFi.localIP() << endl;
+    Serial << F("[info] - Successfully connected to the wifi network.") << endl;
+    Serial << F("[debug] - Plant pot mac address: ") << WiFi.macAddress() << endl;
+    verifyFingerprint(); // Check SHA1 fingerprint of the MQTT broker.
+    potMacAddress = WiFi.macAddress();
+#endif
+
+}
+
+void Communication::connect() {
+    int8_t ret;
+    uint8_t maxRetries = 10;
+
+    if (mqtt.connected())
+    {
+        return;
+    }
+
+    Serial << F("[info] - Attempting to connect to the MQTT broker.") << endl;
+
+    while ((ret = mqtt.connect()) != 0)
+    { // connect will return 0 for connected
+        Serial << F("[error] - Connecting to the MQTT broker failed because: ") << mqtt.connectErrorString(ret) << endl; // Print an detailed error message.
+        Serial << F("[info] - Retrying to connect to the MQTT broker in 5 seconds...") << endl;
+        mqtt.disconnect(); // Send disconnect package.
+        delay(1000);  // wait 5 seconds
+        maxRetries--;
+
+        if( maxRetries == 0 )
+        {
+            Serial << F("[error] - Connecting to the MQTT broker failed it seems the broker is unavailable.") << endl;
+            Serial << F("[info] - Halting the execution of the program.") << endl;
+            while (1) // You shall not pass! Seriously this effectively kills the pot and you have to reset it or wait to the death of the universe.
+            {
+            }
+        }
+    }
+
+    Serial << "[info] - Successfully connected to the MQTT broker." << endl;
+}
+
+void Communication::verifyFingerprint()
+{
+    Serial << F("[info] - Attempting to open an secure connection to the MQTT broker at:") << MQTT_BROKER_HOST << endl;
+
+    if (!client.connect(MQTT_BROKER_HOST, MQTT_BROKER_PORT))
+    {
+        Serial << F("[error] - Connecting to the MQTT broker failed because we can't reach it.") << endl;
+        Serial << F("[info] - Halting the execution of the program.") << endl;
+        while (1) // You shall not pass! Seriously this effectively kills the pot and you have to reset it or wait to the death of the universe.
+        {
+        }
+    }
+
+    if (client.verify(MQTT_BROKER_FINGERPRINT, MQTT_BROKER_HOST))
+    {
+        Serial << "[info] - Successfully verified the integrity of the TLS/SSL certificate send by the broker." << endl;
+    }
+    else
+    {
+        Serial << F("[error] - Connecting to the MQTT broker failed because the TLS/SSL certificate could not be verified.") << endl;
+        Serial << F("[debug] - TLS/SSL SHA1 certificate fingerprint allowed: ") << MQTT_BROKER_FINGERPRINT << endl;
+        Serial << F("[info] - Halting the execution of the program.") << endl;
+        while (1) // You shall not pass! Seriously this effectively kills the pot and you have to reset it or wait to the death of the universe.
+        {
+        }
+    }
+}
+
+void Communication::publishStatistic()
+{
+    //buildPotStatisticMessage( 10, 10);
+
+    if (!statisticPublisher.publish(jsonMessageSendBuffer)) // Did we publish the message to the broker?
+    {
+        Serial << F("[error] - Unable to send message: ") << jsonMessageSendBuffer << endl;
+    }
+    else
+    {
+        Serial << F("[debug] - Message with id: ") << potStatisticCounter << F(" content: ") << jsonMessageSendBuffer << endl;
+        Serial << F("[info] - Successfully published message to the MQTT broker.") << endl;
+    }
+}
