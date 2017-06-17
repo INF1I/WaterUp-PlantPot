@@ -134,7 +134,7 @@ void MQTT::mqttConnect()
     }
 
 #if( MQTT_DEBUG_MODE > 0 )
-    Serial << F("[info] - Attempting to connect to the MQTT broker.") << endl;
+
 #endif
     while ((ret = mqttClient.connect()) != 0) // While we are not connected
     {
