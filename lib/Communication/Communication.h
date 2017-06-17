@@ -1,7 +1,9 @@
-//
-// Created by ubuntu on 17-6-17.
-//
-
+/**
+ * Author: Joris Rietveld <jorisrietveld@gmail.com>
+ * Author: Alwin Kroezen <alwin.kroesen@student.stenden.com>
+ * Created: 17-06-2017 20:16
+ * Licence: GPLv3 - General Public Licence version 3
+ */
 #ifndef WATERUP_PLANTPOT_COMMUNICATION_H
 #define WATERUP_PLANTPOT_COMMUNICATION_H
 

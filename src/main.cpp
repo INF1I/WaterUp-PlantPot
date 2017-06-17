@@ -7,9 +7,11 @@
 #include <Streaming.h> // Include this library for using the << Streaming operator.
 #include <Communication.h>
 
+Communication communication;
+
 void setup()
 {
-    Communication communication;
+    communication.setup();
 }
 
 void loop()
