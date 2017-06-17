@@ -24,8 +24,6 @@ void setup()
     Serial.begin(115200); // Start serial communication for sending debug messages to the serial port.
     delay(10); // Fix to make connecting to the wifi network more stable.
     mqtt.setup( &sensors ); // Setup the mqtt library.
-    Serial.println("test");
-    ledStrip.setup();
 }
 
 /**
