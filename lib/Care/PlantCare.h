@@ -10,18 +10,24 @@
 #include <Arduino.h> // Include this library so we can use the arduino system functions and variables.
 #include <Streaming.h> // Include this library for using the << Streaming operator.
 
-#define RESERVOIR_HEIGHT 30 // Height what the water can reach
-#define RESERVOIR_TOP_SURFACE 500 // The cm2 surface of the water reservoir.
-#define waterReservoirSize 20000 // The cm3 content of the water reservoir.
+#define RESERVOIR_TOP_HEIGHT 30 // The height of the top of the reservoir.
+#define RESERVOIR_TOP_1CM3 500// 1cm = 500cm³
+#define RESERVOIR_TOP_SIZE 15000 // The cubic centimeter content of top the water reservoir.
 
-// waterReservoirTop = 30*( (30*30) - (20*20) )
+#define RESERVOIR_BOTTOM_HEIGHT 10 // The height of the bottom of the reservoir.
+#define RESERVOIR_BOTTOM_1CM3 900 // 1cm = 900cm³
+#define RESERVOIR_BOTTOM_SIZE 9000 // The cubic centimeter content of bottom the water reservoir.
+#define RESERVOIR_SIZE 24000 // The total cubic centimeter content of the reservoir.
+
+#define RESERVOIR_BOTTOM_CONTENT(minDistance) ()
+// waterReservoirTop = 30*( 30*30 - 20*20 )
 // waterReservoirBottom = 10 * ( 30 * 30 )
 // waterReservoirSize = waterReservoirTop+waterReservoirBottom
 
-#define trigPin 13 // The pin connected trigger port of the ultra sonar sensor.
-#define echoPin 12 // The pin connected to the echo port of the ultra sonar sensor.
-#define soilSensePin A0 // The pin connected to the analog read of the soil moisture sensor.
-#define waterPumpPin 16 // The pin connected to the transistor base for switching the water pump.
+#define IO_PIN_SONAR_TRIGGER D13 // The pin connected trigger port of the ultra sonar sensor.
+#define IO_PIN_SONAR_ECHO D12 // The pin connected to the echo port of the ultra sonar sensor.
+#define IO_PIN_SOIL_MOISTURE A0 // The pin connected to the analog read of the soil moisture sensor.
+#define IO_PIN_WATER_PUMP 16 // The pin connected to the transistor base for switching the water pump.
 
 class PlantCare;
 
