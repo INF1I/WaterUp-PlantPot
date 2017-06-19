@@ -71,7 +71,7 @@ struct LedSettings
     uint8_t red;
     uint8_t green;
     uint8_t blue;
-} LedSettings;
+};
 
 /**
  * Data structure that contains MQTT configuration.
@@ -82,7 +82,7 @@ struct MQTTSettings
     uint16_t resendWarningInterval;
     uint16_t pingBrokerInterval;
     uint8_t publishReservoirWarningThreshold;
-} MQTTSettings;
+};
 
 /**
  * Data structure that contains plant care configuration.
@@ -92,7 +92,7 @@ struct PlantCareSettings
     uint16_t takeMeasurementInterval;
     uint16_t sleepAfterGivingWater;
     uint8_t groundMoistureOptimal;
-} PlantCareSettings;
+};
 
 /**
  * This class is used to store pot configuration to the EEPROM so it persists
@@ -109,13 +109,13 @@ public:
     uint8_t getStartAddress();
     uint8_t getEndAddress();
 
-    void setLedSettings(LedSettings);
+    void setLedSettings(LedSettings settings);
     void setLedSettings(uint8_t red, uint8_t green, uint8_t blue);
 
-    void setMQTTSettings(MQTTSettings mqttSettings);
+    void setMQTTSettings(MQTTSettings settings);
     void setMQTTSettings(uint16_t statisticPublishInterval, uint16_t resendWarningInterval, uint16_t pingBrokerInterval, uint8_t publishReservoirWarningThreshold);
 
-    void setPlantCareSettings(PlantCareSettings plantCareSettings);
+    void setPlantCareSettings(PlantCareSettings settings);
     void setPlantCareSettings(uint16_t takeMeasurementInterval, uint16_t sleepAfterGivingWater, uint8_t groundMoistureOptimal);
 
     LedSettings getLedSettings();
