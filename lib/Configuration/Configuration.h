@@ -9,6 +9,9 @@
 
 #include <Arduino.h>
 #include <EEPROM.h>
+#include <Streaming.h>
+
+#define DEBUG_CONFIG 1
 
 #define EEPROM_MEMORY_SIZE 512 // The size in bytes of the EEPROM memory (512 for the huzzah).
 #define DEFAULT_EEPROM_ADDRESS_OFFSET 0 // The addess offset of the config storage.
@@ -107,6 +110,7 @@ public:
 
     void setup();
     void resetToDefaults();
+    void debugEepromAddresses();
     uint8_t getStartAddress();
     uint8_t getEndAddress();
 

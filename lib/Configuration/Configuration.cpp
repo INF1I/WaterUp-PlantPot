@@ -12,17 +12,54 @@ PlantCareSettings plantCareSettingsObject{};
 
 Configuration::Configuration()
 {
-    Configuration(DEFAULT_EEPROM_ADDRESS_OFFSET);
+#ifdef DEBUG_CONFIG
+    delay(5000); // Wait 5 seconds so you have time to start the serial monitor.
+    Serial << "[debug] - Enabled debugging mode for Configuration library." << endl;
+    Serial << "[debug] - Configuration library EEPROM start address: " << DEFAULT_EEPROM_ADDRESS_OFFSET << endl;
+#endif
+    this->ledSettingsAddress = DEFAULT_EEPROM_ADDRESS_OFFSET;
+#ifdef DEBUG_CONFIG
+    Serial << "[debug] - Configuration library EEPROM Led config start address: " << this->ledSettingsAddress << endl;
+#endif
+    this->mqttSettingsAddress = this->ledSettingsAddress+sizeof(LedSettings);
+#ifdef DEBUG_CONFIG
+    Serial << "[debug] - Configuration library EEPROM MQTT config start address: " << this->mqttSettingsAddress << endl;
+#endif
+    this->plantCareSettingsAddress = this->mqttSettingsAddress+sizeof(MQTTSettings);
+#ifdef DEBUG_CONFIG
+    Serial << "[debug] - Configuration library EEPROM plant care config start address: " << this->plantCareSettingsAddress << endl;
+#endif
+    this->configurationStartAddress = this->ledSettingsAddress;
+    this->configurationEndAddress = this->plantCareSettingsAddress+sizeof(PlantCareSettings);
+#ifdef DEBUG_CONFIG
+    Serial << "[debug] - Configuration library EEPROM end address: " << this->configurationEndAddress << endl;
+#endif
 }
 
 Configuration::Configuration(uint8_t eepromAddressOffset)
 {
+#ifdef DEBUG_CONFIG
+    delay(5000); // Wait 5 seconds so you have time to start the serial monitor.
+    Serial << "[debug] - Enabled debugging mode for Configuration library." << endl;
+    Serial << "[debug] - Configuration library EEPROM start address: " << eepromAddressOffset << endl;
+#endif
     this->ledSettingsAddress = eepromAddressOffset;
-    this->mqttSettingsAddress = this->ledSettingsAddress+sizeof(ledSettings);
-    this->plantCareSettingsAddress = this->mqttSettingsAddress+sizeof(mqttSettings);
-
+#ifdef DEBUG_CONFIG
+    Serial << "[debug] - Configuration library EEPROM Led config start address: " << this->ledSettingsAddress << endl;
+#endif
+    this->mqttSettingsAddress = this->ledSettingsAddress+sizeof(LedSettings);
+#ifdef DEBUG_CONFIG
+    Serial << "[debug] - Configuration library EEPROM MQTT config start address: " << this->mqttSettingsAddress << endl;
+#endif
+    this->plantCareSettingsAddress = this->mqttSettingsAddress+sizeof(MQTTSettings);
+#ifdef DEBUG_CONFIG
+    Serial << "[debug] - Configuration library EEPROM plant care config start address: " << this->plantCareSettingsAddress << endl;
+#endif
     this->configurationStartAddress = this->ledSettingsAddress;
-    this->configurationEndAddress = this->ledSettingsAddress+sizeof(plantCareSettings);
+    this->configurationEndAddress = this->plantCareSettingsAddress+sizeof(PlantCareSettings);
+#ifdef DEBUG_CONFIG
+    Serial << "[debug] - Configuration library EEPROM end address: " << this->configurationEndAddress << endl;
+#endif
 }
 
 void Configuration::setup()
@@ -37,6 +74,16 @@ void Configuration::setup()
     readSettings(this->ledSettingsAddress, this->ledSettings);
     readSettings(this->mqttSettingsAddress, this->mqttSettings);
     readSettings(this->plantCareSettingsAddress, this->plantCareSettings);
+}
+
+void Configuration::debugEepromAddresses()
+{
+    Serial << "[debug] - Enabled debugging mode for Configuration library." << endl;
+    Serial << "[debug] - Configuration library EEPROM start address: " << this->configurationStartAddress << endl;
+    Serial << "[debug] - Configuration library EEPROM Led config start address: " << this->ledSettingsAddress << endl;
+    Serial << "[debug] - Configuration library EEPROM MQTT config start address: " << this->mqttSettingsAddress << endl;
+    Serial << "[debug] - Configuration library EEPROM plant care config start address: " << this->plantCareSettingsAddress << endl;
+    Serial << "[debug] - Configuration library EEPROM end address: " << this->configurationEndAddress << endl;
 }
 
 void Configuration::resetToDefaults()
@@ -113,15 +160,18 @@ void Configuration::setPlantCareSettings(uint16_t takeMeasurementInterval, uint1
 
 LedSettings *Configuration::getLedSettings()
 {
+    //readSettings(this->ledSettingsAddress, this->ledSettings);
     return this->ledSettings;
 }
 
 MQTTSettings *Configuration::getMqttSettings()
 {
+    //readSettings(this->mqttSettingsAddress, this->mqttSettings);
     return this->mqttSettings;
 }
 
 PlantCareSettings *Configuration::getPlantCareSettings()
 {
+    //readSettings(this->plantCareSettingsAddress, this->plantCareSettings);
     return this->plantCareSettings;
 }
