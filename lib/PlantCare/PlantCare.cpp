@@ -38,34 +38,36 @@ int PlantCare::checkWaterReservoir()
 
     long Duration = pulseIn(IO_PIN_SONAR_ECHO, HIGH); //Listening and waiting for wave
     delay(10);
-    long distanceToWaterInCM = (Duration * 0.034 / 2);//Convert echo time measurement to centimeters.
-    long waterContent = distanceToWaterInCM < 30 ? (RESERVOIR_BOTTOM_HEIGHT-distanceToWaterInCM)*RESERVOIR_BOTTOM_1CM3 : (RESERVOIR_TOP_HEIGHT-distanceToWaterInCM)*RESERVOIR_TOP_1CM3+
-    float waterContent = waterReservoirSurfaceSize * ( potHeight - distance );
-    int waterLevel = (int) (waterContent / waterReservoirSize * 100);
-    waterLevel = waterLevel < 0 ? 0: waterLevel;
+    long waterDistance = (Duration * 0.034 / 2);//Convert echo time measurement to centimeters.
+    long waterContent = waterDistance > 30 ? BOTTOM_CONTENT(distanceToWaterInCM) : RESERVOIR_BOTTOM_SIZE + TOP_CONTENT(waterDistance-10);
+    return percentageFull = (int)(RESERVOIR_SIZE/100)*waterContent;
 }
 
 int PlantCare::checkMoistureLevel()
 {
-
+    return (int)(1024/analogRead(soilSensePin))*100;
 }
 
 void PlantCare::giveWater()
 {
-
+    digitalWrite(waterPumpPin, HIGH );
+    delay( WATER_PUMP_DEFAULT_TIME );
 }
 
 void PlantCare::giveWater( unsigned long duration )
 {
-
+    Serial << F("[debug] Activating the water pump for: ") << duration << F("seconds") << endl;
+    activateWaterPump();
+    delay(duration);
+    deactivateWaterPump();
 }
 
 void PlantCare::publishPotStatistic()
 {
-
+    communication.publishStatistic( checkMoistureLevel(), checkWaterReservoir() );
 }
 
 void PlantCare::publishPotWarning( WarningType warningType )
 {
-
+    communication.publishWarning( warningType );
 }

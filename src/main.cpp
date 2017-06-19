@@ -5,8 +5,10 @@
 #include <Adafruit_MQTT_Client.h> // Include this library for MQTT communication.
 #include <FS.h> // Include this library for access to the ESP8266's file system.
 #include <Streaming.h> // Include this library for using the << Streaming operator.
+#include <Configuration.h>
 #include <Communication.h>
 
+Configuration configuration;
 Communication communication;
 
 void setup()

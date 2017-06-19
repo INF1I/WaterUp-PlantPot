@@ -22,20 +22,22 @@
 #define MQTT_BROKER_FINGERPRINT "A6 E4 A9 8C 92 B3 8D 81 73 CE 5B 33 33 F5 A3 7A 1B 87 E2 F3"
 
 #define TOPIC_PUBLISH_STATISTIC "/publish/statistic" // This MQTT topic is used to publish pot state statistics.
-#define TOPIC_PUBLISH_WARNING "/publish/warning"
-
+#define TOPIC_PUBLISH_WARNING "/publish/warning" // This is the MQTT topic used to publis warnings to the user.
+#define TOPIC_SUBSCRIBE_PLANT_CONFIG "/subscribe" // This is the MQTT topic used to listen for plant care configuration.
 #define JSON_BUFFER_SIZE 200 // This holds the default string buffer size of json messages.
 
 class Communication
 {
 public:
     void setup();
-    void publishStatistic();
-    void publishWarning();
+    void publishStatistic( int groundMoistureLevel, int waterReservoirLevel )
+    void publishWarning( WarningType warningType );
+    void startListenForConfiguration();
 
 private:
     void connect();
     void verifyFingerprint();
+    void saveNewPotConfig();
 };
 
 

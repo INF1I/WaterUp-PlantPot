@@ -7,16 +7,19 @@
 #include "Communication.h"
 
 const char *potStatisticJsonFormat = "{\"mac\":\"%s\",\"type\":\"potstats-mesg\",\"counter\":%d,\"moisture\":%lu,\"waterLevel\":%d}";
+const char *potWarningJsonFormat = "{\"mac\":\"%s\",\"type\":\"warning-mesg\",\"counter\":%d,\"warning\":\"%lu\"}";
 
 String potMacAddress = "5C:CF:7F:19:9C:39"; // The mac addess of the plant pot.
 
 char jsonMessageSendBuffer[ JSON_BUFFER_SIZE ]; // The buffer that will be filled with data to send to the MQTT broker.
+char jsonMessageReceiveBuffer[ JSON_BUFFER_SIZE ]; // The buffer that will be filled with data received fro the MQTT broker.
 
 uint32_t potStatisticCounter = 0; // An statistic message publication counter.
 
 WiFiClientSecure client;
 Adafruit_MQTT_Client mqtt(&client, MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_BROKER_USERNAME, MQTT_BROKER_PASSWORD );
 Adafruit_MQTT_Publish statisticPublisher = Adafruit_MQTT_Publish(&mqtt, MQTT_BROKER_USERNAME TOPIC_PUBLISH_STATISTIC );
+Adafruit_MQTT_Subscribe configListener = Adafruit_MQTT_Subscribe( &mqtt, MQTT_BROKER_USERNAME TOPIC_SUBSCRIBE_PLANT_CONFIG );
 
 void Communication::setup()
 {
@@ -35,15 +38,12 @@ void Communication::setup()
         Serial << F(".");
     }
 
-#ifdef COMMUNICATION_DEBUG
     Serial << F("[info] - Successfully connected to the wifi network.") << endl;
     Serial << F("[debug] - IP address assigned from the router: ") << WiFi.localIP() << endl;
     Serial << F("[info] - Successfully connected to the wifi network.") << endl;
     Serial << F("[debug] - Plant pot mac address: ") << WiFi.macAddress() << endl;
     verifyFingerprint(); // Check SHA1 fingerprint of the MQTT broker.
     potMacAddress = WiFi.macAddress();
-#endif
-
 }
 
 void Communication::connect() {
@@ -106,10 +106,9 @@ void Communication::verifyFingerprint()
     }
 }
 
-void Communication::publishStatistic()
+void Communication::publishStatistic( int groundMoistureLevel, int waterReservoirLevel )
 {
-    //buildPotStatisticMessage( 10, 10);
-
+    snprintf(jsonMessageSendBuffer, jsonBufferSize, potStatisticJsonFormat, WiFi.macAddress().c_str(), potStatisticCounter++, groundMoistureLevel, waterReservoirLevel);
     if (!statisticPublisher.publish(jsonMessageSendBuffer)) // Did we publish the message to the broker?
     {
         Serial << F("[error] - Unable to send message: ") << jsonMessageSendBuffer << endl;
@@ -119,4 +118,28 @@ void Communication::publishStatistic()
         Serial << F("[debug] - Message with id: ") << potStatisticCounter << F(" content: ") << jsonMessageSendBuffer << endl;
         Serial << F("[info] - Successfully published message to the MQTT broker.") << endl;
     }
+}
+
+void Communication::publishWarning( WarningType warningType )
+{
+    snprintf(jsonMessageSendBuffer, jsonBufferSize, potWarningJsonFormat, WiFi.macAddress().c_str(), potWarningCounter++, (char *) warningType);
+    if (!statisticPublisher.publish(jsonMessageSendBuffer)) // Did we publish the message to the broker?
+    {
+        Serial << F("[error] - Unable to send message: ") << jsonMessageSendBuffer << endl;
+    }
+    else
+    {
+        Serial << F("[debug] - Message with id: ") << potStatisticCounter << F(" content: ") << jsonMessageSendBuffer << endl;
+        Serial << F("[info] - Successfully published message to the MQTT broker.") << endl;
+    }
+}
+
+void Communication::saveNewPotConfig()
+{
+
+}
+
+void Communication::startListenForConfiguration()
+{
+    subscribeConfigTopic.setCallBack(  );
 }

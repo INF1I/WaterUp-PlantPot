@@ -19,25 +19,25 @@
 #define RESERVOIR_BOTTOM_SIZE 9000 // The cubic centimeter content of bottom the water reservoir.
 #define RESERVOIR_SIZE 24000 // The total cubic centimeter content of the reservoir.
 
-#define RESERVOIR_BOTTOM_CONTENT(minDistance) ()
-// waterReservoirTop = 30*( 30*30 - 20*20 )
-// waterReservoirBottom = 10 * ( 30 * 30 )
-// waterReservoirSize = waterReservoirTop+waterReservoirBottom
+#define BOTTOM_CONTENT( cm ) (RESERVOIR_BOTTOM_HEIGHT-cm)*RESERVOIR_BOTTOM_1CM3
+#define TOP_CONTENT( cm ) (RESERVOIR_TOP_HEIGHT-cm)*RESERVOIR_TOP_1CM3
 
 #define IO_PIN_SONAR_TRIGGER D13 // The pin connected trigger port of the ultra sonar sensor.
 #define IO_PIN_SONAR_ECHO D12 // The pin connected to the echo port of the ultra sonar sensor.
 #define IO_PIN_SOIL_MOISTURE A0 // The pin connected to the analog read of the soil moisture sensor.
 #define IO_PIN_WATER_PUMP 16 // The pin connected to the transistor base for switching the water pump.
 
+#define WATER_PUMP_DEFAULT_TIME 5000 // The default time to activate the water pump.
+
 class PlantCare;
 
-enum WarningType
+enum class WarningType
 {
-    LOW_RESORVOIR = 1,
-    EMPTY_RESORVOIR = 2,
-    LOW_MOISTURE_LEVEL = 3,
-    HIGH_MOISTURE_LEVEL = 4,
-    UNKNOWN_ERROR = 5
+    LowReservoir = 1,
+    EmptyReservoir = 2,
+    LowMoistureLevel = 3,
+    HighMoistureLevel = 4,
+    UnknownError = 5
 };
 
 class PlantCare
