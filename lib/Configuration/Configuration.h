@@ -8,6 +8,7 @@
 #define WATERUP_PLANTPOT_CONFIGURATION_H
 
 #include <Arduino.h>
+#include <EEPROM.h>
 
 #define EEPROM_MEMORY_SIZE 512 // The size in bytes of the EEPROM memory (512 for the huzzah).
 #define DEFAULT_EEPROM_ADDRESS_OFFSET 0 // The addess offset of the config storage.
@@ -41,7 +42,7 @@ template<class T> int writeSettings(int startAddress, const T& value)
     {
         EEPROM.write(startAddress++, *p++);
     }
-    return i;
+    return currentAddress;
 }
 
 /**
@@ -60,7 +61,7 @@ template<class T> int readSettings(int startAddress, T& value)
     {
         *p++ = EEPROM.read(startAddress++);
     }
-    return i;
+    return currentAddress;
 }
 
 /**
@@ -109,23 +110,23 @@ public:
     uint8_t getStartAddress();
     uint8_t getEndAddress();
 
-    void setLedSettings(LedSettings settings);
+    void setLedSettings( LedSettings *settings);
     void setLedSettings(uint8_t red, uint8_t green, uint8_t blue);
 
-    void setMQTTSettings(MQTTSettings settings);
+    void setMQTTSettings(MQTTSettings *settings);
     void setMQTTSettings(uint16_t statisticPublishInterval, uint16_t resendWarningInterval, uint16_t pingBrokerInterval, uint8_t publishReservoirWarningThreshold);
 
-    void setPlantCareSettings(PlantCareSettings settings);
+    void setPlantCareSettings(PlantCareSettings *settings);
     void setPlantCareSettings(uint16_t takeMeasurementInterval, uint16_t sleepAfterGivingWater, uint8_t groundMoistureOptimal);
 
-    LedSettings getLedSettings();
-    MQTTSettings getMqttSettings();
-    PlantCareSettings getPlantCareSettings();
+    LedSettings* getLedSettings();
+    MQTTSettings* getMqttSettings();
+    PlantCareSettings* getPlantCareSettings();
 
 private:
-    LedSettings ledSettings;
-    MQTTSettings mqttSettings;
-    PlantCareSettings plantCareSettings;
+    LedSettings *ledSettings;
+    MQTTSettings *mqttSettings;
+    PlantCareSettings *plantCareSettings;
 
     uint8_t ledSettingsAddress;
     uint8_t mqttSettingsAddress;
