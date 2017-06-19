@@ -30,8 +30,8 @@ class Communication
 {
 public:
     void setup();
-    void publishStatistic( int groundMoistureLevel, int waterReservoirLevel )
-    void publishWarning( WarningType warningType );
+    void publishStatistic(int groundMoistureLevel, int waterReservoirLevel)
+    void publishWarning(WarningType warningType);
     void startListenForConfiguration();
 
 private:
@@ -39,6 +39,5 @@ private:
     void verifyFingerprint();
     void saveNewPotConfig();
 };
-
 
 #endif //WATERUP_PLANTPOT_COMMUNICATION_H

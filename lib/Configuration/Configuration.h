@@ -8,26 +8,63 @@
 #define WATERUP_PLANTPOT_CONFIGURATION_H
 
 #include <Arduino.h>
-#include <EEPROMex.h>
-#include <EEPROMPlusPlus.h>
 
-struct Settings
+#define DEFAULT_SETTING_LED_RED 255 // The default setting for the red led.
+#define DEFAULT_SETTING_LED_GREEN 255 // The default setting for the green led.
+#define DEFAULT_SETTING_LED_BLUE 255 // The default setting for the blue led.
+
+#define DEFAULT_SETTING_MQTT_STATISTIC_INTERVAL 60 // The default statistic publishing interval setting.
+#define DEFAULT_SETTING_MQTT_WARNING_INTERVAL 7400 // The default warning resend interval setting.
+#define DEFAULT_SETTING_MQTT_PING_INTERVAL 60 // The default ping to MQTT broker interval setting.
+#define DEFAULT_SETTING_MQTT_RESERVOIR_WARNING_THRESHOLD 30 // The default threshold for publishing low water reservoir messages setting
+
+#define DEFAULT_SETTING_PLANT_CARE_MEASURE_INTERVAL 60 // The default pot measurement interval setting.
+#define DEFAULT_SETTING_PLANT_CARE_SLEEP_AFTER_WATER 1800 // The default sleep time after giving water setting.
+#define DEFAULT_SETTING_PLANT_CARE_MOISTURE_OPTIMAL 30 // The default optimal ground moisture level setting.
+
+#define DEFAULT_SETTING_ // The default setting for the
+
+/**
+ * This template simplifies the writing to EEPROM storage of complex data structures.
+ *
+ * @param startAddress The EEPROM starting address of the data structure.
+ * @param value The data structure to write.
+ * @return The last address written to.
+ */
+template<class T> int WriteSettings(int startAddress, const T& value)
 {
-    // LedSettings:
-    uint8_t red;
-    uint8_t green;
-    uint8_t blue;
-    // MQTTSettings:
-    long statisticPublishInterval;
-    long resendWarningInterval;
-    long pingBrokerInterval;
-    uint8_t publishReservoirWarningThreshold;
-    // PlantCareSettings:
-    long statisticPublishInterval;
-    long resendWarningInterval;
-    long pingBrokerInterval;
-};
+    const byte* p = (const byte*) (const void*) &value;
+    unsigned int currentAddress;
 
+    for (currentAddress = 0; currentAddress<sizeof(value); currentAddress++)
+    {
+        EEPROM.write(startAddress++, *p++);
+    }
+    return i;
+}
+
+/**
+ * This template simplifies the reading from EEPROM storage of complex data structures.
+ *
+ * @param startAddress The EEPROM starting address of the data structure.
+ * @param value The data structure stored in EEPROM.
+ * @return The last address read from.
+ */
+template<class T> int ReadSettings(int startAddress, T& value)
+{
+    byte* p = (byte*) (void*) &value;
+    unsigned int currentAddress;
+
+    for (currentAddress = 0; currentAddress<sizeof(value); currentAddress++)
+    {
+        *p++ = EEPROM.read(startAddress++);
+    }
+    return i;
+}
+
+/**
+ * Data structure that contains LED configuration.
+ */
 struct LedSettings
 {
     uint8_t red;
@@ -35,6 +72,9 @@ struct LedSettings
     uint8_t blue;
 };
 
+/**
+ * Data structure that contains MQTT configuration.
+ */
 struct MQTTSettings
 {
     long statisticPublishInterval;
@@ -43,6 +83,9 @@ struct MQTTSettings
     uint8_t publishReservoirWarningThreshold;
 };
 
+/**
+ * Data structure that contains plant care configuration.
+ */
 struct PlantCareSettings
 {
     long takeMeasurementInterval;
@@ -50,20 +93,33 @@ struct PlantCareSettings
     uint8_t groundMoistureOptimal;
 };
 
-
+/**
+ * This class is used to store pot configuration to the EEPROM so it persists
+ * when the power is turned off.
+ */
 class Configuration
 {
 public:
+    Configuration();
     void setup();
-    void setLedSettings( LedSettings );
-    void setMQTTSettings( MQTTSettings mqttSettings );
-    void setPlantCareSettings( PlantCareSettings plantCareSettings );
+    void resetToDefaults();
+    void setLedSettings(LedSettings);
+    void setMQTTSettings(MQTTSettings mqttSettings);
+    void setPlantCareSettings(PlantCareSettings plantCareSettings);
+    void writeString(  );
+
     LedSettings getLedSettings();
     MQTTSettings getMqttSettings();
     PlantCareSettings getPlantCareSettings();
 
 private:
-};
+    LedSettings ledSettings;
+    MQTTSettings mqttSettings;
+    PlantCareSettings plantCareSettings;
 
+    int ledSettingsAddress;
+    int mqttSettingsAddress;
+    int plantCareSettingsAddress;
+};
 
 #endif //WATERUP_PLANTPOT_CONFIGURATION_H
