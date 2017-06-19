@@ -9,6 +9,9 @@
 
 #include <Arduino.h>
 
+#define EEPROM_MEMORY_SIZE 512 // The size in bytes of the EEPROM memory (512 for the huzzah).
+#define DEFAULT_EEPROM_ADDRESS_OFFSET 0 // The addess offset of the config storage.
+
 #define DEFAULT_SETTING_LED_RED 255 // The default setting for the red led.
 #define DEFAULT_SETTING_LED_GREEN 255 // The default setting for the green led.
 #define DEFAULT_SETTING_LED_BLUE 255 // The default setting for the blue led.
@@ -22,8 +25,6 @@
 #define DEFAULT_SETTING_PLANT_CARE_SLEEP_AFTER_WATER 1800 // The default sleep time after giving water setting.
 #define DEFAULT_SETTING_PLANT_CARE_MOISTURE_OPTIMAL 30 // The default optimal ground moisture level setting.
 
-#define DEFAULT_SETTING_ // The default setting for the
-
 /**
  * This template simplifies the writing to EEPROM storage of complex data structures.
  *
@@ -31,7 +32,7 @@
  * @param value The data structure to write.
  * @return The last address written to.
  */
-template<class T> int WriteSettings(int startAddress, const T& value)
+template<class T> int writeSettings(int startAddress, const T& value)
 {
     const byte* p = (const byte*) (const void*) &value;
     unsigned int currentAddress;
@@ -50,7 +51,7 @@ template<class T> int WriteSettings(int startAddress, const T& value)
  * @param value The data structure stored in EEPROM.
  * @return The last address read from.
  */
-template<class T> int ReadSettings(int startAddress, T& value)
+template<class T> int readSettings(int startAddress, T& value)
 {
     byte* p = (byte*) (void*) &value;
     unsigned int currentAddress;
@@ -70,28 +71,28 @@ struct LedSettings
     uint8_t red;
     uint8_t green;
     uint8_t blue;
-};
+} LedSettings;
 
 /**
  * Data structure that contains MQTT configuration.
  */
 struct MQTTSettings
 {
-    long statisticPublishInterval;
-    long resendWarningInterval;
-    long pingBrokerInterval;
+    uint16_t statisticPublishInterval;
+    uint16_t resendWarningInterval;
+    uint16_t pingBrokerInterval;
     uint8_t publishReservoirWarningThreshold;
-};
+} MQTTSettings;
 
 /**
  * Data structure that contains plant care configuration.
  */
 struct PlantCareSettings
 {
-    long takeMeasurementInterval;
-    long sleepAfterGivingWater;
+    uint16_t takeMeasurementInterval;
+    uint16_t sleepAfterGivingWater;
     uint8_t groundMoistureOptimal;
-};
+} PlantCareSettings;
 
 /**
  * This class is used to store pot configuration to the EEPROM so it persists
@@ -101,12 +102,21 @@ class Configuration
 {
 public:
     Configuration();
+    Configuration(uint8_t eepromAddressOffset);
+
     void setup();
     void resetToDefaults();
+    uint8_t getStartAddress();
+    uint8_t getEndAddress();
+
     void setLedSettings(LedSettings);
+    void setLedSettings(uint8_t red, uint8_t green, uint8_t blue);
+
     void setMQTTSettings(MQTTSettings mqttSettings);
+    void setMQTTSettings(uint16_t statisticPublishInterval, uint16_t resendWarningInterval, uint16_t pingBrokerInterval, uint8_t publishReservoirWarningThreshold);
+
     void setPlantCareSettings(PlantCareSettings plantCareSettings);
-    void writeString(  );
+    void setPlantCareSettings(uint16_t takeMeasurementInterval, uint16_t sleepAfterGivingWater, uint8_t groundMoistureOptimal);
 
     LedSettings getLedSettings();
     MQTTSettings getMqttSettings();
@@ -117,9 +127,13 @@ private:
     MQTTSettings mqttSettings;
     PlantCareSettings plantCareSettings;
 
-    int ledSettingsAddress;
-    int mqttSettingsAddress;
-    int plantCareSettingsAddress;
+    uint8_t ledSettingsAddress;
+    uint8_t mqttSettingsAddress;
+    uint8_t plantCareSettingsAddress;
+
+    uint8_t configurationStartAddress;
+    uint8_t configurationEndAddress;
+
 };
 
 #endif //WATERUP_PLANTPOT_CONFIGURATION_H
