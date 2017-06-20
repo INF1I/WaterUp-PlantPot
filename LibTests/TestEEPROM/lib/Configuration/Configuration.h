@@ -109,11 +109,9 @@ class Configuration
 public:
     Configuration();
     void setup();
-    void initiateLedSettings();
-    void initiateMqttSettings();
-    void initiatePlantCareSettings();
-
-    void resetToDefaults();
+    void store();
+    void load();
+    void reset();
     void clear();
 
     void setLedSettings( LedSettings settings);

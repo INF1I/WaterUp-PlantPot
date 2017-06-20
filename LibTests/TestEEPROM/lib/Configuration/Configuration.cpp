@@ -25,30 +25,26 @@ void Configuration::setup()
 {
     EEPROM.begin(this->eepromSize);
     delay(10);
-    printAllMemory();
-    initiateLedSettings();
-    initiateMqttSettings();
-    initiatePlantCareSettings();
+    this->load();
 }
 
-void Configuration::initiateLedSettings()
+void Configuration::store()
 {
-    readSettings( this->getLedSettingsAddress(), ledSettingsObject );
+    writeSettings(this->getLedSettingsAddress(), ledSettingsObject);
+    writeSettings(this->getMqttSettingsAddress(), mqttSettingsObject);
+    writeSettings(this->getPlantCareSettingsAddress(), plantCareSettingsObject);
 }
 
-void Configuration::initiateMqttSettings()
+void Configuration::load()
 {
-    readSettings( this->getMqttSettingsAddress(), mqttSettingsObject );
+    readSettings(this->getLedSettingsAddress(), ledSettingsObject);
+    readSettings(this->getMqttSettingsAddress(), mqttSettingsObject);
+    readSettings(this->getPlantCareSettingsAddress(), plantCareSettingsObject);
 }
 
-void Configuration::initiatePlantCareSettings()
+void Configuration::reset()
 {
-    readSettings( this->getPlantCareSettingsAddress(), plantCareSettingsObject );
-}
-
-void Configuration::resetToDefaults()
-{
-    Serial << F("[debug] - Reseting the EEPROM configuration to the defaults") << endl;
+    Serial << F("[debug] - Reseting the configuration to the defaults") << endl;
     ledSettingsObject.red = (uint8_t) DEFAULT_SETTING_LED_RED;
     ledSettingsObject.green = (uint8_t) DEFAULT_SETTING_LED_GREEN;
     ledSettingsObject.blue = (uint8_t) DEFAULT_SETTING_LED_BLUE;
@@ -87,7 +83,7 @@ void Configuration::setLedSettings(uint8_t red, uint8_t green, uint8_t blue)
     ledSettingsObject.green = green;
     ledSettingsObject.blue = blue;
 
-    writeSettings( getLedSettingsAddress(), ledSettingsObject );
+    writeSettings(getLedSettingsAddress(), ledSettingsObject);
 }
 
 /** MQTT settings
@@ -111,7 +107,7 @@ void Configuration::setMQTTSettings(uint16_t statisticPublishInterval, uint16_t 
     mqttSettingsObject.pingBrokerInterval = pingBrokerInterval;
     mqttSettingsObject.publishReservoirWarningThreshold = publishReservoirWarningThreshold;
 
-    writeSettings( getMqttSettingsAddress(), mqttSettingsObject );
+    writeSettings(getMqttSettingsAddress(), mqttSettingsObject);
 }
 
 /** Plant care settings
@@ -133,7 +129,7 @@ void Configuration::setPlantCareSettings(uint16_t takeMeasurementInterval, uint1
     plantCareSettingsObject.sleepAfterGivingWater = sleepAfterGivingWater;
     plantCareSettingsObject.groundMoistureOptimal = groundMoistureOptimal;
 
-    writeSettings( getPlantCareSettingsAddress(), plantCareSettingsObject );
+    writeSettings(getPlantCareSettingsAddress(), plantCareSettingsObject);
 }
 
 LedSettings Configuration::getLedSettings()
@@ -220,44 +216,51 @@ void Configuration::printStorageAddresses()
 void Configuration::printMemoryDump()
 {
     Serial << F("[debug] - Printing all EEPROM memory:") << F("\nEEPROM Memory= {");
-    for( int i = 0; i < this->eepromSize; i++ )
+    for (int i = 0; i<this->eepromSize; i++)
     {
-        Serial << F("\n\tEEPROM[") << i << "] : " << EEPROM.read(i) << (i+1 < this->eepromSize ? ",":"");
+        Serial << F("\n\tEEPROM[") << i << "] : " << EEPROM.read(i) << (i+1<this->eepromSize ? "," : "");
     }
     Serial << F("\n};\n");
 }
 
 void Configuration::printMemoryDump(uint8_t start, uint8_t end)
 {
-    for( int i = start; i <= end; i++ )
+    for (int i = start; i<=end; i++)
     {
-        Serial << F("\n\tEEPROM[") << i << "] : " << EEPROM.read(i) << (i <= end ? ",":"");
+        Serial << F("\n\tEEPROM[") << i << "] : " << EEPROM.read(i) << (i<=end ? "," : "");
     }
 }
 
 void Configuration::printMemory()
 {
-    this->printLedMemory();
-    this->printMqttMemory();
-    this->printPlantCareMemory();
+    Serial << F("[debug] - Printing EEPROM led memory:\nled Memory= {");
+    printMemoryDump(getLedSettingsAddress(), getMqttSettingsAddress());
+    Serial << F("\n};\n\nmqtt Memory= {");
+    printMemoryDump(getLedSettingsAddress(), getMqttSettingsAddress());
+    Serial << F("\n};\n\nplant care Memory= {");
+    printMemoryDump(getLedSettingsAddress(), getMqttSettingsAddress());
+    Serial << F("\n};\n");
 }
 
 void Configuration::printLedMemory()
 {
-    Serial << F("[debug] - Printing EEPROM led memory:") << F("\nled Memory= {");
-    printMemoryDump( getLedSettingsAddress(), getMqttSettingsAddress() );
+    Serial << F("[debug] - Printing EEPROM led memory:\nled Memory= {");
+    printMemoryDump(getLedSettingsAddress(), getMqttSettingsAddress());
+    Serial << F("\n};\n");
 }
 
 void Configuration::printMqttMemory()
 {
-    Serial << F("[debug] - Printing EEPROM mqtt memory:") << F("\nmqtt Memory= {");
-    printMemoryDump( getLedSettingsAddress(), getMqttSettingsAddress() );
+    Serial << F("[debug] - Printing EEPROM mqtt memory:\nmqtt Memory= {");
+    printMemoryDump(getMqttSettingsAddress(), getPlantCareSettingsAddress());
+    Serial << F("\n};\n");
 }
 
 void Configuration::printPlantCareMemory()
 {
-    Serial << F("[debug] - Printing EEPROM plant care memory:") << F("\nplant care Memory= {");
-    printMemoryDump( getLedSettingsAddress(), getMqttSettingsAddress() );
+    Serial << F("[debug] - Printing EEPROM plant care memory:\nplant care Memory= {");
+    printMemoryDump(getPlantCareSettingsAddress(), getConfigurationEndAddress() );
+    Serial << F("\n};\n");
 }
 
 uint16_t Configuration::getEepromSize()

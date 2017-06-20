@@ -32,7 +32,7 @@ void testPrintFunctions()
     configuration.printMqttConfiguration();
     configuration.printPlantCareConfiguration();
     configuration.printStorageAddresses();
-    configuration.printAllMemory();
+    configuration.printMemoryDump();
 }
 
 void testBasic()
@@ -45,7 +45,7 @@ void testBasic()
         configuration.printConfiguration();
 
         Serial << F("Set all objects to defaults:") << endl;
-        configuration.resetToDefaults();
+        configuration.reset();
 
         configuration.printConfiguration();
 
@@ -80,17 +80,17 @@ void testBasic()
 
 void testWriteToEEPROM()
 {
-    configuration.resetToDefaults();
+    configuration.reset();
     configuration.setLedSettings(10,20,30);
     configuration.printLedConfiguration();
-    configuration.printAllMemory();
+    configuration.printMemoryDump();
 }
 
 void testReadFromEEPROM()
 {
-    configuration.resetToDefaults();
+    configuration.reset();
     configuration.printConfiguration();
-    configuration.printAllMemory();
+    configuration.printMemory();
 }
 
 void setup()
