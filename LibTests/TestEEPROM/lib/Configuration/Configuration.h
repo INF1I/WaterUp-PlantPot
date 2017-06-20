@@ -108,13 +108,9 @@ class Configuration
 {
 public:
     Configuration();
-    Configuration(uint8_t eepromAddressOffset);
-
     void setup();
     void resetToDefaults();
-
-    uint8_t getStartAddress();
-    uint8_t getEndAddress();
+    void clear();
 
     void setLedSettings( LedSettings settings);
     void setLedSettings(uint8_t red, uint8_t green, uint8_t blue);
@@ -134,20 +130,25 @@ public:
     void printMqttConfiguration();
     void printPlantCareConfiguration();
     void printStorageAddresses();
-    void memoryDump( int start = 0, int end = EEPROM_MEMORY_SIZE );
-    void clearEEPROM();
 
 private:
-    LedSettings *ledSettings;
-    MQTTSettings *mqttSettings;
-    PlantCareSettings *plantCareSettings;
-
+    uint16_t eepromSize;
+    uint8_t configurationStartAddress;
+    uint8_t configurationEndAddress;
     uint8_t ledSettingsAddress;
     uint8_t mqttSettingsAddress;
     uint8_t plantCareSettingsAddress;
 
-    uint8_t configurationStartAddress;
-    uint8_t configurationEndAddress;
+    uint16_t getEepromSize();
+    uint8_t getConfigurationStartAddress();
+    uint8_t getConfigurationEndAddress();
+    uint8_t getLedSettingsAddress();
+    uint8_t getMqttSettingsAddress();
+    uint8_t getPlantCareSettingsAddress();
+
+
+
+
 
 };
 

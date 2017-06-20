@@ -36,6 +36,12 @@ void setup()
 
 void loop()
 {
+    configuration.resetToDefaults();
+
+}
+
+void testBasic()
+{
     long currentMillis = millis();
 
     if( currentMillis-previousMillis == 10000 )
