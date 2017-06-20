@@ -41,10 +41,10 @@ void Configuration::resetToDefaults()
     ledSettingsObject.green = (uint8_t)DEFAULT_SETTING_LED_GREEN;
     ledSettingsObject.blue = (uint8_t)DEFAULT_SETTING_LED_BLUE;
 
-    mqttSettingsObject.pingBrokerInterval = (uint16_t)DEFAULT_SETTING_MQTT_PING_INTERVAL;
-    mqttSettingsObject.resendWarningInterval = (uint16_t)DEFAULT_SETTING_MQTT_WARNING_INTERVAL;
     mqttSettingsObject.statisticPublishInterval = (uint16_t)DEFAULT_SETTING_MQTT_STATISTIC_INTERVAL;
-    mqttSettingsObject.resendWarningInterval = (uint8_t)DEFAULT_SETTING_MQTT_RESERVOIR_WARNING_THRESHOLD;
+    mqttSettingsObject.resendWarningInterval = (uint16_t)DEFAULT_SETTING_MQTT_WARNING_INTERVAL;
+    mqttSettingsObject.pingBrokerInterval = (uint16_t)DEFAULT_SETTING_MQTT_PING_INTERVAL;
+    mqttSettingsObject.publishReservoirWarningThreshold = (uint8_t)DEFAULT_SETTING_MQTT_RESERVOIR_WARNING_THRESHOLD;
 
     plantCareSettingsObject.takeMeasurementInterval = (uint16_t)DEFAULT_SETTING_PLANT_CARE_MEASURE_INTERVAL;
     plantCareSettingsObject.sleepAfterGivingWater = (uint16_t)DEFAULT_SETTING_PLANT_CARE_SLEEP_AFTER_WATER;
@@ -72,17 +72,9 @@ void Configuration::setLedSettings(LedSettings settings)
 
 void Configuration::setLedSettings(uint8_t red, uint8_t green, uint8_t blue)
 {
-#ifdef DEBUG_CONFIG
-    Serial << "[debug] - Old Led configuration: " << endl;
-    this->printLedConfiguration();
-#endif
     ledSettingsObject.red = red;
     ledSettingsObject.green = green;
     ledSettingsObject.blue = blue;
-#ifdef DEBUG_CONFIG
-    Serial << "[debug] - New Led configuration: " << endl;
-    this->printLedConfiguration();
-#endif
 }
 
 void Configuration::setMQTTSettings(MQTTSettings settings)
@@ -92,18 +84,10 @@ void Configuration::setMQTTSettings(MQTTSettings settings)
 
 void Configuration::setMQTTSettings(uint16_t statisticPublishInterval, uint16_t resendWarningInterval, uint16_t pingBrokerInterval, uint8_t publishReservoirWarningThreshold)
 {
-#ifdef DEBUG_CONFIG
-    Serial << "[debug] - Old MQTT configuration: " << endl;
-    this->printMqttConfiguration();
-#endif
-    mqttSettingsObject.pingBrokerInterval = statisticPublishInterval;
+    mqttSettingsObject.statisticPublishInterval = statisticPublishInterval;
     mqttSettingsObject.resendWarningInterval = resendWarningInterval;
-    mqttSettingsObject.statisticPublishInterval = pingBrokerInterval;
-    mqttSettingsObject.resendWarningInterval = publishReservoirWarningThreshold;
-#ifdef DEBUG_CONFIG
-    Serial << "[debug] - New MQTT configuration: " << endl;
-    this->printMqttConfiguration();
-#endif
+    mqttSettingsObject.pingBrokerInterval = pingBrokerInterval;
+    mqttSettingsObject.publishReservoirWarningThreshold = publishReservoirWarningThreshold;
 }
 
 void Configuration::setPlantCareSettings(PlantCareSettings settings)
@@ -113,17 +97,9 @@ void Configuration::setPlantCareSettings(PlantCareSettings settings)
 
 void Configuration::setPlantCareSettings(uint16_t takeMeasurementInterval, uint16_t sleepAfterGivingWater, uint8_t groundMoistureOptimal)
 {
-#ifdef DEBUG_CONFIG
-    Serial << "[debug] - Old plant care configuration: " << endl;
-    this->printPlantCareConfiguration();
-#endif
     plantCareSettingsObject.takeMeasurementInterval = takeMeasurementInterval;
     plantCareSettingsObject.sleepAfterGivingWater = sleepAfterGivingWater;
     plantCareSettingsObject.groundMoistureOptimal = groundMoistureOptimal;
-#ifdef DEBUG_CONFIG
-    Serial << "[debug] - New plant care configuration: " << endl;
-    this->printPlantCareConfiguration();
-#endif
 }
 
 LedSettings Configuration::getLedSettings()
@@ -158,7 +134,7 @@ void Configuration::printLedConfiguration()
 void Configuration::printMqttConfiguration()
 {
     Serial << F("[debug] - Printing MQTT configuration:") << endl;
-    Serial << F("MQTT settings = {\n\tpingBrokerInterval:") << mqttSettingsObject.pingBrokerInterval << F(",\n\tresendWarningInterval:") << mqttSettingsObject.resendWarningInterval << F(",\n\tstatisticPublishInterval:") << mqttSettingsObject.statisticPublishInterval << F(",\n\tresendWarningInterval:") << mqttSettingsObject.resendWarningInterval << F("\n};\n");
+    Serial << F("MQTT settings = {\n\tstatisticPublishInterval:") << mqttSettingsObject.statisticPublishInterval << F(",\n\tresendWarningInterval:") << mqttSettingsObject.resendWarningInterval << F(",\n\tpingBrokerInterval:") << mqttSettingsObject.pingBrokerInterval << F(",\n\tpublishReservoirWarningThreshold:") << mqttSettingsObject.publishReservoirWarningThreshold << F("\n};\n");
 }
 
 void Configuration::printPlantCareConfiguration()

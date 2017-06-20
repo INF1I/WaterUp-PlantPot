@@ -9,6 +9,7 @@
 #include <Configuration.h>
 
 Configuration configuration;
+long previousMillis = 0;
 
 void printDevider( String title )
 {
@@ -16,7 +17,7 @@ void printDevider( String title )
     {
         Serial << F("*");
     }
-    Serial << F("\n*\t\t") << title << endl;
+    Serial << endl << F("*\t\t") << title << endl;
     for(int i=0; i<50; i++)
     {
         Serial << F("*");
@@ -26,32 +27,54 @@ void printDevider( String title )
 
 void setup()
 {
-    Serial.begin(9600);
+    Serial.begin(115200);
     delay(5000);
-    Serial << "Setting up configuration library" << endl;
+    printDevider("Setting up configuration library");
     configuration.setup();
+    previousMillis = millis();
 }
 
 void loop()
 {
-    delay(10000);
-    configuration.printConfiguration();
-    Serial << F("Set all objects to defaults:") << endl;
-    configuration.resetToDefaults();
+    long currentMillis = millis();
 
-    printDevider("Test update LED settings");
-    configuration.setLedSettings( (LedSettings){ 50, 50, 50 } );
-    configuration.setLedSettings( 123, 132, 231 );
+    if( currentMillis-previousMillis == 10000 )
+    {
+        previousMillis = currentMillis;
+        configuration.printConfiguration();
 
-    printDevider("Test update MQTT settings");
-    configuration.setMQTTSettings( (MQTTSettings){ 1, 2, 3, 4 } );
-    configuration.setMQTTSettings( 4, 3, 2, 1 );
+        Serial << F("Set all objects to defaults:") << endl;
+        configuration.resetToDefaults();
 
-    printDevider("Test update plant care settings");
-    configuration.setPlantCareSettings( (PlantCareSettings){ 40, 30, 20 } );
-    configuration.setPlantCareSettings( 20, 30, 40 );
+        configuration.printConfiguration();
 
-    Serial << F("[debug] - End of loop iteration.") << endl;
+
+        printDevider("Test update LED settings");
+        configuration.printLedConfiguration();
+        configuration.setLedSettings((LedSettings) {10, 20, 30});
+        configuration.printLedConfiguration();
+        configuration.setLedSettings(30, 20, 10);
+        configuration.printLedConfiguration();
+        //configuration.printConfiguration();
+
+        printDevider("Test update MQTT settings");
+        configuration.printMqttConfiguration();
+        configuration.setMQTTSettings( (MQTTSettings) {1, 2, 3, 4});
+        configuration.printMqttConfiguration();
+        configuration.setMQTTSettings(4, 3, 2, 1);
+        configuration.printMqttConfiguration();
+        //configuration.printConfiguration();
+
+        printDevider("Test update plant care settings");
+        configuration.printPlantCareConfiguration();
+        configuration.setPlantCareSettings( (PlantCareSettings){ 10, 20, 30 } );
+        configuration.printPlantCareConfiguration();
+        configuration.setPlantCareSettings(30, 20, 10);
+        configuration.printPlantCareConfiguration();
+        //configuration.printConfiguration();
+
+        Serial << F("[debug] - End of loop iteration.") << endl;
+    }
 }
 
 /*
