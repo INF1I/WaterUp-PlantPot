@@ -25,6 +25,25 @@ void Configuration::setup()
 {
     EEPROM.begin(this->eepromSize);
     delay(10);
+    printAllMemory();
+    initiateLedSettings();
+    initiateMqttSettings();
+    initiatePlantCareSettings();
+}
+
+void Configuration::initiateLedSettings()
+{
+    readSettings( this->getLedSettingsAddress(), ledSettingsObject );
+}
+
+void Configuration::initiateMqttSettings()
+{
+    readSettings( this->getMqttSettingsAddress(), mqttSettingsObject );
+}
+
+void Configuration::initiatePlantCareSettings()
+{
+    readSettings( this->getPlantCareSettingsAddress(), plantCareSettingsObject );
 }
 
 void Configuration::resetToDefaults()
@@ -53,6 +72,10 @@ void Configuration::clear()
     EEPROM.end();
 }
 
+/** LED settings
+ *
+ * @param settings
+ */
 void Configuration::setLedSettings(LedSettings settings)
 {
     this->setLedSettings(settings.red, settings.green, settings.blue);
@@ -63,12 +86,22 @@ void Configuration::setLedSettings(uint8_t red, uint8_t green, uint8_t blue)
     ledSettingsObject.red = red;
     ledSettingsObject.green = green;
     ledSettingsObject.blue = blue;
+
+    writeSettings( getLedSettingsAddress(), ledSettingsObject );
 }
 
+/** MQTT settings
+ *
+ * @param settings
+ */
 void Configuration::setMQTTSettings(MQTTSettings settings)
 {
-    this->setMQTTSettings(settings.statisticPublishInterval, settings.resendWarningInterval, settings
-            .pingBrokerInterval, settings.publishReservoirWarningThreshold);
+    this->setMQTTSettings(
+            settings.statisticPublishInterval,
+            settings.resendWarningInterval,
+            settings.pingBrokerInterval,
+            settings.publishReservoirWarningThreshold
+    );
 }
 
 void Configuration::setMQTTSettings(uint16_t statisticPublishInterval, uint16_t resendWarningInterval, uint16_t pingBrokerInterval, uint8_t publishReservoirWarningThreshold)
@@ -77,12 +110,21 @@ void Configuration::setMQTTSettings(uint16_t statisticPublishInterval, uint16_t 
     mqttSettingsObject.resendWarningInterval = resendWarningInterval;
     mqttSettingsObject.pingBrokerInterval = pingBrokerInterval;
     mqttSettingsObject.publishReservoirWarningThreshold = publishReservoirWarningThreshold;
+
+    writeSettings( getMqttSettingsAddress(), mqttSettingsObject );
 }
 
+/** Plant care settings
+ *
+ * @param settings
+ */
 void Configuration::setPlantCareSettings(PlantCareSettings settings)
 {
-    this->setPlantCareSettings(settings.takeMeasurementInterval, settings.sleepAfterGivingWater, settings
-            .groundMoistureOptimal);
+    this->setPlantCareSettings(
+            settings.takeMeasurementInterval,
+            settings.sleepAfterGivingWater,
+            settings.groundMoistureOptimal
+    );
 }
 
 void Configuration::setPlantCareSettings(uint16_t takeMeasurementInterval, uint16_t sleepAfterGivingWater, uint8_t groundMoistureOptimal)
@@ -90,6 +132,8 @@ void Configuration::setPlantCareSettings(uint16_t takeMeasurementInterval, uint1
     plantCareSettingsObject.takeMeasurementInterval = takeMeasurementInterval;
     plantCareSettingsObject.sleepAfterGivingWater = sleepAfterGivingWater;
     plantCareSettingsObject.groundMoistureOptimal = groundMoistureOptimal;
+
+    writeSettings( getPlantCareSettingsAddress(), plantCareSettingsObject );
 }
 
 LedSettings Configuration::getLedSettings()
@@ -169,8 +213,51 @@ void Configuration::printStorageAddresses()
            << F(",\n\tledSettingsAddress:") << getLedSettingsAddress()
            << F(",\n\tmqttSettingsAddress:") << getMqttSettingsAddress()
            << F(",\n\tplantCareSettingsAddress:") << getPlantCareSettingsAddress()
-           << F("configBlockEnd:") << getConfigurationEndAddress()
+           << F("\n\tconfigBlockEnd:") << getConfigurationEndAddress()
            << F("\n};\n");
+}
+
+void Configuration::printMemoryDump()
+{
+    Serial << F("[debug] - Printing all EEPROM memory:") << F("\nEEPROM Memory= {");
+    for( int i = 0; i < this->eepromSize; i++ )
+    {
+        Serial << F("\n\tEEPROM[") << i << "] : " << EEPROM.read(i) << (i+1 < this->eepromSize ? ",":"");
+    }
+    Serial << F("\n};\n");
+}
+
+void Configuration::printMemoryDump(uint8_t start, uint8_t end)
+{
+    for( int i = start; i <= end; i++ )
+    {
+        Serial << F("\n\tEEPROM[") << i << "] : " << EEPROM.read(i) << (i <= end ? ",":"");
+    }
+}
+
+void Configuration::printMemory()
+{
+    this->printLedMemory();
+    this->printMqttMemory();
+    this->printPlantCareMemory();
+}
+
+void Configuration::printLedMemory()
+{
+    Serial << F("[debug] - Printing EEPROM led memory:") << F("\nled Memory= {");
+    printMemoryDump( getLedSettingsAddress(), getMqttSettingsAddress() );
+}
+
+void Configuration::printMqttMemory()
+{
+    Serial << F("[debug] - Printing EEPROM mqtt memory:") << F("\nmqtt Memory= {");
+    printMemoryDump( getLedSettingsAddress(), getMqttSettingsAddress() );
+}
+
+void Configuration::printPlantCareMemory()
+{
+    Serial << F("[debug] - Printing EEPROM plant care memory:") << F("\nplant care Memory= {");
+    printMemoryDump( getLedSettingsAddress(), getMqttSettingsAddress() );
 }
 
 uint16_t Configuration::getEepromSize()
@@ -202,26 +289,3 @@ uint8_t Configuration::getPlantCareSettingsAddress()
 {
     return this->plantCareSettingsAddress;
 }
-
-//
-//void Configuration::memoryDump( int start, int end )
-//{
-//    Serial << "[debug] - Creating an EEPROM raw memory dump:" << endl;
-//
-//    for( int i = start; i <= end; i++ )
-//    {
-//        Serial << "EEPROM[" << i << "] = " << EEPROM.get(i) << ";" << endl;
-//    }
-//    Serial << "[debug] - End of memory dump" << endl;
-//
-//}
-//
-//void Configuration::clearEEPROM()
-//{
-// Serial << "[debug] - Enabled memory debugging mode for Configuration library." << endl;
-//    for (int i = 0 ; i <= (EEPROM_MEMORY_SIZE/8) ; i++)
-//    {
-//        EEPROM.put(i, 0);
-//    }
-//
-//}

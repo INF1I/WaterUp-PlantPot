@@ -25,19 +25,14 @@ void printDevider( String title )
     Serial << endl;
 }
 
-void setup()
+void testPrintFunctions()
 {
-    Serial.begin(115200);
-    delay(5000);
-    printDevider("Setting up configuration library");
-    configuration.setup();
-    previousMillis = millis();
-}
-
-void loop()
-{
-    configuration.resetToDefaults();
-
+    configuration.printConfiguration();
+    configuration.printLedConfiguration();
+    configuration.printMqttConfiguration();
+    configuration.printPlantCareConfiguration();
+    configuration.printStorageAddresses();
+    configuration.printAllMemory();
 }
 
 void testBasic()
@@ -80,6 +75,40 @@ void testBasic()
         //configuration.printConfiguration();
 
         Serial << F("[debug] - End of loop iteration.") << endl;
+    }
+}
+
+void testWriteToEEPROM()
+{
+    configuration.resetToDefaults();
+    configuration.setLedSettings(10,20,30);
+    configuration.printLedConfiguration();
+    configuration.printAllMemory();
+}
+
+void testReadFromEEPROM()
+{
+    configuration.resetToDefaults();
+    configuration.printConfiguration();
+    configuration.printAllMemory();
+}
+
+void setup()
+{
+    Serial.begin(115200);
+    delay(5000);
+    printDevider("Setting up configuration library");
+    configuration.setup();
+    previousMillis = millis();
+}
+
+void loop()
+{
+    long currentMillis = millis();
+
+    if( currentMillis-previousMillis == 10000 )
+    {
+        testReadFromEEPROM();
     }
 }
 
