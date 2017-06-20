@@ -36,6 +36,7 @@
  * @param value The data structure to write.
  * @return The last address written to.
  */
+/*
 template<class T> int writeSettings(int startAddress, const T& value)
 {
     const byte* p = (const byte*) (const void*) &value;
@@ -47,6 +48,7 @@ template<class T> int writeSettings(int startAddress, const T& value)
     }
     return currentAddress;
 }
+*/
 
 /**
  * This template simplifies the reading from EEPROM storage of complex data structures.
@@ -55,7 +57,7 @@ template<class T> int writeSettings(int startAddress, const T& value)
  * @param value The data structure stored in EEPROM.
  * @return The last address read from.
  */
-template<class T> int readSettings(int startAddress, T& value)
+/*template<class T> int readSettings(int startAddress, T& value)
 {
     byte* p = (byte*) (void*) &value;
     unsigned int currentAddress;
@@ -65,7 +67,7 @@ template<class T> int readSettings(int startAddress, T& value)
         *p++ = EEPROM.read(startAddress++);
     }
     return currentAddress;
-}
+}*/
 
 /**
  * Data structure that contains LED configuration.
@@ -110,22 +112,24 @@ public:
 
     void setup();
     void resetToDefaults();
+
     uint8_t getStartAddress();
     uint8_t getEndAddress();
 
-    void setLedSettings( LedSettings *settings);
+    void setLedSettings( LedSettings settings);
     void setLedSettings(uint8_t red, uint8_t green, uint8_t blue);
 
-    void setMQTTSettings(MQTTSettings *settings);
+    void setMQTTSettings(MQTTSettings settings);
     void setMQTTSettings(uint16_t statisticPublishInterval, uint16_t resendWarningInterval, uint16_t pingBrokerInterval, uint8_t publishReservoirWarningThreshold);
 
-    void setPlantCareSettings(PlantCareSettings *settings);
+    void setPlantCareSettings(PlantCareSettings settings);
     void setPlantCareSettings(uint16_t takeMeasurementInterval, uint16_t sleepAfterGivingWater, uint8_t groundMoistureOptimal);
 
-    LedSettings* getLedSettings();
-    MQTTSettings* getMqttSettings();
-    PlantCareSettings* getPlantCareSettings();
+    LedSettings getLedSettings();
+    MQTTSettings getMqttSettings();
+    PlantCareSettings getPlantCareSettings();
 
+    void printConfiguration();
     void debugEepromAddresses();
     void memoryDump( int start = 0, int end = EEPROM_MEMORY_SIZE );
     void clearEEPROM();
