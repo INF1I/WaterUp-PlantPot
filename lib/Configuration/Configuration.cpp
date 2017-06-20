@@ -76,16 +76,6 @@ void Configuration::setup()
     readSettings(this->plantCareSettingsAddress, this->plantCareSettings);
 }
 
-void Configuration::debugEepromAddresses()
-{
-    Serial << "[debug] - Enabled debugging mode for Configuration library." << endl;
-    Serial << "[debug] - Configuration library EEPROM start address: " << this->configurationStartAddress << endl;
-    Serial << "[debug] - Configuration library EEPROM Led config start address: " << this->ledSettingsAddress << endl;
-    Serial << "[debug] - Configuration library EEPROM MQTT config start address: " << this->mqttSettingsAddress << endl;
-    Serial << "[debug] - Configuration library EEPROM plant care config start address: " << this->plantCareSettingsAddress << endl;
-    Serial << "[debug] - Configuration library EEPROM end address: " << this->configurationEndAddress << endl;
-}
-
 void Configuration::resetToDefaults()
 {
     this->setLedSettings(
@@ -174,4 +164,34 @@ PlantCareSettings *Configuration::getPlantCareSettings()
 {
     //readSettings(this->plantCareSettingsAddress, this->plantCareSettings);
     return this->plantCareSettings;
+}
+
+void Configuration::debugEepromAddresses()
+{
+    Serial << "[debug] - Enabled memory address debugging mode for Configuration library." << endl;
+    Serial << "[debug] - Configuration library EEPROM start address: " << this->configurationStartAddress << endl;
+    Serial << "[debug] - Configuration library EEPROM Led config start address: " << this->ledSettingsAddress << endl;
+    Serial << "[debug] - Configuration library EEPROM MQTT config start address: " << this->mqttSettingsAddress << endl;
+    Serial << "[debug] - Configuration library EEPROM plant care config start address: " << this->plantCareSettingsAddress << endl;
+    Serial << "[debug] - Configuration library EEPROM end address: " << this->configurationEndAddress << endl;
+}
+
+void Configuration::memoryDump( int start, int end )
+{
+    Serial << "[debug] - Creating an EEPROM raw memory dump:" << endl;
+
+    for( int i = start; i <= end; i++ )
+    {
+        Serial << "EEPROM[" << i << "] = " << EEPROM.read(i) << ";" << endl;
+    }
+    Serial << "[debug] - End of memory dump" << endl;
+}
+
+void Configuration::clearEEPROM()
+{
+    Serial << "[debug] - Enabled memory debugging mode for Configuration library." << endl;
+    for (int i = 0 ; i <= EEPROM_MEMORY_SIZE ; i++)
+    {
+        EEPROM.write(i, 0);
+    }
 }

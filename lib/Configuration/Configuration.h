@@ -110,7 +110,6 @@ public:
 
     void setup();
     void resetToDefaults();
-    void debugEepromAddresses();
     uint8_t getStartAddress();
     uint8_t getEndAddress();
 
@@ -126,6 +125,10 @@ public:
     LedSettings* getLedSettings();
     MQTTSettings* getMqttSettings();
     PlantCareSettings* getPlantCareSettings();
+
+    void debugEepromAddresses();
+    void memoryDump( int start = 0, int end = EEPROM_MEMORY_SIZE );
+    void clearEEPROM();
 
 private:
     LedSettings *ledSettings;
