@@ -15,11 +15,22 @@ char jsonMessageSendBuffer[JSON_BUFFER_SIZE]; // The buffer that will be filled 
 char jsonMessageReceiveBuffer[JSON_BUFFER_SIZE]; // The buffer that will be filled with data received fro the MQTT broker.
 
 uint32_t potStatisticCounter = 0; // An statistic message publication counter.
+uint32_t potWarningCounter = 0; // An warning message publication counter.
 
 WiFiClientSecure client;
 Adafruit_MQTT_Client mqtt(&client, MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_BROKER_USERNAME, MQTT_BROKER_PASSWORD);
+
 Adafruit_MQTT_Publish statisticPublisher = Adafruit_MQTT_Publish(&mqtt, MQTT_BROKER_USERNAME TOPIC_PUBLISH_STATISTIC);
-Adafruit_MQTT_Subscribe configListener = Adafruit_MQTT_Subscribe(&mqtt, MQTT_BROKER_USERNAME TOPIC_SUBSCRIBE_PLANT_CONFIG);
+Adafruit_MQTT_Publish warningPublisher = Adafruit_MQTT_Publish( &mqtt, MQTT_BROKER_USERNAME TOPIC_PUBLISH_WARNING );
+
+Adafruit_MQTT_Subscribe mqttConfigListener = Adafruit_MQTT_Subscribe(&mqtt, MQTT_BROKER_USERNAME TOPIC_SUBSCRIBE_PLANT_CONFIG);
+Adafruit_MQTT_Subscribe ledConfigListener = Adafruit_MQTT_Subscribe(&mqtt, MQTT_BROKER_USERNAME TOPIC_SUBSCRIBE_PLANT_CONFIG);
+Adafruit_MQTT_Subscribe plantCareConfigListener = Adafruit_MQTT_Subscribe(&mqtt, MQTT_BROKER_USERNAME TOPIC_SUBSCRIBE_PLANT_CONFIG);
+
+Communication::Communication( Configuration * potConfiguration )
+{
+    this->config = potConfiguration;
+}
 
 void Communication::setup()
 {
@@ -60,11 +71,11 @@ void Communication::connect()
 
     while ((ret = mqtt.connect())!=0)
     { // connect will return 0 for connected
-        Serial << F("[error] - Connecting to the MQTT broker failed because: ") << mqtt.connectErrorString(ret)
-               << endl; // Print an detailed error message.
+        Serial << F("[error] - Connecting to the MQTT broker failed because: ") << mqtt.connectErrorString(ret) << endl; // Print an detailed error message.
         Serial << F("[info] - Retrying to connect to the MQTT broker in 5 seconds...") << endl;
+
         mqtt.disconnect(); // Send disconnect package.
-        delay(1000);  // wait 5 seconds
+        delay(5000);  // wait 5 seconds
         maxRetries--;
 
         if (maxRetries==0)
@@ -78,6 +89,47 @@ void Communication::connect()
     }
 
     Serial << "[info] - Successfully connected to the MQTT broker." << endl;
+}
+
+Communication* Communication::getConfiguration()
+{
+    return &this->config;
+}
+
+void Communication::publishStatistic(int groundMoistureLevel, int waterReservoirLevel)
+{
+    snprintf(jsonMessageSendBuffer, JSON_BUFFER_SIZE, potStatisticJsonFormat, WiFi.macAddress().c_str(), potStatisticCounter++, groundMoistureLevel, waterReservoirLevel);
+    if (!statisticPublisher.publish(jsonMessageSendBuffer)) // Did we publish the message to the broker?
+    {
+        Serial << F("[error] - Unable to send message: ") << jsonMessageSendBuffer << endl;
+    }
+    else
+    {
+        Serial << F("[debug] - Message with id: ") << potStatisticCounter << F(" content: ") << jsonMessageSendBuffer << endl;
+        Serial << F("[info] - Successfully published message to the MQTT broker.") << endl;
+        Serial << F("[debug] - Publish topic: ") << MQTT_BROKER_USERNAME << TOPIC_PUBLISH_STATISTIC;
+    }
+}
+
+void Communication::publishWarning(WarningType warningType)
+{
+    snprintf(jsonMessageSendBuffer, JSON_BUFFER_SIZE, potWarningJsonFormat, WiFi.macAddress().c_str(), potWarningCounter++, (char*) warningType);
+    if (!statisticPublisher.publish(jsonMessageSendBuffer)) // Did we publish the message to the broker?
+    {
+        Serial << F("[error] - Unable to send message: ") << jsonMessageSendBuffer << endl;
+    }
+    else
+    {
+        Serial << F("[debug] - Message with id: ") << potStatisticCounter << F(" content: ") << jsonMessageSendBuffer << endl;
+        Serial << F("[info] - Successfully published message to the MQTT broker.") << endl;
+    }
+}
+
+void Communication::listenForConfiguration()
+{
+    ledConfigListener.setCallback( this->listenForLedConfiguration );
+    mqttConfigListener.setCallback( this->listenForMqttConfiguration );
+    plantCareConfigListener.setCallback( this->listenForPlantCareConfiguration );
 }
 
 void Communication::verifyFingerprint()
@@ -99,9 +151,7 @@ void Communication::verifyFingerprint()
     }
     else
     {
-        Serial
-                << F("[error] - Connecting to the MQTT broker failed because the TLS/SSL certificate could not be verified.")
-                << endl;
+        Serial << F("[error] - Connecting to the MQTT broker failed because the TLS/SSL certificate could not be verified.") << endl;
         Serial << F("[debug] - TLS/SSL SHA1 certificate fingerprint allowed: ") << MQTT_BROKER_FINGERPRINT << endl;
         Serial << F("[info] - Halting the execution of the program.") << endl;
         while (1) // You shall not pass! Seriously this effectively kills the pot and you have to reset it or wait to the death of the universe.
@@ -110,43 +160,29 @@ void Communication::verifyFingerprint()
     }
 }
 
-void Communication::publishStatistic(int groundMoistureLevel, int waterReservoirLevel)
+void Communication::ledConfigurationListener(char *data, uint16_t len)
 {
-    snprintf(jsonMessageSendBuffer, jsonBufferSize, potStatisticJsonFormat, WiFi.macAddress().c_str(), potStatisticCounter++, groundMoistureLevel, waterReservoirLevel);
-    if (!statisticPublisher.publish(jsonMessageSendBuffer)) // Did we publish the message to the broker?
-    {
-        Serial << F("[error] - Unable to send message: ") << jsonMessageSendBuffer << endl;
-    }
-    else
-    {
-        Serial << F("[debug] - Message with id: ") << potStatisticCounter << F(" content: ") << jsonMessageSendBuffer
-               << endl;
-        Serial << F("[info] - Successfully published message to the MQTT broker.") << endl;
-    }
+    LedSettings settings = this->config->getLedSettings();
+    //todo parse json
+    //todo check if correct mac address.
+    //todo insert received config into settings
+    this->config->setLedSettings( settings );
 }
 
-void Communication::publishWarning(WarningType warningType)
+void Communication::mqttConfigurationListener(char *data, uint16_t len)
 {
-    snprintf(jsonMessageSendBuffer, jsonBufferSize, potWarningJsonFormat, WiFi.macAddress().c_str(),
-             potWarningCounter++, (char*) warningType);
-    if (!statisticPublisher.publish(jsonMessageSendBuffer)) // Did we publish the message to the broker?
-    {
-        Serial << F("[error] - Unable to send message: ") << jsonMessageSendBuffer << endl;
-    }
-    else
-    {
-        Serial << F("[debug] - Message with id: ") << potStatisticCounter << F(" content: ") << jsonMessageSendBuffer
-               << endl;
-        Serial << F("[info] - Successfully published message to the MQTT broker.") << endl;
-    }
+    MQTTSettings settings = this->config->getMqttSettings();
+    //todo parse json
+    //todo check if correct mac address.
+    //todo insert received config into settings
+    this->config->setMQTTSettings( settings );
 }
 
-void Communication::saveNewPotConfig()
+void Communication::plantCareConfigurationListener(char *data, uint16_t len)
 {
-
-}
-
-void Communication::startListenForConfiguration()
-{
-    subscribeConfigTopic.setCallBack();
+    PlantCareSettings settings = this->config->getPlantCareSettings();
+    //todo parse json
+    //todo check if correct mac address.
+    //todo insert received config into settings
+    this->config->plantCareSettingsAddress( settings );
 }

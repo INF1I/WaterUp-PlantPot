@@ -26,18 +26,36 @@
 #define TOPIC_SUBSCRIBE_PLANT_CONFIG "/subscribe" // This is the MQTT topic used to listen for plant care configuration.
 #define JSON_BUFFER_SIZE 200 // This holds the default string buffer size of json messages.
 
+class MQTT;
+
+/**
+ * This collection is used to set the warning type of an MQTT warning message.
+ */
+enum WarningType
+{
+    LOW_RESORVOIR = 1,
+    EMPTY_RESORVOIR = 2,
+    LOW_MOISTURE_LEVEL = 3,
+    HIGH_MOISTURE_LEVEL = 4,
+    UNKNOWN_ERROR = 5
+};
+
 class Communication
 {
 public:
     void setup();
-    void publishStatistic(int groundMoistureLevel, int waterReservoirLevel)
+    void publishStatistic(int groundMoistureLevel, int waterReservoirLevel);
     void publishWarning(WarningType warningType);
     void startListenForConfiguration();
 
-private:
+    void plantCareConfigurationListener(char *data, uint16_t len);
+    void mqttConfigurationListener(char *data, uint16_t len);
+    void ledConfigurationListener(char *data, uint16_t len);
+
     void connect();
+
+private:
     void verifyFingerprint();
-    void saveNewPotConfig();
 };
 
 #endif //WATERUP_PLANTPOT_COMMUNICATION_H

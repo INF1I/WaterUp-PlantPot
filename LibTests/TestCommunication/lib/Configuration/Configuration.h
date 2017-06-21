@@ -11,9 +11,6 @@
 #include <EEPROM.h>
 #include <Streaming.h>
 
-#include "Communication.h"
-#include "PlantCare.h"
-
 //#define DEBUG_CONFIG 1
 
 #define EEPROM_MEMORY_SIZE 512 // The size in bytes of the EEPROM memory (512 for the huzzah).
@@ -71,9 +68,6 @@ template<class T> int readSettings(int startAddress, T& value)
     }
     return currentAddress;
 }
-
-class PlantCare;
-class Configuration;
 
 /**
  * Data structure that contains LED configuration.

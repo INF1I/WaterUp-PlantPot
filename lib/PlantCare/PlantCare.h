@@ -10,6 +10,9 @@
 #include <Arduino.h> // Include this library so we can use the arduino system functions and variables.
 #include <Streaming.h> // Include this library for using the << Streaming operator.
 
+#include "Configuration.h"
+#include "Communication.h"
+
 #define RESERVOIR_TOP_HEIGHT 30 // The height of the top of the reservoir.
 #define RESERVOIR_TOP_1CM3 500// 1cm = 500cm³
 #define RESERVOIR_TOP_SIZE 15000 // The cubic centimeter content of top the water reservoir.
@@ -29,27 +32,24 @@
 
 #define WATER_PUMP_DEFAULT_TIME 5000 // The default time to activate the water pump.
 
-class PlantCare;
-
-enum class WarningType
-{
-    LowReservoir = 1,
-    EmptyReservoir = 2,
-    LowMoistureLevel = 3,
-    HighMoistureLevel = 4,
-    UnknownError = 5
-};
+class Communication;
+class Configuration;
 
 class PlantCare
 {
 public:
-    PlantCare( Communication * communication );
+    PlantCare( Communication* potCommunication );
     void setup();
     void takeCareOfPlant();
 
 private:
     bool waterPumpState;
-    Communication communication;
+    Configuration *configuration;
+    Communication *communication;
+    LedSettings *ledSettings;
+    MQTTSettings *mqttSettings;
+    PlantCareSettings *plantCareSettings;
+
     int checkWaterReservoir();
     int checkMoistureLevel();
     void giveWater();
@@ -58,6 +58,5 @@ private:
     void publishPotStatistic();
     void publishPotWarning( WarningType warningType );
 };
-
 
 #endif //WATERUP_PLANTPOT_PLANTCARE_H

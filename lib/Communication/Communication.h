@@ -15,6 +15,9 @@
 #include <FS.h> // Include this library for access to the ESP8266's file system.
 #include <Streaming.h> // Include this library for using the << Streaming operator.
 
+#include "Configuration.h" //
+#include "PlantCare.h" //
+
 #define MQTT_BROKER_HOST "mqtt.inf1i.ga" // The address of the MQTT broker.
 #define MQTT_BROKER_PORT 8883 // The port to connect to at the MQTT broker.
 #define MQTT_BROKER_USERNAME "inf1i-plantpot" // The pot's username authenticate at the MQTT broker.
@@ -23,21 +26,48 @@
 
 #define TOPIC_PUBLISH_STATISTIC "/publish/statistic" // This MQTT topic is used to publish pot state statistics.
 #define TOPIC_PUBLISH_WARNING "/publish/warning" // This is the MQTT topic used to publis warnings to the user.
-#define TOPIC_SUBSCRIBE_PLANT_CONFIG "/subscribe" // This is the MQTT topic used to listen for plant care configuration.
+
+#define TOPIC_SUBSCRIBE_LED_CONFIG "/subscribe/config/led" // This is the MQTT topic used to listen for led configuration.
+#define TOPIC_SUBSCRIBE_MQTT_CONFIG "/subscribe/config/mqtt" // This is the MQTT topic used to listen for mqtt configuration.
+#define TOPIC_SUBSCRIBE_PLANT_CARE_CONFIG "/subscribe/config/plant-care" // This is the MQTT topic used to listen for plant care configuration.
+
 #define JSON_BUFFER_SIZE 200 // This holds the default string buffer size of json messages.
+
+/**
+ * This collection is used to set the warning type of an MQTT warning message.
+ */
+enum WarningType
+{
+    LOW_RESORVOIR = 1,
+    EMPTY_RESORVOIR = 2,
+    LOW_MOISTURE_LEVEL = 3,
+    HIGH_MOISTURE_LEVEL = 4,
+    UNKNOWN_ERROR = 5
+};
+
+class PlantCare;
+class Configuration;
 
 class Communication
 {
 public:
+    Communication( Configuration * potConfiguration );
     void setup();
-    void publishStatistic(int groundMoistureLevel, int waterReservoirLevel)
+    void connect();
+    Configuration* getConfiguration();
+
+    void publishStatistic(int groundMoistureLevel, int waterReservoirLevel);
     void publishWarning(WarningType warningType);
-    void startListenForConfiguration();
+    void listenForConfiguration();
+
 
 private:
-    void connect();
+    Configuration *config;
+
     void verifyFingerprint();
-    void saveNewPotConfig();
+    void listenForPlantCareConfiguration( char *data, uint16_t length );
+    void listenForMqttConfiguration(char *data, uint16_t length);
+    void listenForLedConfiguration(char *data, uint16_t length );
 };
 
 #endif //WATERUP_PLANTPOT_COMMUNICATION_H

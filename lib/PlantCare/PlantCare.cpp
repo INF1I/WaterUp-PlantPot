@@ -6,9 +6,10 @@
  */
 #include "PlantCare.h"
 
-PlantCare::PlantCare(Communication *communication)
+PlantCare::PlantCare( Communication *potCommunication )
 {
-    this->communication = communication;
+    this->configuration = config;
+    this->communication = communication->getConfiguration();
 }
 
 /**
@@ -25,7 +26,8 @@ void PlantCare::setup()
 
 void PlantCare::takeCareOfPlant()
 {
-
+    this->ledSettings = this->configuration.getLedSettings();
+    this->mqttSettings = this->configuration.getPlantCareSettings();
 }
 
 int PlantCare::checkWaterReservoir()
