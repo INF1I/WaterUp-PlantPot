@@ -59,8 +59,25 @@ public:
 
 private:
     bool waterPumpState; // The current state of the water pump, either on or off.
-    Configuration *configuration; // An configuration instance containing mqtt, led and plant care configuration.
-    Communication *communication; // An communication instance for communication between the pot and mqtt broker.
+    Configuration* configuration; // An configuration instance containing mqtt, led and plant care configuration.
+    Communication* communication; // An communication instance for communication between the pot and mqtt broker.
+
+    uint16_t lastPublishStatisticsTime;
+    uint16_t lastPublishWarningTime;
+    uint16_t lastPingTime;
+    uint16_t lastMeasurementTime;
+    uint16_t lastGivingWaterTime;
+
+    uint16_t publishStatisticInterval;
+    uint16_t republishWarningInterval;
+    uint16_t pingInterval;
+    uint16_t takeMeasurementInterval;
+    uint16_t sleepAfterGivingWaterTime;
+    uint8_t groundMoistureOptimal;
+
+    uint8_t red;
+    uint8_t green;
+    uint8_t blue;
 
     /**
      * This function will use the ultra sonic sensor to measure percentage

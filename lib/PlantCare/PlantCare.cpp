@@ -8,19 +8,38 @@
 
 /**
  * This function initiates the plant care library. It sets up the
- * I/O pins that are connected to the sensors and water pump.
+ * I/O pins that are connected to the sensors and water pump and
+ * initiates the time keeper variables.
  */
 PlantCare::PlantCare( Communication *potCommunication )
 {
+    long whatTimeIsIt = millis();
     this->waterPumpState = LOW;
     this->communication = potCommunication;
     this->configuration = communication->getConfiguration();
+
+    this->lastPublishStatisticsTime = whatTimeIsIt;
+    this->lastPublishWarningTime = whatTimeIsIt;
+    this->lastPingTime = whatTimeIsIt;
+    this->lastMeasurementTime = whatTimeIsIt;
+    this->lastGivingWaterTime = whatTimeIsIt;
+
+    this->publishStatisticInterval = configuration->getMqttSettings()->statisticPublishInterval;
+    this->republishWarningInterval = configuration->getMqttSettings()->resendWarningInterval;
+    this->pingInterval = configuration->getMqttSettings()->pingBrokerInterval;
+    this->takeMeasurementInterval = configuration->getPlantCareSettings()->takeMeasurementInterval;
+    this->sleepAfterGivingWaterTime = configuration->getPlantCareSettings()->sleepAfterGivingWater;
+    this->groundMoistureOptimal = configuration->getPlantCareSettings()->groundMoistureOptimal;
+
+    this->red = configuration->getLedSettings()->red;
+    this->green = configuration->getLedSettings()->green;
+    this->blue = configuration->getLedSettings()->blue;
 
     pinMode( IO_PIN_SONAR_TRIGGER, OUTPUT );
     pinMode( IO_PIN_SONAR_ECHO, OUTPUT );
     pinMode( IO_PIN_SOIL_MOISTURE, INPUT );
     pinMode( IO_PIN_WATER_PUMP, OUTPUT );
-    digitalWrite( IO_PIN_WATER_PUMP, LOW );
+    digitalWrite( IO_PIN_WATER_PUMP, LOW ); // Make sure we don't give the drown the plant.
 }
 
 /**
@@ -29,6 +48,7 @@ PlantCare::PlantCare( Communication *potCommunication )
  */
 void PlantCare::takeCareOfPlant()
 {
+    communication->connect();
 
 }
 

@@ -1,6 +1,5 @@
 /**
  * Author: Joris Rietveld <jorisrietveld@gmail.com>
- * Author: Alwin Kroezen <alwin.kroesen@student.stenden.com>
  * Created: 19-06-2017 17:51
  * Licence: GPLv3 - General Public Licence version 3
  */
@@ -100,19 +99,19 @@ void Configuration::setPlantCareSettings(uint16_t takeMeasurementInterval, uint1
     writeSettings(this->getPlantCareSettingsAddress(), plantCareSettingsObject);
 }
 
-LedSettings Configuration::getLedSettings()
+LedSettings* Configuration::getLedSettings()
 {
-    return ledSettingsObject;
+    return &ledSettingsObject;
 }
 
-MQTTSettings Configuration::getMqttSettings()
+MQTTSettings* Configuration::getMqttSettings()
 {
-    return mqttSettingsObject;
+    return &mqttSettingsObject;
 }
 
-PlantCareSettings Configuration::getPlantCareSettings()
+PlantCareSettings* Configuration::getPlantCareSettings()
 {
-    return plantCareSettingsObject;
+    return &plantCareSettingsObject;
 }
 
 void Configuration::printConfiguration()

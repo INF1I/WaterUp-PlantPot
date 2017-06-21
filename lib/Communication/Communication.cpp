@@ -1,6 +1,5 @@
 /**
  * Author: Joris Rietveld <jorisrietveld@gmail.com>
- * Author: Alwin Kroezen <alwin.kroesen@student.stenden.com>
  * Created: 17-06-2017 20:16
  * Licence: GPLv3 - General Public Licence version 3
  */
@@ -23,9 +22,9 @@ Adafruit_MQTT_Client mqtt(&client, MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_BROK
 Adafruit_MQTT_Publish statisticPublisher = Adafruit_MQTT_Publish(&mqtt, MQTT_BROKER_USERNAME TOPIC_PUBLISH_STATISTIC);
 Adafruit_MQTT_Publish warningPublisher = Adafruit_MQTT_Publish( &mqtt, MQTT_BROKER_USERNAME TOPIC_PUBLISH_WARNING );
 
-/*Adafruit_MQTT_Subscribe mqttConfigListener = Adafruit_MQTT_Subscribe(&mqtt, MQTT_BROKER_USERNAME TOPIC_SUBSCRIBE_PLANT_CONFIG);
-Adafruit_MQTT_Subscribe ledConfigListener = Adafruit_MQTT_Subscribe(&mqtt, MQTT_BROKER_USERNAME TOPIC_SUBSCRIBE_PLANT_CONFIG);
-Adafruit_MQTT_Subscribe plantCareConfigListener = Adafruit_MQTT_Subscribe(&mqtt, MQTT_BROKER_USERNAME TOPIC_SUBSCRIBE_PLANT_CONFIG);*/
+Adafruit_MQTT_Subscribe ledConfigListener = Adafruit_MQTT_Subscribe(&mqtt, TOPIC_SUBSCRIBE_LED_CONFIG);
+Adafruit_MQTT_Subscribe mqttConfigListener = Adafruit_MQTT_Subscribe(&mqtt, TOPIC_SUBSCRIBE_MQTT_CONFIG);
+Adafruit_MQTT_Subscribe plantCareConfigListener = Adafruit_MQTT_Subscribe(&mqtt, TOPIC_SUBSCRIBE_PLANT_CARE_CONFIG);
 
 Communication::Communication( Configuration * potConfiguration )
 {

@@ -1,6 +1,5 @@
 /**
  * Author: Joris Rietveld <jorisrietveld@gmail.com>
- * Author: Alwin Kroezen <alwin.kroesen@student.stenden.com>
  * Created: 17-06-2017 20:16
  * Licence: GPLv3 - General Public Licence version 3
  */
