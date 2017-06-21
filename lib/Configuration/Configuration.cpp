@@ -72,15 +72,6 @@ void Configuration::clear()
     EEPROM.end();
 }
 
-/** LED settings
- *
- * @param settings
- */
-void Configuration::setLedSettings(LedSettings settings)
-{
-    this->setLedSettings(settings.red, settings.green, settings.blue);
-}
-
 void Configuration::setLedSettings(uint8_t red, uint8_t green, uint8_t blue)
 {
     ledSettingsObject.red = red;
@@ -88,20 +79,6 @@ void Configuration::setLedSettings(uint8_t red, uint8_t green, uint8_t blue)
     ledSettingsObject.blue = blue;
 
     writeSettings(this->getLedSettingsAddress(), ledSettingsObject);
-}
-
-/** MQTT settings
- *
- * @param settings
- */
-void Configuration::setMQTTSettings(MQTTSettings settings)
-{
-    this->setMQTTSettings(
-            settings.statisticPublishInterval,
-            settings.resendWarningInterval,
-            settings.pingBrokerInterval,
-            settings.publishReservoirWarningThreshold
-    );
 }
 
 void Configuration::setMQTTSettings(uint16_t statisticPublishInterval, uint16_t resendWarningInterval, uint16_t pingBrokerInterval, uint8_t publishReservoirWarningThreshold)
@@ -112,19 +89,6 @@ void Configuration::setMQTTSettings(uint16_t statisticPublishInterval, uint16_t 
     mqttSettingsObject.publishReservoirWarningThreshold = publishReservoirWarningThreshold;
 
     writeSettings(this->getMqttSettingsAddress(), mqttSettingsObject);
-}
-
-/** Plant care settings
- *
- * @param settings
- */
-void Configuration::setPlantCareSettings(PlantCareSettings settings)
-{
-    this->setPlantCareSettings(
-            settings.takeMeasurementInterval,
-            settings.sleepAfterGivingWater,
-            settings.groundMoistureOptimal
-    );
 }
 
 void Configuration::setPlantCareSettings(uint16_t takeMeasurementInterval, uint16_t sleepAfterGivingWater, uint8_t groundMoistureOptimal)

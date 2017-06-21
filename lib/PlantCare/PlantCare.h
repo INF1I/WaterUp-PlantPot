@@ -7,11 +7,17 @@
 #ifndef WATERUP_PLANTPOT_PLANTCARE_H
 #define WATERUP_PLANTPOT_PLANTCARE_H
 
-#include <Arduino.h> // Include this library so we can use the arduino system functions and variables.
+#include <Arduino.h> // Include this library for using basic system functions and variables.
+#include <ESP8266WiFi.h> // Include this library for working with the ESP8266 chip.
+#include <WiFiManager.h> // Include this library for dynamically setting up the WiFi connection.
+#include <Adafruit_MQTT.h> // Include this library for securely connecting to the internet using WiFi.
+#include <Adafruit_MQTT_Client.h> // Include this library for MQTT communication.
+#include <FS.h> // Include this library for access to the ESP8266's file system.
 #include <Streaming.h> // Include this library for using the << Streaming operator.
-
-#include "Configuration.h"
-#include "Communication.h"
+#include <EEPROM.h> // Include this library for using the EEPROM flas storage on the huzzah.
+#include <Configuration.h> // This library contains the code for loading plant pot configuration.
+#include <Communication.h> // This library contains the code for communication between the pot and broker.
+//#include <PlantCare.h> // This library contains the code for taking care of the plant.
 
 #define RESERVOIR_TOP_HEIGHT 30 // The height of the top of the reservoir.
 #define RESERVOIR_TOP_1CM3 500// 1cm = 500cm³
@@ -25,8 +31,8 @@
 #define BOTTOM_CONTENT( cm ) (RESERVOIR_BOTTOM_HEIGHT-cm)*RESERVOIR_BOTTOM_1CM3
 #define TOP_CONTENT( cm ) (RESERVOIR_TOP_HEIGHT-cm)*RESERVOIR_TOP_1CM3
 
-#define IO_PIN_SONAR_TRIGGER D13 // The pin connected trigger port of the ultra sonar sensor.
-#define IO_PIN_SONAR_ECHO D12 // The pin connected to the echo port of the ultra sonar sensor.
+#define IO_PIN_SONAR_TRIGGER 13 // The pin connected trigger port of the ultra sonar sensor.
+#define IO_PIN_SONAR_ECHO 12 // The pin connected to the echo port of the ultra sonar sensor.
 #define IO_PIN_SOIL_MOISTURE A0 // The pin connected to the analog read of the soil moisture sensor.
 #define IO_PIN_WATER_PUMP 16 // The pin connected to the transistor base for switching the water pump.
 
@@ -34,29 +40,51 @@
 
 class Communication;
 class Configuration;
+class PlantCare;
 
 class PlantCare
 {
 public:
+    /**
+     * This function initiates the plant care library. It sets up the
+     * I/O pins that are connected to the sensors and water pump.
+     */
     PlantCare( Communication* potCommunication );
-    void setup();
+
+    /**
+     * This is the main function of the project. It will take care of the
+     * plant and control everything.
+     */
     void takeCareOfPlant();
 
 private:
-    bool waterPumpState;
-    Configuration *configuration;
-    Communication *communication;
-    LedSettings *ledSettings;
-    MQTTSettings *mqttSettings;
-    PlantCareSettings *plantCareSettings;
+    bool waterPumpState; // The current state of the water pump, either on or off.
+    Configuration *configuration; // An configuration instance containing mqtt, led and plant care configuration.
+    Communication *communication; // An communication instance for communication between the pot and mqtt broker.
 
+    /**
+     * This function will use the ultra sonic sensor to measure percentage
+     * of water left in the reservoir.
+     * @return int - The percentage of water left in the reservoir.
+     */
     int checkWaterReservoir();
+
+    /**
+     * This function will use the ground moisture sensor to measure the resistance
+     * of the soil. If its wet the resistance is les so we know how wet the ground is.
+     * @return int - The percentage resistance the soil has.
+     */
     int checkMoistureLevel();
+
     void giveWater();
     void giveWater( unsigned long duration );
+
     void switchWaterPump();
+    void activateWaterPump();
+    void deactivateWaterPump();
+
     void publishPotStatistic();
-    void publishPotWarning( WarningType warningType );
+    void publishPotWarning( uint8_t warningType );
 };
 
 #endif //WATERUP_PLANTPOT_PLANTCARE_H

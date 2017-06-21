@@ -129,7 +129,7 @@ void Communication::publishStatistic(int groundMoistureLevel, int waterReservoir
     }
 }
 
-void Communication::publishWarning(WarningType warningType)
+void Communication::publishWarning(warningTypes warningType)
 {
     snprintf(jsonMessageSendBuffer, JSON_BUFFER_SIZE, potWarningJsonFormat, WiFi.macAddress().c_str(), potWarningCounter++, (char*) warningType);
     if (!statisticPublisher.publish(jsonMessageSendBuffer)) // Did we publish the message to the broker?

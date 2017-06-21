@@ -28,24 +28,20 @@
 
 class MQTT;
 
-/**
- * This collection is used to set the warning type of an MQTT warning message.
- */
-enum WarningType
-{
-    LOW_RESORVOIR = 1,
-    EMPTY_RESORVOIR = 2,
-    LOW_MOISTURE_LEVEL = 3,
-    HIGH_MOISTURE_LEVEL = 4,
-    UNKNOWN_ERROR = 5
-};
-
 class Communication
 {
 public:
+    enum warningTypes {
+        LOW_RESERVOIR  = 1,
+        EMPTY_RESORVOIR = 2,
+        LOW_MOISTURE_LEVEL = 3,
+        HIGH_MOISTURE_LEVEL = 4,
+        UNKNOWN_ERROR = 5
+    };
+
     void setup();
     void publishStatistic(int groundMoistureLevel, int waterReservoirLevel);
-    void publishWarning(WarningType warningType);
+    void publishWarning(warningTypes warningType);
     void startListenForConfiguration();
 
     void plantCareConfigurationListener(char *data, uint16_t len);

@@ -23,9 +23,9 @@ Adafruit_MQTT_Client mqtt(&client, MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_BROK
 Adafruit_MQTT_Publish statisticPublisher = Adafruit_MQTT_Publish(&mqtt, MQTT_BROKER_USERNAME TOPIC_PUBLISH_STATISTIC);
 Adafruit_MQTT_Publish warningPublisher = Adafruit_MQTT_Publish( &mqtt, MQTT_BROKER_USERNAME TOPIC_PUBLISH_WARNING );
 
-Adafruit_MQTT_Subscribe mqttConfigListener = Adafruit_MQTT_Subscribe(&mqtt, MQTT_BROKER_USERNAME TOPIC_SUBSCRIBE_PLANT_CONFIG);
+/*Adafruit_MQTT_Subscribe mqttConfigListener = Adafruit_MQTT_Subscribe(&mqtt, MQTT_BROKER_USERNAME TOPIC_SUBSCRIBE_PLANT_CONFIG);
 Adafruit_MQTT_Subscribe ledConfigListener = Adafruit_MQTT_Subscribe(&mqtt, MQTT_BROKER_USERNAME TOPIC_SUBSCRIBE_PLANT_CONFIG);
-Adafruit_MQTT_Subscribe plantCareConfigListener = Adafruit_MQTT_Subscribe(&mqtt, MQTT_BROKER_USERNAME TOPIC_SUBSCRIBE_PLANT_CONFIG);
+Adafruit_MQTT_Subscribe plantCareConfigListener = Adafruit_MQTT_Subscribe(&mqtt, MQTT_BROKER_USERNAME TOPIC_SUBSCRIBE_PLANT_CONFIG);*/
 
 Communication::Communication( Configuration * potConfiguration )
 {
@@ -91,9 +91,9 @@ void Communication::connect()
     Serial << "[info] - Successfully connected to the MQTT broker." << endl;
 }
 
-Communication* Communication::getConfiguration()
+Configuration* Communication::getConfiguration()
 {
-    return &this->config;
+    return this->config;
 }
 
 void Communication::publishStatistic(int groundMoistureLevel, int waterReservoirLevel)
@@ -111,9 +111,9 @@ void Communication::publishStatistic(int groundMoistureLevel, int waterReservoir
     }
 }
 
-void Communication::publishWarning(WarningType warningType)
+void Communication::publishWarning( uint8_t warningType)
 {
-    snprintf(jsonMessageSendBuffer, JSON_BUFFER_SIZE, potWarningJsonFormat, WiFi.macAddress().c_str(), potWarningCounter++, (char*) warningType);
+    snprintf(jsonMessageSendBuffer, JSON_BUFFER_SIZE, potWarningJsonFormat, WiFi.macAddress().c_str(), potWarningCounter++, warningType);
     if (!statisticPublisher.publish(jsonMessageSendBuffer)) // Did we publish the message to the broker?
     {
         Serial << F("[error] - Unable to send message: ") << jsonMessageSendBuffer << endl;
@@ -127,9 +127,9 @@ void Communication::publishWarning(WarningType warningType)
 
 void Communication::listenForConfiguration()
 {
-    ledConfigListener.setCallback( this->listenForLedConfiguration );
+    /*ledConfigListener.setCallback( this->listenForLedConfiguration );
     mqttConfigListener.setCallback( this->listenForMqttConfiguration );
-    plantCareConfigListener.setCallback( this->listenForPlantCareConfiguration );
+    plantCareConfigListener.setCallback( this->listenForPlantCareConfiguration );*/
 }
 
 void Communication::verifyFingerprint()
@@ -160,6 +160,7 @@ void Communication::verifyFingerprint()
     }
 }
 
+/*
 void Communication::ledConfigurationListener(char *data, uint16_t len)
 {
     LedSettings settings = this->config->getLedSettings();
@@ -185,4 +186,4 @@ void Communication::plantCareConfigurationListener(char *data, uint16_t len)
     //todo check if correct mac address.
     //todo insert received config into settings
     this->config->plantCareSettingsAddress( settings );
-}
+}*/

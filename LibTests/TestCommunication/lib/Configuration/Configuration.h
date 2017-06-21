@@ -69,36 +69,6 @@ template<class T> int readSettings(int startAddress, T& value)
     return currentAddress;
 }
 
-/**
- * Data structure that contains LED configuration.
- */
-struct LedSettings
-{
-    uint8_t red;
-    uint8_t green;
-    uint8_t blue;
-};
-
-/**
- * Data structure that contains MQTT configuration.
- */
-struct MQTTSettings
-{
-    uint16_t statisticPublishInterval;
-    uint16_t resendWarningInterval;
-    uint16_t pingBrokerInterval;
-    uint8_t publishReservoirWarningThreshold;
-};
-
-/**
- * Data structure that contains plant care configuration.
- */
-struct PlantCareSettings
-{
-    uint16_t takeMeasurementInterval;
-    uint16_t sleepAfterGivingWater;
-    uint8_t groundMoistureOptimal;
-};
 
 /**
  * This class is used to store pot configuration to the EEPROM so it persists

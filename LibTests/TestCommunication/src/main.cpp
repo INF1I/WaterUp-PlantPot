@@ -10,7 +10,7 @@
 #include <Streaming.h>
 
 long previousMillisStatistics = 0;
-long statisticMillisInterval = 10000;
+long statisticMillisInterval = 1000;
 
 Communication communication;
 
@@ -18,6 +18,7 @@ void setup()
 {
     Serial.begin(112500);
     communication.setup();
+    previousMillisStatistics = millis();
 }
 
 void loop()
@@ -29,6 +30,6 @@ void loop()
     if( currentMillis - previousMillisStatistics == statisticMillisInterval )
     {
         previousMillisStatistics = currentMillis;
-        communication.publishStatistic(10,10);
+        communication.publishStatistic(random(0,100),random( 0, 100 ));
     }
 }

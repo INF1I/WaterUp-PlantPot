@@ -5,7 +5,7 @@
  * Created: 12-06-2017 11:00
  * Licence: GPLv3 - General Public Licence version 3
  */
-#include <LedController.h>
+#include "LedController.h"
 
 /**
  * Parameter 1 = number of pixels in strip

@@ -7,14 +7,17 @@
 #ifndef WATERUP_PLANTPOT_CONFIGURATION_H
 #define WATERUP_PLANTPOT_CONFIGURATION_H
 
-#include <Arduino.h>
-#include <EEPROM.h>
-#include <Streaming.h>
-
-#include "Communication.h"
-#include "PlantCare.h"
-
-//#define DEBUG_CONFIG 1
+#include <Arduino.h> // Include this library for using basic system functions and variables.
+#include <ESP8266WiFi.h> // Include this library for working with the ESP8266 chip.
+#include <WiFiManager.h> // Include this library for dynamically setting up the WiFi connection.
+#include <Adafruit_MQTT.h> // Include this library for securely connecting to the internet using WiFi.
+#include <Adafruit_MQTT_Client.h> // Include this library for MQTT communication.
+#include <FS.h> // Include this library for access to the ESP8266's file system.
+#include <Streaming.h> // Include this library for using the << Streaming operator.
+#include <EEPROM.h> // Include this library for using the EEPROM flas storage on the huzzah.
+//#include <Configuration.h> // This library contains the code for loading plant pot configuration.
+#include <Communication.h> // This library contains the code for communication between the pot and broker.
+#include <PlantCare.h> // This library contains the code for taking care of the plant.
 
 #define EEPROM_MEMORY_SIZE 512 // The size in bytes of the EEPROM memory (512 for the huzzah).
 #define DEFAULT_EEPROM_ADDRESS_OFFSET 0 // The addess offset of the config storage.
@@ -31,6 +34,10 @@
 #define DEFAULT_SETTING_PLANT_CARE_MEASURE_INTERVAL 60 // The default pot measurement interval setting.
 #define DEFAULT_SETTING_PLANT_CARE_SLEEP_AFTER_WATER 1800 // The default sleep time after giving water setting.
 #define DEFAULT_SETTING_PLANT_CARE_MOISTURE_OPTIMAL 30 // The default optimal ground moisture level setting.
+
+class Communication;
+class Configuration;
+class PlantCare;
 
 /**
  * This template simplifies the writing to EEPROM storage of complex data structures.
@@ -71,10 +78,6 @@ template<class T> int readSettings(int startAddress, T& value)
     }
     return currentAddress;
 }
-
-class PlantCare;
-class Configuration;
-
 /**
  * Data structure that contains LED configuration.
  */
@@ -106,6 +109,7 @@ struct PlantCareSettings
     uint8_t groundMoistureOptimal;
 };
 
+
 /**
  * This class is used to store pot configuration to the EEPROM so it persists
  * when the power is turned off.
@@ -113,6 +117,13 @@ struct PlantCareSettings
 class Configuration
 {
 public:
+    enum WarningType
+    {
+        LOW_RESERVOIR,
+        EMPTY_RESERVOIR,
+        UNKNOWN_ERROR
+    };
+
     Configuration();
     void setup();
     void store();
@@ -161,7 +172,6 @@ private:
     uint8_t getLedSettingsAddress();
     uint8_t getMqttSettingsAddress();
     uint8_t getPlantCareSettingsAddress();
-
 };
 
 #endif //WATERUP_PLANTPOT_CONFIGURATION_H

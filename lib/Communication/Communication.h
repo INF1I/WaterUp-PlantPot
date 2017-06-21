@@ -14,9 +14,10 @@
 #include <Adafruit_MQTT_Client.h> // Include this library for MQTT communication.
 #include <FS.h> // Include this library for access to the ESP8266's file system.
 #include <Streaming.h> // Include this library for using the << Streaming operator.
-
-#include "Configuration.h" //
-#include "PlantCare.h" //
+#include <EEPROM.h> // Include this library for using the EEPROM flas storage on the huzzah.
+#include <Configuration.h> // This library contains the code for loading plant pot configuration.
+//#include <Communication.h> // This library contains the code for communication between the pot and broker.
+#include <PlantCare.h> // This library contains the code for taking care of the plant.
 
 #define MQTT_BROKER_HOST "mqtt.inf1i.ga" // The address of the MQTT broker.
 #define MQTT_BROKER_PORT 8883 // The port to connect to at the MQTT broker.
@@ -33,20 +34,9 @@
 
 #define JSON_BUFFER_SIZE 200 // This holds the default string buffer size of json messages.
 
-/**
- * This collection is used to set the warning type of an MQTT warning message.
- */
-enum WarningType
-{
-    LOW_RESORVOIR = 1,
-    EMPTY_RESORVOIR = 2,
-    LOW_MOISTURE_LEVEL = 3,
-    HIGH_MOISTURE_LEVEL = 4,
-    UNKNOWN_ERROR = 5
-};
-
-class PlantCare;
+class Communication;
 class Configuration;
+class PlantCare;
 
 class Communication
 {
@@ -57,7 +47,7 @@ public:
     Configuration* getConfiguration();
 
     void publishStatistic(int groundMoistureLevel, int waterReservoirLevel);
-    void publishWarning(WarningType warningType);
+    void publishWarning( uint8_t warningType);
     void listenForConfiguration();
 
 
