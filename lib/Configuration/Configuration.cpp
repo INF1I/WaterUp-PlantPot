@@ -26,6 +26,9 @@ void Configuration::setup()
     EEPROM.begin(this->eepromSize);
     delay(10);
     this->load();
+    // HACK remove this!!!!!!!!!!!
+    this->reset();
+    this->store();
 }
 
 void Configuration::store()
