@@ -91,6 +91,21 @@ void testReadFromEEPROM()
     configuration.reset();
     configuration.printConfiguration();
     configuration.printMemory();
+    configuration.load();
+    configuration.printConfiguration();
+}
+
+void testGetConfiguration()
+{
+    configuration.printMemory();
+    configuration.printConfiguration();
+}
+
+void testSetDefaultConfiguration()
+{
+    configuration.reset();
+    configuration.printMemory();
+    configuration.printConfiguration();
 }
 
 void setup()
@@ -108,7 +123,8 @@ void loop()
 
     if( currentMillis-previousMillis == 10000 )
     {
-        testReadFromEEPROM();
+        testSetDefaultConfiguration();
+        //testGetConfiguration();
     }
 }
 

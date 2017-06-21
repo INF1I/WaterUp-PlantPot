@@ -38,15 +38,19 @@
  */
 template<class T> int writeSettings(int startAddress, const T& value)
 {
-    Serial << "[debug] - Write operation" << endl;
-    const byte* p = (const byte*) (const void*) &value;
-    unsigned int currentAddress;
+    Serial << "[debug] - EEPROM Write operation:" << endl;
 
-    for (currentAddress = 0; currentAddress<sizeof(value); currentAddress++)
+    const byte* p = (const byte*) (const void*) &value;
+    unsigned int counter;
+
+    for (counter = 0; counter<sizeof(value); counter++)
     {
+        Serial << "EEPROM[" << startAddress << "] = " << *p << ",\n";
         EEPROM.write(startAddress++, *p++);
     }
-    return currentAddress;
+
+    EEPROM.end();
+    return startAddress+counter;
 }
 
 /**

@@ -36,9 +36,9 @@
  * @param value The data structure to write.
  * @return The last address written to.
  */
-/*
 template<class T> int writeSettings(int startAddress, const T& value)
 {
+    Serial << "[debug] - Write operation" << endl;
     const byte* p = (const byte*) (const void*) &value;
     unsigned int currentAddress;
 
@@ -48,7 +48,6 @@ template<class T> int writeSettings(int startAddress, const T& value)
     }
     return currentAddress;
 }
-*/
 
 /**
  * This template simplifies the reading from EEPROM storage of complex data structures.
@@ -57,8 +56,9 @@ template<class T> int writeSettings(int startAddress, const T& value)
  * @param value The data structure stored in EEPROM.
  * @return The last address read from.
  */
-/*template<class T> int readSettings(int startAddress, T& value)
+template<class T> int readSettings(int startAddress, T& value)
 {
+    Serial << "[debug] - Read operation" << endl;
     byte* p = (byte*) (void*) &value;
     unsigned int currentAddress;
 
@@ -67,7 +67,7 @@ template<class T> int writeSettings(int startAddress, const T& value)
         *p++ = EEPROM.read(startAddress++);
     }
     return currentAddress;
-}*/
+}
 
 /**
  * Data structure that contains LED configuration.
@@ -109,7 +109,9 @@ class Configuration
 public:
     Configuration();
     void setup();
-    void resetToDefaults();
+    void store();
+    void load();
+    void reset();
     void clear();
 
     void setLedSettings( LedSettings settings);
@@ -129,7 +131,15 @@ public:
     void printLedConfiguration();
     void printMqttConfiguration();
     void printPlantCareConfiguration();
+
     void printStorageAddresses();
+
+    void printMemoryDump();
+    void printMemoryDump(uint8_t start, uint8_t end);
+    void printMemory();
+    void printLedMemory();
+    void printMqttMemory();
+    void printPlantCareMemory();
 
 private:
     uint16_t eepromSize;
@@ -145,10 +155,6 @@ private:
     uint8_t getLedSettingsAddress();
     uint8_t getMqttSettingsAddress();
     uint8_t getPlantCareSettingsAddress();
-
-
-
-
 
 };
 
