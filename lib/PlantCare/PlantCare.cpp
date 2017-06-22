@@ -89,6 +89,7 @@ void PlantCare::giveWater()
 {
     if( this->lastMeasurementTime - this->currentTime == this->takeMeasurementInterval && this->lastGivingWaterTime - currentTime > sleepAfterGivingWaterTime)
     {
+        this->lastMeasurementTime = currentTime;
 
         int currentGroundMoisture = checkMoistureLevel();
 
@@ -97,8 +98,8 @@ void PlantCare::giveWater()
             activateWaterPump();
             delay( WATER_PUMP_DEFAULT_TIME );
             deactivateWaterPump();
+            this->lastGivingWaterTime = currentTime+WATER_PUMP_DEFAULT_TIME;
         }
-
     }
 }
 
@@ -118,6 +119,7 @@ void PlantCare::publishPotStatistic()
 {
     if( this->lastPublishStatisticsTime - this->currentTime == this->publishStatisticInterval)
     {
+        this->lastPublishStatisticsTime = this->currentTime;
         int waterLevel = this->checkWaterReservoir();
 
         if( waterLevel < this->publishReservoirWarningThreshold )
@@ -134,6 +136,7 @@ void PlantCare::publishPotWarning( uint8_t warningType )
 {
     if( this->lastPublishWarningTime - this->currentTime == this->republishWarningInterval && this->currentWarning )
     {
+        this->lastPublishWarningTime = this->currentTime;
         this->communication->publishWarning(warningType);
     }
 }
