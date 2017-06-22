@@ -61,6 +61,8 @@ private:
     bool waterPumpState; // The current state of the water pump, either on or off.
     Configuration* configuration; // An configuration instance containing mqtt, led and plant care configuration.
     Communication* communication; // An communication instance for communication between the pot and mqtt broker.
+    uint16_t currentTime;
+    uint8_t currentWarning;
 
     uint16_t lastPublishStatisticsTime;
     uint16_t lastPublishWarningTime;

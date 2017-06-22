@@ -17,6 +17,7 @@ PlantCare::PlantCare( Communication *potCommunication )
     this->waterPumpState = LOW;
     this->communication = potCommunication;
     this->configuration = communication->getConfiguration();
+    this->currentWarning = this->configuration->WarningType::NO_ERROR;
 
     this->lastPublishStatisticsTime = whatTimeIsIt;
     this->lastPublishWarningTime = whatTimeIsIt;
@@ -48,8 +49,8 @@ PlantCare::PlantCare( Communication *potCommunication )
  */
 void PlantCare::takeCareOfPlant()
 {
-    communication->connect();
-
+    currentTime = millis();
+    communication->connect(); // Are we still connected?
 }
 
 /**
@@ -98,10 +99,18 @@ void PlantCare::giveWater( unsigned long duration )
 
 void PlantCare::publishPotStatistic()
 {
-    communication->publishStatistic( checkMoistureLevel(), checkWaterReservoir() );
+    if( this->lastPublishStatisticsTime - this->currentTime == this->publishStatisticInterval)
+    {
+        int waterLevel = this->checkWaterReservoir();
+        if( waterLevel < this->)
+        communication->publishStatistic( this->checkMoistureLevel(), waterLevel );
+    }
 }
 
 void PlantCare::publishPotWarning( uint8_t warningType )
 {
-    communication->publishWarning( warningType );
+    if( this->lastPublishWarningTime - this->currentTime == this->republishWarningInterval && this->currentWarning )
+    {
+        communication->publishWarning(warningType);
+    }
 }

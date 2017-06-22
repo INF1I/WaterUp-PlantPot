@@ -118,9 +118,10 @@ class Configuration
 public:
     enum WarningType
     {
-        LOW_RESERVOIR,
-        EMPTY_RESERVOIR,
-        UNKNOWN_ERROR
+        NO_ERROR = 0,
+        LOW_RESERVOIR = 1,
+        EMPTY_RESERVOIR = 2,
+        UNKNOWN_ERROR = 3
     };
 
     Configuration();

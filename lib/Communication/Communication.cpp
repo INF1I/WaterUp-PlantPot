@@ -26,9 +26,13 @@ Adafruit_MQTT_Subscribe ledConfigListener = Adafruit_MQTT_Subscribe(&mqtt, TOPIC
 Adafruit_MQTT_Subscribe mqttConfigListener = Adafruit_MQTT_Subscribe(&mqtt, TOPIC_SUBSCRIBE_MQTT_CONFIG);
 Adafruit_MQTT_Subscribe plantCareConfigListener = Adafruit_MQTT_Subscribe(&mqtt, TOPIC_SUBSCRIBE_PLANT_CARE_CONFIG);
 
+void listenForPlantCareConfiguration(char *data, uint16_t len);
+void listenForMqttConfiguration(char *data, uint16_t len);
+void listenForLedConfiguration(char *data, uint16_t len);
+
 Communication::Communication( Configuration * potConfiguration )
 {
-    this->config = potConfiguration;
+    Communication::potConfig = potConfiguration;
 }
 
 void Communication::setup()
@@ -54,6 +58,7 @@ void Communication::setup()
     Serial << F("[debug] - Plant pot mac address: ") << WiFi.macAddress() << endl;
     verifyFingerprint(); // Check SHA1 fingerprint of the MQTT broker.
     potMacAddress = WiFi.macAddress();
+    this->listenForConfiguration();// Subscribe mqtt configuration listeners.
 }
 
 void Communication::connect()
@@ -92,7 +97,7 @@ void Communication::connect()
 
 Configuration* Communication::getConfiguration()
 {
-    return this->config;
+    return Communication::potConfig;
 }
 
 void Communication::publishStatistic(int groundMoistureLevel, int waterReservoirLevel)
@@ -126,9 +131,13 @@ void Communication::publishWarning( uint8_t warningType)
 
 void Communication::listenForConfiguration()
 {
-    /*ledConfigListener.setCallback( this->listenForLedConfiguration );
-    mqttConfigListener.setCallback( this->listenForMqttConfiguration );
-    plantCareConfigListener.setCallback( this->listenForPlantCareConfiguration );*/
+    ledConfigListener.setCallback( Communication::listenForLedConfiguration );
+    mqttConfigListener.setCallback( Communication::listenForMqttConfiguration );
+    plantCareConfigListener.setCallback( Communication::listenForPlantCareConfiguration );
+
+    mqtt.subscribe(&ledConfigListener);
+    mqtt.subscribe(&mqttConfigListener);
+    mqtt.subscribe(&plantCareConfigListener);
 }
 
 void Communication::verifyFingerprint()
@@ -159,30 +168,28 @@ void Communication::verifyFingerprint()
     }
 }
 
-/*
-void Communication::ledConfigurationListener(char *data, uint16_t len)
+void Communication::listenForLedConfiguration(char *data, uint16_t len)
 {
-    LedSettings settings = this->config->getLedSettings();
     //todo parse json
     //todo check if correct mac address.
     //todo insert received config into settings
-    this->config->setLedSettings( settings );
+    //Communication::potConfig->setLedSettings();
 }
 
-void Communication::mqttConfigurationListener(char *data, uint16_t len)
+void Communication::listenForMqttConfiguration(char *data, uint16_t len)
 {
-    MQTTSettings settings = this->config->getMqttSettings();
     //todo parse json
     //todo check if correct mac address.
     //todo insert received config into settings
-    this->config->setMQTTSettings( settings );
+    //Communication::potConfig->setLedSettings();
 }
 
-void Communication::plantCareConfigurationListener(char *data, uint16_t len)
+void Communication::listenForPlantCareConfiguration(char *data, uint16_t len)
 {
-    PlantCareSettings settings = this->config->getPlantCareSettings();
     //todo parse json
     //todo check if correct mac address.
     //todo insert received config into settings
-    this->config->plantCareSettingsAddress( settings );
-}*/
+    //Communication::potConfig->setLedSettings();
+}
+
+

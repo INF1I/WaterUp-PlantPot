@@ -40,6 +40,8 @@ class PlantCare;
 class Communication
 {
 public:
+    Configuration *potConfig;
+
     Communication( Configuration * potConfiguration );
     void setup();
     void connect();
@@ -51,12 +53,10 @@ public:
 
 
 private:
-    Configuration *config;
-
     void verifyFingerprint();
-    void listenForPlantCareConfiguration( char *data, uint16_t length );
-    void listenForMqttConfiguration(char *data, uint16_t length);
-    void listenForLedConfiguration(char *data, uint16_t length );
+    static void listenForPlantCareConfiguration( char *data, uint16_t length );
+    static void listenForMqttConfiguration(char *data, uint16_t length);
+    static void listenForLedConfiguration(char *data, uint16_t length );
 };
 
 #endif //WATERUP_PLANTPOT_COMMUNICATION_H
