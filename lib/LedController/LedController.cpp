@@ -45,7 +45,7 @@ void LedController::colorWipe(uint32_t c, uint8_t wait)
 void LedController::setColor(uint8_t r, uint8_t g, uint8_t b)
 {
     colorWipe(strip.Color(g, r, b), 50);
-    delay(100);
+    //delay(100);
     strip.show();
 }
 
@@ -88,6 +88,6 @@ void LedController::ledShow(){
     {
         loopNr = 0;
     }
-    delay(200);
+    //delay(200);
 
 }
