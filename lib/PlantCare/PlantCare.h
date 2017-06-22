@@ -63,6 +63,7 @@ private:
     Communication* communication; // An communication instance for communication between the pot and mqtt broker.
     uint16_t currentTime;
     uint8_t currentWarning;
+    uint8_t publishReservoirWarningThreshold;
 
     uint16_t lastPublishStatisticsTime;
     uint16_t lastPublishWarningTime;
@@ -96,11 +97,10 @@ private:
     int checkMoistureLevel();
 
     void giveWater();
-    void giveWater( unsigned long duration );
-
-    void switchWaterPump();
     void activateWaterPump();
     void deactivateWaterPump();
+
+    void switchWaterPump();
 
     void publishPotStatistic();
     void publishPotWarning( uint8_t warningType );

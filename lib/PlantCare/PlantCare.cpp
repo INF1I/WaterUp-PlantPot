@@ -18,6 +18,7 @@ PlantCare::PlantCare( Communication *potCommunication )
     this->communication = potCommunication;
     this->configuration = communication->getConfiguration();
     this->currentWarning = this->configuration->WarningType::NO_ERROR;
+    this->publishReservoirWarningThreshold= this->configuration->getMqttSettings()->publishReservoirWarningThreshold;
 
     this->lastPublishStatisticsTime = whatTimeIsIt;
     this->lastPublishWarningTime = whatTimeIsIt;
@@ -49,8 +50,9 @@ PlantCare::PlantCare( Communication *potCommunication )
  */
 void PlantCare::takeCareOfPlant()
 {
-    currentTime = millis();
-    communication->connect(); // Are we still connected?
+    this->currentTime = millis();
+    this->communication->connect(); // Are we still connected?
+    this->publishPotStatistic();
 }
 
 /**
@@ -85,16 +87,31 @@ int PlantCare::checkMoistureLevel()
 
 void PlantCare::giveWater()
 {
-    digitalWrite(IO_PIN_WATER_PUMP, HIGH );
-    delay( WATER_PUMP_DEFAULT_TIME );
+    if( this->lastMeasurementTime - this->currentTime == this->takeMeasurementInterval && this->lastGivingWaterTime - currentTime > sleepAfterGivingWaterTime)
+    {
+
+        int currentGroundMoisture = checkMoistureLevel();
+
+        if( currentGroundMoisture < this->groundMoistureOptimal )
+        {
+            activateWaterPump();
+            delay( WATER_PUMP_DEFAULT_TIME );
+            deactivateWaterPump();
+        }
+
+    }
 }
 
-void PlantCare::giveWater( unsigned long duration )
+void PlantCare::activateWaterPump()
 {
-    Serial << F("[debug] Activating the water pump for: ") << duration << F("seconds") << endl;
-    //activateWaterPump();
-    delay(duration);
-    //deactivateWaterPump();
+    Serial << F("[debug] Activating the water pump.") << endl;
+    digitalWrite(IO_PIN_WATER_PUMP, HIGH );
+}
+
+void PlantCare::deactivateWaterPump()
+{
+    Serial << F("[debug] Deactivating the water pump.") << endl;
+    digitalWrite(IO_PIN_WATER_PUMP, LOW );
 }
 
 void PlantCare::publishPotStatistic()
@@ -102,8 +119,14 @@ void PlantCare::publishPotStatistic()
     if( this->lastPublishStatisticsTime - this->currentTime == this->publishStatisticInterval)
     {
         int waterLevel = this->checkWaterReservoir();
-        if( waterLevel < this->)
-        communication->publishStatistic( this->checkMoistureLevel(), waterLevel );
+
+        if( waterLevel < this->publishReservoirWarningThreshold )
+        {
+            this->currentWarning = waterLevel > 5 ? this->configuration->LOW_RESERVOIR : this->configuration->EMPTY_RESERVOIR;
+            this->publishPotWarning( this->currentWarning );
+        }
+
+        this->communication->publishStatistic( this->checkMoistureLevel(), waterLevel );
     }
 }
 
@@ -111,6 +134,6 @@ void PlantCare::publishPotWarning( uint8_t warningType )
 {
     if( this->lastPublishWarningTime - this->currentTime == this->republishWarningInterval && this->currentWarning )
     {
-        communication->publishWarning(warningType);
+        this->communication->publishWarning(warningType);
     }
 }
