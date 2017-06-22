@@ -15,7 +15,7 @@
 #include <Adafruit_NeoPixel.h> // Include this library for handling leds.
 #include <Streaming.h>
 
-#define PIXEL_PIN 6    // Digital IO pin connected to the NeoPixels.
+#define PIXEL_PIN 14    // Digital IO pin connected to the NeoPixels.
 #define PIXEL_COUNT 25  // Number of led's
 
 
