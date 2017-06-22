@@ -16,14 +16,13 @@ LedController ledController;
 
 void setup()
 {
-//    configuration.setup();
-//    communication.setup();
-//    configuration.getPlantCareSettings()->takeMeasurementInterval;
+    configuration.setup();
+    communication.setup();
     ledController.setup();
 }
 
 void loop()
 {
     ledController.setColor(0,200,200);
-//    plantCare.takeCareOfPlant();
+    plantCare.takeCareOfPlant();
 }
