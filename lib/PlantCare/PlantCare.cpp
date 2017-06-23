@@ -62,7 +62,7 @@ void PlantCare::takeCareOfPlant()
  */
 int PlantCare::checkWaterReservoir()
 {
-    return (int)this->calcWaterLevel();
+    return (int) this->calcWaterLevel();
     /*digitalWrite( IO_PIN_SONAR_TRIGGER, LOW);
     delayMicroseconds(2);
     digitalWrite(IO_PIN_SONAR_TRIGGER, HIGH);
@@ -133,7 +133,7 @@ int PlantCare::checkMoistureLevel()
 
 void PlantCare::giveWater()
 {
-    if( this->lastMeasurementTime - this->currentTime == this->takeMeasurementInterval && this->lastGivingWaterTime - currentTime > sleepAfterGivingWaterTime)
+    if( this->currentTime - this->lastMeasurementTime > this->takeMeasurementInterval && currentTime - this->lastGivingWaterTime > sleepAfterGivingWaterTime)
     {
         this->lastMeasurementTime = currentTime;
 
@@ -163,11 +163,13 @@ void PlantCare::deactivateWaterPump()
 
 void PlantCare::publishPotStatistic()
 {
-    if( this->lastPublishStatisticsTime - this->currentTime == this->publishStatisticInterval)
+    Serial << ( this->currentTime - this->lastPublishStatisticsTime ) << ">" << this->publishStatisticInterval << endl;
+
+    if( this->currentTime - this->lastPublishStatisticsTime > this->publishStatisticInterval )
     {
         this->lastPublishStatisticsTime = this->currentTime;
         int waterLevel = this->checkWaterReservoir();
-
+        if(waterLevel == 0) waterLevel = 1;
         if( waterLevel < this->publishReservoirWarningThreshold )
         {
             this->currentWarning = waterLevel > 5 ? this->configuration->LOW_RESERVOIR : this->configuration->EMPTY_RESERVOIR;
@@ -180,7 +182,7 @@ void PlantCare::publishPotStatistic()
 
 void PlantCare::publishPotWarning( uint8_t warningType )
 {
-    if( this->lastPublishWarningTime - this->currentTime == this->republishWarningInterval && this->currentWarning )
+    if( this->currentTime - this->lastPublishWarningTime > this->republishWarningInterval && this->currentWarning )
     {
         this->lastPublishWarningTime = this->currentTime;
         this->communication->publishWarning(warningType);

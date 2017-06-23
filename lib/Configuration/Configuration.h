@@ -26,14 +26,14 @@
 #define DEFAULT_SETTING_LED_GREEN 255 // The default setting for the green led.
 #define DEFAULT_SETTING_LED_BLUE 255 // The default setting for the blue led.
 
-#define DEFAULT_SETTING_MQTT_STATISTIC_INTERVAL 60 // The default statistic publishing interval setting.
-#define DEFAULT_SETTING_MQTT_WARNING_INTERVAL 7400 // The default warning resend interval setting.
-#define DEFAULT_SETTING_MQTT_PING_INTERVAL 60 // The default ping to MQTT broker interval setting.
+#define DEFAULT_SETTING_MQTT_STATISTIC_INTERVAL 10000 // The default statistic publishing interval setting.
+#define DEFAULT_SETTING_MQTT_WARNING_INTERVAL 7200000 // The default warning resend interval setting.
+#define DEFAULT_SETTING_MQTT_PING_INTERVAL 60000 // The default ping to MQTT broker interval setting.
 #define DEFAULT_SETTING_MQTT_RESERVOIR_WARNING_THRESHOLD 30 // The default threshold for publishing low water reservoir messages setting
 
-#define DEFAULT_SETTING_PLANT_CARE_MEASURE_INTERVAL 60 // The default pot measurement interval setting.
-#define DEFAULT_SETTING_PLANT_CARE_SLEEP_AFTER_WATER 1800 // The default sleep time after giving water setting.
-#define DEFAULT_SETTING_PLANT_CARE_MOISTURE_OPTIMAL 30 // The default optimal ground moisture level setting.
+#define DEFAULT_SETTING_PLANT_CARE_MEASURE_INTERVAL 60000 // The default pot measurement interval setting.
+#define DEFAULT_SETTING_PLANT_CARE_SLEEP_AFTER_WATER 3600000 // The default sleep time after giving water setting.
+#define DEFAULT_SETTING_PLANT_CARE_MOISTURE_OPTIMAL 30000 // The default optimal ground moisture level setting.
 
 class Communication;
 class Configuration;
@@ -93,9 +93,9 @@ struct LedSettings
  */
 struct MQTTSettings
 {
-    uint16_t statisticPublishInterval;
-    uint16_t resendWarningInterval;
-    uint16_t pingBrokerInterval;
+    uint32_t statisticPublishInterval;
+    uint32_t resendWarningInterval;
+    uint32_t pingBrokerInterval;
     uint8_t publishReservoirWarningThreshold;
 };
 
@@ -104,8 +104,8 @@ struct MQTTSettings
  */
 struct PlantCareSettings
 {
-    uint16_t takeMeasurementInterval;
-    uint16_t sleepAfterGivingWater;
+    uint32_t takeMeasurementInterval;
+    uint32_t sleepAfterGivingWater;
     uint8_t groundMoistureOptimal;
 };
 

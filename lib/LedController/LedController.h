@@ -33,6 +33,7 @@ private:
      * @param wait
      */
     void colorWipe(uint32_t c, uint8_t wait);
+
 public:
     /**
      * Initiate led's.
@@ -51,6 +52,11 @@ public:
      * Led show
      */
     void ledShow();
+
+    /**
+     * Set the color based on water level
+     */
+    void setColorBasedOnWaterLevel(int waterLevel);
 
 
 };

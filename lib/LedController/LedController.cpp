@@ -24,6 +24,12 @@ unsigned long previousMillis=0;
 uint32_t currentColor;// current Color in case we need it
 uint16_t currentPixel = 0;// what pixel are we operating on
 
+
+long previous = 0;
+long current = 0;
+uint8_t previousWaterLevelPosition = 0;
+
+
 void LedController::setup()
 {
     pinMode( PIXEL_PIN, OUTPUT );
@@ -33,6 +39,7 @@ void LedController::setup()
     currentPixel = 0;
     strip.begin();
     strip.show(); // Initialize all pixels to 'off'
+    previous = millis();
 }
 void LedController::colorWipe(uint32_t c, uint8_t wait)
 {
@@ -91,3 +98,54 @@ void LedController::ledShow(){
     //delay(200);
 
 }
+
+
+/**
+ *  Set color based on water level
+ */
+void LedController::setColorBasedOnWaterLevel(int waterLevel){
+
+    current = millis();
+    if( current - previous > 1000){
+
+        if( waterLevel < 10 )
+        {
+            if(previousWaterLevelPosition != 1){
+                for(int i = 0; i < 100;i++){
+                    this->setColor( (uint8_t) i*1.5 , 0, 0 );
+                    delay(10);
+                }
+            }
+            previousWaterLevelPosition = 1;
+            this->setColor( 150, 0, 0 );
+        }
+        else if( waterLevel < 30 )
+        {
+            if(previousWaterLevelPosition != 2){
+                for(int i = 0; i < 100;i++){
+                    this->setColor( i*2, i*1, 0 );
+                    delay(10);
+                }
+            }
+            previousWaterLevelPosition = 2;
+            // Between red and yellow
+            this->setColor( 200, 100, 0 );
+        }
+        else
+        {
+            if(previousWaterLevelPosition != 3){
+                for(int i = 0; i < 100;i++){
+                    this->setColor( 0, i*2, i*2 );
+                    delay(10);
+                }
+            }
+            previousWaterLevelPosition = 3;
+            this->setColor( 0, 200, 200 );
+        }
+        previous = current;
+    }
+}
+
+
+
+

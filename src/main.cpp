@@ -27,18 +27,8 @@ void loop()
 {
     int waterLevel = plantCare.checkWaterReservoir();
 
-    if( waterLevel < 20 )
-    {
-        ledController.setColor( 150, 0, 0 );
-    }
-    else if( waterLevel < 50 )
-    {
-        ledController.setColor( 255, 165, 0 );
-    }
-    else
-    {
-        ledController.setColor( 0, 200, 200 );
-    }
+    ledController.setColorBasedOnWaterLevel(waterLevel);
 
     plantCare.takeCareOfPlant();
 }
+

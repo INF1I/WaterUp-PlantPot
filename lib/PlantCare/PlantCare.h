@@ -74,21 +74,21 @@ private:
     bool waterPumpState; // The current state of the water pump, either on or off.
     Configuration* configuration; // An configuration instance containing mqtt, led and plant care configuration.
     Communication* communication; // An communication instance for communication between the pot and mqtt broker.
-    uint16_t currentTime;
+    uint32_t currentTime;
     uint8_t currentWarning;
     uint8_t publishReservoirWarningThreshold;
 
-    uint16_t lastPublishStatisticsTime;
-    uint16_t lastPublishWarningTime;
-    uint16_t lastPingTime;
-    uint16_t lastMeasurementTime;
-    uint16_t lastGivingWaterTime;
+    uint32_t lastPublishStatisticsTime;
+    uint32_t lastPublishWarningTime;
+    uint32_t lastPingTime;
+    uint32_t lastMeasurementTime;
+    uint32_t lastGivingWaterTime;
 
-    uint16_t publishStatisticInterval;
-    uint16_t republishWarningInterval;
-    uint16_t pingInterval;
-    uint16_t takeMeasurementInterval;
-    uint16_t sleepAfterGivingWaterTime;
+    uint32_t publishStatisticInterval;
+    uint32_t republishWarningInterval;
+    uint32_t pingInterval;
+    uint32_t takeMeasurementInterval;
+    uint32_t sleepAfterGivingWaterTime;
     uint8_t groundMoistureOptimal;
 
     uint8_t red;
