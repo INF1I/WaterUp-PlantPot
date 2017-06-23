@@ -31,6 +31,12 @@
 #define BOTTOM_CONTENT( cm ) (RESERVOIR_BOTTOM_HEIGHT-cm)*RESERVOIR_BOTTOM_1CM3
 #define TOP_CONTENT( cm ) (RESERVOIR_TOP_HEIGHT-cm)*RESERVOIR_TOP_1CM3
 
+#define potLength 30
+#define potWidth 30
+#define potHeight 40 // Height what the water can reach
+#define innerPotLength 20
+#define innerPotWidth 20
+
 #define IO_PIN_SONAR_TRIGGER 13 // The pin connected trigger port of the ultra sonar sensor.
 #define IO_PIN_SONAR_ECHO 12 // The pin connected to the echo port of the ultra sonar sensor.
 #define IO_PIN_SOIL_MOISTURE A0 // The pin connected to the analog read of the soil moisture sensor.
@@ -56,6 +62,13 @@ public:
      * plant and control everything.
      */
     void takeCareOfPlant();
+
+    /**
+     * This function will use the ultra sonic sensor to measure percentage
+     * of water left in the reservoir.
+     * @return int - The percentage of water left in the reservoir.
+     */
+    int checkWaterReservoir();
 
 private:
     bool waterPumpState; // The current state of the water pump, either on or off.
@@ -83,13 +96,6 @@ private:
     uint8_t blue;
 
     /**
-     * This function will use the ultra sonic sensor to measure percentage
-     * of water left in the reservoir.
-     * @return int - The percentage of water left in the reservoir.
-     */
-    int checkWaterReservoir();
-
-    /**
      * This function will use the ground moisture sensor to measure the resistance
      * of the soil. If its wet the resistance is les so we know how wet the ground is.
      * @return int - The percentage resistance the soil has.
@@ -104,6 +110,10 @@ private:
 
     void publishPotStatistic();
     void publishPotWarning( uint8_t warningType );
+
+    long getDistance();
+    int getMoistureLevel();
+    int calcWaterLevel();
 };
 
 #endif //WATERUP_PLANTPOT_PLANTCARE_H

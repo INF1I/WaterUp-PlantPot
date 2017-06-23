@@ -38,7 +38,7 @@ PlantCare::PlantCare( Communication *potCommunication )
     this->blue = configuration->getLedSettings()->blue;
 
     pinMode( IO_PIN_SONAR_TRIGGER, OUTPUT );
-    pinMode( IO_PIN_SONAR_ECHO, OUTPUT );
+    pinMode( IO_PIN_SONAR_ECHO, INPUT );
     pinMode( IO_PIN_SOIL_MOISTURE, INPUT );
     pinMode( IO_PIN_WATER_PUMP, OUTPUT );
     digitalWrite( IO_PIN_WATER_PUMP, LOW ); // Make sure we don't give the drown the plant.
@@ -50,7 +50,6 @@ PlantCare::PlantCare( Communication *potCommunication )
  */
 void PlantCare::takeCareOfPlant()
 {
-
     this->currentTime = millis();
     this->communication->connect(); // Are we still connected?
     this->publishPotStatistic();
@@ -63,7 +62,8 @@ void PlantCare::takeCareOfPlant()
  */
 int PlantCare::checkWaterReservoir()
 {
-    digitalWrite( IO_PIN_SONAR_TRIGGER, LOW);
+    return (int)this->calcWaterLevel();
+    /*digitalWrite( IO_PIN_SONAR_TRIGGER, LOW);
     delayMicroseconds(2);
     digitalWrite(IO_PIN_SONAR_TRIGGER, HIGH);
     delayMicroseconds(10);
@@ -73,7 +73,51 @@ int PlantCare::checkWaterReservoir()
     delay(10);
     long waterDistance = (Duration * 0.034 / 2);//Convert echo time measurement to centimeters.
     long waterContent = waterDistance > 30 ? BOTTOM_CONTENT(waterDistance) : RESERVOIR_BOTTOM_SIZE + TOP_CONTENT(waterDistance-10);
-    return (int)(RESERVOIR_SIZE/100)*waterContent;
+    return (int)(RESERVOIR_SIZE/100)*waterContent;*/
+}
+
+
+/**
+ * Get the distance in centimeters to the water in the water rersorvoir.
+ * @return long The distance to the water.
+ */
+long PlantCare::getDistance()
+{
+    digitalWrite(IO_PIN_SONAR_TRIGGER, LOW);
+    delayMicroseconds(2);
+    digitalWrite(IO_PIN_SONAR_TRIGGER, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(IO_PIN_SONAR_TRIGGER, LOW);
+
+    long Duration = pulseIn(IO_PIN_SONAR_ECHO, HIGH); //Listening and waiting for wave
+    delay(10);
+    return (Duration * 0.034 / 2);//Converting the reported number to CM
+}
+
+/**
+ * Get the soil resistance mesured by the soil moisture sensor.
+ * @return int The resistance of the soil.
+ */
+int PlantCare::getMoistureLevel()
+{
+    int v = analogRead(IO_PIN_SOIL_MOISTURE);
+    return v;
+}
+
+/**
+ * Calculate the percentage of water left in the water reservoir.
+ * @return waterLevel The percentage of water left in the reservoir.
+ */
+int PlantCare::calcWaterLevel()
+{
+    float distance = getDistance();
+    long surface = (potLength * potWidth) - (innerPotLength * innerPotWidth);
+    float content = surface * potHeight;
+
+    float waterContent = surface * ( potHeight - distance );
+    int waterLevel = (int) (waterContent / content * 100);
+    if(waterLevel < 0) waterLevel = 0;
+    return waterLevel;
 }
 
 /**
@@ -83,7 +127,8 @@ int PlantCare::checkWaterReservoir()
  */
 int PlantCare::checkMoistureLevel()
 {
-    return (int)(1024/analogRead( IO_PIN_SOIL_MOISTURE ))*100;
+    return (int)this->getMoistureLevel();
+    //return (int)(1024/analogRead( IO_PIN_SOIL_MOISTURE ) )*100;
 }
 
 void PlantCare::giveWater()

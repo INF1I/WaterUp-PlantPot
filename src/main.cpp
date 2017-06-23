@@ -17,19 +17,28 @@ LedController ledController;
 
 void setup()
 {
-    delay(5000);
-    Serial.println("Hello world");
     Serial.begin(115200);
-    Serial.println("Hello world");
     configuration.setup();
     communication.setup();
     ledController.setup();
-
-    //
 }
 
 void loop()
 {
-    ledController.setColor(0,200,200);
+    int waterLevel = plantCare.checkWaterReservoir();
+
+    if( waterLevel < 20 )
+    {
+        ledController.setColor( 150, 0, 0 );
+    }
+    else if( waterLevel < 50 )
+    {
+        ledController.setColor( 255, 165, 0 );
+    }
+    else
+    {
+        ledController.setColor( 0, 200, 200 );
+    }
+
     plantCare.takeCareOfPlant();
 }
