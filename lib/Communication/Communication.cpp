@@ -37,9 +37,9 @@ Communication::Communication( Configuration * potConfiguration )
 
 void Communication::setup()
 {
-    Serial.begin(115200);
     delay(10);
     Serial << endl;
+    Serial << "[debug] - Setting up the communication library" << endl;
 
     WiFi.printDiag(Serial);
 
@@ -58,7 +58,7 @@ void Communication::setup()
     Serial << F("[debug] - Plant pot mac address: ") << WiFi.macAddress() << endl;
     verifyFingerprint(); // Check SHA1 fingerprint of the MQTT broker.
     potMacAddress = WiFi.macAddress();
-    this->listenForConfiguration();// Subscribe mqtt configuration listeners.
+    //this->listenForConfiguration();// Subscribe mqtt configuration listeners.
 }
 
 void Communication::connect()
@@ -79,7 +79,7 @@ void Communication::connect()
         Serial << F("[info] - Retrying to connect to the MQTT broker in 5 seconds...") << endl;
 
         mqtt.disconnect(); // Send disconnect package.
-        delay(5000);  // wait 5 seconds
+        delay(2000);  // wait 5 seconds
         maxRetries--;
 
         if (maxRetries==0)

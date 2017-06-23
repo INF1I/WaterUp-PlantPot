@@ -50,6 +50,7 @@ PlantCare::PlantCare( Communication *potCommunication )
  */
 void PlantCare::takeCareOfPlant()
 {
+
     this->currentTime = millis();
     this->communication->connect(); // Are we still connected?
     this->publishPotStatistic();
