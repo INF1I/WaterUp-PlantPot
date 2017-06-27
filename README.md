@@ -31,7 +31,7 @@ setting up your development environment, usage of our libraries, the hardware
 configuration or have some suggestions please submit an [issue here](https://github.com/INF1I/WaterUp-Arduino/issues/new).
 
 ## Repository Authors
-Joris Rietveld - jorisrietveld@gmail.com<br>
+Joris Rietveld - jorisrietveld@gmail.com<br> 
 Alwin Kroesen - alwin.kroesen@student.stenden.com<br>
 
 ## Project members
