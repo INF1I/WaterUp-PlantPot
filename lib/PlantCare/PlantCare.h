@@ -74,26 +74,26 @@ private:
     bool waterPumpState; // The current state of the water pump, either on or off.
     Configuration* configuration; // An configuration instance containing mqtt, led and plant care configuration.
     Communication* communication; // An communication instance for communication between the pot and mqtt broker.
-    uint32_t currentTime;
-    uint8_t currentWarning;
-    uint8_t publishReservoirWarningThreshold;
+    uint32_t currentTime; // The current milliseconds since the last reset.
+    uint8_t currentWarning; // The current warning code.
+    uint8_t publishReservoirWarningThreshold; // The time to wait after publishing warning messages.
 
-    uint32_t lastPublishStatisticsTime;
-    uint32_t lastPublishWarningTime;
-    uint32_t lastPingTime;
-    uint32_t lastMeasurementTime;
-    uint32_t lastGivingWaterTime;
+    uint32_t lastPublishStatisticsTime; // The time in milliseconds we published statistics to the broker.
+    uint32_t lastPublishWarningTime; // The last time in milliseconds we published an warning to the broker.
+    uint32_t lastPingTime; // The last time in milliseconds we pinged to the broker.
+    uint32_t lastMeasurementTime; // The last time in milliseconds we took an measurement.
+    uint32_t lastGivingWaterTime; // The last time in milliseconds we gave water.
 
-    uint32_t publishStatisticInterval;
-    uint32_t republishWarningInterval;
-    uint32_t pingInterval;
-    uint32_t takeMeasurementInterval;
-    uint32_t sleepAfterGivingWaterTime;
-    uint8_t groundMoistureOptimal;
+    uint32_t publishStatisticInterval; // The interval in milliseconds we publish statistics to the broker.
+    uint32_t republishWarningInterval; // The interval in milliseconds to republish warning messages to the broker.
+    uint32_t pingInterval; // The interval in milliseconds to ping to the broker.
+    uint32_t takeMeasurementInterval; // The interval in milliseconds to take pot measurements.
+    uint32_t sleepAfterGivingWaterTime; // The time to wait before giving water to the pant again.
+    uint8_t groundMoistureOptimal; // The optimal ground moisture level.
 
-    uint8_t red;
-    uint8_t green;
-    uint8_t blue;
+    uint8_t red; // The luminosity strength of the red led in the reservoir.
+    uint8_t green; // The luminosity strength of the green led in the reservoir.
+    uint8_t blue; // The luminosity strength of the blue led in the reservoir.
 
     /**
      * This function will use the ground moisture sensor to measure the resistance
@@ -102,17 +102,56 @@ private:
      */
     int checkMoistureLevel();
 
+    /**
+     * This function will take care of giving the plant water. It will give water based on the
+     * configured interval and sleep time.
+     */
     void giveWater();
 
-    void switchWaterPump();
+    /**
+     * This function will switch the water pump state if it was on it will be switched off
+     * and vise versa.
+     */
+    //void switchWaterPump();
 
+    /**
+     * This function will take care of publishing pot statistics to the broker based on
+     * the configured interval and previous published message.
+     */
     void publishPotStatistic();
+
+    /**
+     * This function will take care of publishing pot warnings to the broker based on
+     * the configured republish intervals and previous published message.
+     *
+     * @param warningType   The type of warning to publish like an empty or near empty reservoir.
+     */
     void publishPotWarning( uint8_t warningType );
 
+    /**
+     * This function will measure the distance from the top of the water reservoir to the
+     * water level using the ultra sonic sensor.
+     *
+     * @return  The distance to the water surface in centimeters.
+     */
     long getDistance();
+
+    /**
+     * This function will measure the percentage of resistance of the soil, this resembles
+     * amount of moisture in the ground.
+     *
+     * @return  The percentage of moisture in the ground.
+     */
     int getMoistureLevel();
 
+    /**
+     * This function will switch the water pump on so the plant receives water.
+     */
     void activateWaterPump();
+
+    /**
+     * This function will switch the water pump off so the plant stops receiving water.
+     */
     void deactivateWaterPump();
 };
 

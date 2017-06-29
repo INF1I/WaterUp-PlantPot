@@ -13,10 +13,14 @@
  */
 PlantCare::PlantCare( Communication *potCommunication )
 {
-    long whatTimeIsIt = millis();
-    this->waterPumpState = LOW;
-    this->communication = potCommunication;
-    this->configuration = communication->getConfiguration();
+    /**
+     * The assignment statements below will set the basic pot configuration from the config library
+     * and save it to this object attributes.
+     */
+    long whatTimeIsIt = millis(); // The current milliseconds since the last reset.
+    this->waterPumpState = LOW; // Set the current state of the water pump to LOW so its off when we start.
+    this->communication = potCommunication; // Set the communication instance for communication between the pot and mqtt broker.
+    this->configuration = communication->getConfiguration(); // Set tge configuration instance containing mqtt, led and plant care configuration.
     this->currentWarning = this->configuration->WarningType::NO_ERROR;
     this->publishReservoirWarningThreshold= this->configuration->getMqttSettings()->publishReservoirWarningThreshold;
 
@@ -37,6 +41,9 @@ PlantCare::PlantCare( Communication *potCommunication )
     this->green = configuration->getLedSettings()->green;
     this->blue = configuration->getLedSettings()->blue;
 
+    /**
+     * The pim mode function calls below will setup the I/O pin modes to either input or output.
+     */
     pinMode( IO_PIN_SONAR_TRIGGER, OUTPUT );
     pinMode( IO_PIN_SONAR_ECHO, INPUT );
     pinMode( IO_PIN_SOIL_MOISTURE, INPUT );
@@ -113,6 +120,10 @@ int PlantCare::checkMoistureLevel()
     //return (int)(1024/analogRead( IO_PIN_SOIL_MOISTURE ) )*100;
 }
 
+/**
+ * This function will take care of giving the plant water. It will give water based on the
+ * configured interval and sleep time.
+ */
 void PlantCare::giveWater()
 {
     if( this->currentTime - this->lastMeasurementTime > this->takeMeasurementInterval && this->currentTime - this->lastGivingWaterTime > sleepAfterGivingWaterTime)
@@ -132,18 +143,28 @@ void PlantCare::giveWater()
     }
 }
 
+/**
+ * This function will switch the water pump on so the plant receives water.
+ */
 void PlantCare::activateWaterPump()
 {
     Serial << F("[debug] Activating the water pump.") << endl;
     digitalWrite(IO_PIN_WATER_PUMP, HIGH );
 }
 
+/**
+ * This function will switch the water pump off so the plant stops receiving water.
+ */
 void PlantCare::deactivateWaterPump()
 {
     Serial << F("[debug] Deactivating the water pump.") << endl;
     digitalWrite(IO_PIN_WATER_PUMP, LOW );
 }
 
+/**
+ * This function will take care of publishing pot statistics to the broker based on
+ * the configured interval and previous published message.
+ */
 void PlantCare::publishPotStatistic()
 {
     if( this->currentTime - this->lastPublishStatisticsTime > this->publishStatisticInterval )
@@ -161,6 +182,12 @@ void PlantCare::publishPotStatistic()
     }
 }
 
+/**
+ * This function will take care of publishing pot warnings to the broker based on
+ * the configured republish intervals and previous published message.
+ *
+ * @param warningType   The type of warning to publish like an empty or near empty reservoir.
+ */
 void PlantCare::publishPotWarning( uint8_t warningType )
 {
     if( this->currentTime - this->lastPublishWarningTime > this->republishWarningInterval && this->currentWarning )
