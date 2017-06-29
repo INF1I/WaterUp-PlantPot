@@ -33,13 +33,14 @@
 
 #define DEFAULT_SETTING_PLANT_CARE_MEASURE_INTERVAL 60000 // The default pot measurement interval setting.
 #define DEFAULT_SETTING_PLANT_CARE_SLEEP_AFTER_WATER 3600000 // The default sleep time after giving water setting.
-#define DEFAULT_SETTING_PLANT_CARE_MOISTURE_OPTIMAL 30000 // The default optimal ground moisture level setting.
+#define DEFAULT_SETTING_PLANT_CARE_MOISTURE_OPTIMAL 30 // The default optimal ground moisture level setting.
 
 class Communication; // Forward declare the communication library.
 class Configuration; //  Forward declare the configuration library.
 class PlantCare; // Forward declare the plant care library.
 
 /**
+ * 
  * This template simplifies the writing to EEPROM storage of complex data structures.
  *
  * @param startAddress The EEPROM starting address of the data structure.
@@ -117,6 +118,9 @@ struct PlantCareSettings
 class Configuration
 {
 public:
+    /**
+     * An enumeration containing all possible warning types.
+     */
     enum WarningType
     {
         NO_ERROR = 0,
@@ -125,53 +129,224 @@ public:
         UNKNOWN_ERROR = 3
     };
 
+    /**
+     * This will initiate the configuration library it will set the eeprom size
+     * and default memory addresses used to store configuration.
+     */
     Configuration();
+
+    /**
+     * This will initiate the EEPROM library and it will load the stored settings into ram.
+     */
     void setup();
+
+    /**
+     * This will write the settings stored in ram to eeprom memory for persisting configuration
+     * through power cicles.
+     */
     void store();
+
+    /**
+     * This will read the settings stored in eeprom and load it into ram so we can configure and
+     * update the pot during its use.
+     */
     void load();
+
+    /**
+     *  This will load the default configuration to the configuration stored in ram and
+     *  persist the settings to the eeprom memory.
+     */
     void reset();
+
+    /**
+     * This will iterate through the complete eeprom and write zeros to every address
+     * effectively clearing all stored data on the eeprom.
+     */
     void clear();
 
+    /**
+     * This function accepts an LedSettings struct as argument and will overwrite the current
+     * configuration stored in ram with the one passed as argument.
+     *
+     * @param settings  The new LedSettings to be used.
+     */
     void setLedSettings( LedSettings settings);
+
+    /**
+     * This function accepts the setting for red, green and blue luminosity strength and
+     * overwrite it over the configuration stored in ram.
+     *
+     * @param red       An byte representing the luminosity strength of rhe red led.
+     * @param green     An byte representing the luminosity strength of rhe green led.
+     * @param blue      An byte representing the luminosity strength of rhe blue led.
+     */
     void setLedSettings(uint8_t red, uint8_t green, uint8_t blue);
 
+    /**
+     * This function accepts an MWTTSettings struct as argument and will overwrite the current
+     * configuration stored in ram with the one passed as argument.
+     *
+     * @param settings MQTT settings tored in the MQTTSettings struct.
+     */
     void setMQTTSettings(MQTTSettings settings);
+
+    /**
+     * This function accepts multiple settings about the mqtt communication interval and overwrite
+     * the ones stored in ram with it.
+     *
+     * @param statisticPublishInterval          The interval of publishing statistic messages.
+     * @param resendWarningInterval             The interval of republishing warnings to the user.
+     * @param pingBrokerInterval                The interval of pinging to the broker.
+     * @param publishReservoirWarningThreshold  The threshold of sending an low water level warning too the user.
+     */
     void setMQTTSettings(uint16_t statisticPublishInterval, uint16_t resendWarningInterval, uint16_t pingBrokerInterval, uint8_t publishReservoirWarningThreshold);
 
+    /**
+     * This function accepts an PlantCare struct as argument and will overwrite the current
+     * configuration stored in ram with the one passed as argument.
+     *
+     * @param settings The plant care settings stored in an PlantCare struct.
+     */
     void setPlantCareSettings(PlantCareSettings settings);
+
+    /**
+     * This function accepts some basic plant care settings as argument and will overwrite them
+     * with the ones stored in ram.
+     *
+     * @param takeMeasurementInterval   The interval of taking soil moisture and water reservoir level measurements.
+     * @param sleepAfterGivingWater     The time to wait with giving water after it gave some water.
+     * @param groundMoistureOptimal     The optimal percentage of soil moisture for the current plant.
+     */
     void setPlantCareSettings(uint16_t takeMeasurementInterval, uint16_t sleepAfterGivingWater, uint8_t groundMoistureOptimal);
 
+    /**
+     * This gets the LedSettings struct address currently in use and stored in ram.
+     *
+     * @return LedSettings* an pointer to the led settings struct.
+     */
     LedSettings* getLedSettings();
+
+    /**
+     * This gets the MQTTSettings struct address currently in use and stored in ram.
+     *
+     * @return MQTTSettings* an pointer to the mqtt settings struct.
+     */
     MQTTSettings* getMqttSettings();
+
+    /**
+     * This gets the PlantCareSettings struct address currently in use and stored in ram.
+     *
+     * @return PlantCareSettings* an pointer to the plant care settings struct.
+     */
     PlantCareSettings* getPlantCareSettings();
 
+    /**
+     * This function will print all the current configuration stored in ram.
+     */
     void printConfiguration();
+
+    /**
+     * This function will print the current led configuration stored in ram.
+     */
     void printLedConfiguration();
+
+    /**
+     * This function will print the current mqtt configuration stored in ram.
+     */
     void printMqttConfiguration();
+
+    /**
+     * This function will print the current plant care configuration stored in ram.
+     */
     void printPlantCareConfiguration();
 
+    /**
+     * This function will print all the eeprom memory addresses used to permanently
+     * store configuration on the pot.f
+     */
     void printStorageAddresses();
 
+    /**
+     * This function will print an complete memory dump of all data stored on the
+     * eeprom memory.
+     */
     void printMemoryDump();
+
+    /**
+     * This function will print an ranged memory dump of some of the data stored on
+     * the eeprom memory.
+     *
+     * @param start     The starting address of the memory to dump.
+     * @param end       The ending address of the memory to dump.
+     */
     void printMemoryDump(uint8_t start, uint8_t end);
+
+    /**
+     * This function will print an memory dump of all addresses used to store pot
+     * configuration.
+     */
     void printMemory();
+
+    /**
+     * This function will print an memory dump of all addresses used to store led
+     * configuration.
+     */
     void printLedMemory();
+
+    /**
+     * This function will print an memory dump of all addresses used to store mqtt
+     * configuration.
+     */
     void printMqttMemory();
+
+    /**
+     * This function will print an memory dump of all addresses used to store plant
+     * care configuration.
+     */
     void printPlantCareMemory();
 
 private:
-    uint16_t eepromSize;
-    uint8_t configurationStartAddress;
-    uint8_t configurationEndAddress;
-    uint8_t ledSettingsAddress;
-    uint8_t mqttSettingsAddress;
-    uint8_t plantCareSettingsAddress;
+    uint16_t eepromSize; // The amount of bits available on the eeprom storage.
+    uint8_t configurationStartAddress; // The eeprom starting address of the configuration.
+    uint8_t configurationEndAddress; // The eeprom ending address of the configuration.
+    uint8_t ledSettingsAddress; // The eeprom starting address of the led configuration.
+    uint8_t mqttSettingsAddress; // The eerpom starting address of the mqtt configuration.
+    uint8_t plantCareSettingsAddress; // The eeprom starting address of the plant care configuration.
 
+    /**
+     * This functions returns the size of the eeprom storage.
+     * @return  The size in bits of the eerpom storage.
+     */
     uint16_t getEepromSize();
+
+    /**
+     * Thhis function returns the starting address of all the pot configuration.
+     * @return  An byte containing the start address of all plant configuration.
+     */
     uint8_t getConfigurationStartAddress();
+
+    /**
+     * This function returns the ending address of all the pot configuration.
+     * @return  An byte containing the end address of all plant configuration.
+     */
     uint8_t getConfigurationEndAddress();
+
+    /**
+     * This function returns the starting address of the led configuration.
+     * @return  An byte containing the end address of the led configuration.
+     */
     uint8_t getLedSettingsAddress();
+
+    /**
+     * This function returns the starting address of the mqtt configuration.
+     * @return  An byte containing the end address of the mqtt configuration.
+     */
     uint8_t getMqttSettingsAddress();
+
+    /**
+     * This function returns the starting address of the plant care configuration.
+     * @return  An byte containing the end address of the plant care configuration.
+     */
     uint8_t getPlantCareSettingsAddress();
 };
 

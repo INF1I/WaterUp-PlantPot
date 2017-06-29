@@ -103,8 +103,6 @@ private:
     int checkMoistureLevel();
 
     void giveWater();
-    void activateWaterPump();
-    void deactivateWaterPump();
 
     void switchWaterPump();
 
@@ -113,7 +111,9 @@ private:
 
     long getDistance();
     int getMoistureLevel();
-    int calcWaterLevel();
+
+    void activateWaterPump();
+    void deactivateWaterPump();
 };
 
 #endif //WATERUP_PLANTPOT_PLANTCARE_H

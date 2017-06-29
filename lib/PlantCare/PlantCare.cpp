@@ -53,6 +53,8 @@ void PlantCare::takeCareOfPlant()
     this->currentTime = millis();
     this->communication->connect(); // Are we still connected?
     this->publishPotStatistic();
+    this->giveWater();
+
 }
 
 /**
@@ -62,18 +64,14 @@ void PlantCare::takeCareOfPlant()
  */
 int PlantCare::checkWaterReservoir()
 {
-    return (int) this->calcWaterLevel();
-    /*digitalWrite( IO_PIN_SONAR_TRIGGER, LOW);
-    delayMicroseconds(2);
-    digitalWrite(IO_PIN_SONAR_TRIGGER, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(IO_PIN_SONAR_TRIGGER, LOW);
+    float distance = getDistance();
+    long surface = (potLength * potWidth) - (innerPotLength * innerPotWidth);
+    float content = surface * potHeight;
 
-    long Duration = pulseIn(IO_PIN_SONAR_ECHO, HIGH); //Listening and waiting for wave
-    delay(10);
-    long waterDistance = (Duration * 0.034 / 2);//Convert echo time measurement to centimeters.
-    long waterContent = waterDistance > 30 ? BOTTOM_CONTENT(waterDistance) : RESERVOIR_BOTTOM_SIZE + TOP_CONTENT(waterDistance-10);
-    return (int)(RESERVOIR_SIZE/100)*waterContent;*/
+    float waterContent = surface * ( potHeight - distance );
+    int waterLevel = (int) (waterContent / content * 100);
+    if(waterLevel < 0) waterLevel = 0;
+    return (int)waterLevel;
 }
 
 
@@ -105,22 +103,6 @@ int PlantCare::getMoistureLevel()
 }
 
 /**
- * Calculate the percentage of water left in the water reservoir.
- * @return waterLevel The percentage of water left in the reservoir.
- */
-int PlantCare::calcWaterLevel()
-{
-    float distance = getDistance();
-    long surface = (potLength * potWidth) - (innerPotLength * innerPotWidth);
-    float content = surface * potHeight;
-
-    float waterContent = surface * ( potHeight - distance );
-    int waterLevel = (int) (waterContent / content * 100);
-    if(waterLevel < 0) waterLevel = 0;
-    return waterLevel;
-}
-
-/**
  * This function will use the ground moisture sensor to measure the resistance
  * of the soil. If its wet the resistance is les so we know how wet the ground is.
  * @return int - The percentage resistance the soil has.
@@ -133,8 +115,9 @@ int PlantCare::checkMoistureLevel()
 
 void PlantCare::giveWater()
 {
-    if( this->currentTime - this->lastMeasurementTime > this->takeMeasurementInterval && currentTime - this->lastGivingWaterTime > sleepAfterGivingWaterTime)
+    if( this->currentTime - this->lastMeasurementTime > this->takeMeasurementInterval && this->currentTime - this->lastGivingWaterTime > sleepAfterGivingWaterTime)
     {
+        Serial << F("[debug] - ") << endl;
         this->lastMeasurementTime = currentTime;
 
         int currentGroundMoisture = checkMoistureLevel();
@@ -163,8 +146,6 @@ void PlantCare::deactivateWaterPump()
 
 void PlantCare::publishPotStatistic()
 {
-    Serial << ( this->currentTime - this->lastPublishStatisticsTime ) << ">" << this->publishStatisticInterval << endl;
-
     if( this->currentTime - this->lastPublishStatisticsTime > this->publishStatisticInterval )
     {
         this->lastPublishStatisticsTime = this->currentTime;
