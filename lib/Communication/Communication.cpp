@@ -256,13 +256,23 @@ void Communication::verifyFingerprint()
  */
 void Communication::listenForLedConfiguration(char *data, uint16_t len)
 {
+    /*Serial << F("[debug] - Incoming led configuration message.") << endl << data << endl;
     StaticJsonBuffer<200> jsonBuffer;
     JsonObject& root = jsonBuffer.parseObject(data);
 
-    const char* sensor = root["mac"];
-    long time          = root["potplant-conf"];
-    double latitude    = root["data"][0];
-    double longitude   = root["data"][1];
+    const char* mac = root["mac"];
+    const char* type = root["type"];
+    long optimalMoisture = root["moistureneed"];
+    long measurementInterval = root["interval"];
+
+    if( strcmp( potMacAddress.c_str(), mac))
+    {
+        Serial << F("[debug] - The mac address is valid") << endl;
+    }
+    else
+    {
+        Serial << F("[debug] - The mac address is not valid") << endl;
+    }*/
     //todo parse json
     //todo check if correct mac address.
     //todo insert received config into settings
@@ -279,6 +289,24 @@ void Communication::listenForLedConfiguration(char *data, uint16_t len)
  */
 void Communication::listenForMqttConfiguration(char *data, uint16_t len)
 {
+    /*Serial << F("[debug] - Incoming mqtt configuration message.") << endl << data << endl;
+    StaticJsonBuffer<200> jsonBuffer;
+    JsonObject& root = jsonBuffer.parseObject(data);
+
+    const char* mac = root["mac"];
+    const char* type = root["type"];
+    uint8_t optimalMoisture = root["red"];
+    uint8_t optimalMoisture = root["green"];
+    uint8_t optimalMoisture = root["blue"];
+
+    if( strcmp( potMacAddress.c_str(), mac))
+    {
+        Serial << F("[debug] - The mac address is valid") << endl;
+    }
+    else
+    {
+        Serial << F("[debug] - The mac address is not valid") << endl;
+    }*/
     //todo parse json
     //todo check if correct mac address.
     //todo insert received config into settings
@@ -295,6 +323,25 @@ void Communication::listenForMqttConfiguration(char *data, uint16_t len)
   */
 void Communication::listenForPlantCareConfiguration(char *data, uint16_t len)
 {
+   /* Serial << F("[debug] - Incoming plant care configuration message.") << endl << data << endl;
+    StaticJsonBuffer<200> jsonBuffer;
+    JsonObject& root = jsonBuffer.parseObject(data);
+
+    const char* mac = root["mac"];
+    const char* type = root["type"];
+    long optimalMoisture = root["stat-interval"];
+    long optimalMoisture = root["resend-interval"];
+    long optimalMoisture = root["ping-interval"];
+    uint8_t optimalMoisture = root["publish-threshold"];
+
+    if( strcmp( potMacAddress.c_str(), mac))
+    {
+        Serial << F("[debug] - The mac address is valid") << endl;
+    }
+    else
+    {
+        Serial << F("[debug] - The mac address is not valid") << endl;
+    }*/
     //todo parse json
     //todo check if correct mac address.
     //todo insert received config into settings
