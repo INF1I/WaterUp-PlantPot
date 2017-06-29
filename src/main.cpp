@@ -49,7 +49,7 @@ LedController ledController;
 void setup()
 {
     Serial.begin(115200);
-    configuration.setup();
+//    configuration.setup();
     communication.setup();
     ledController.setup();
 }
@@ -64,5 +64,6 @@ void loop()
     int waterLevel = plantCare.checkWaterReservoir();
     ledController.setColorBasedOnWaterLevel(waterLevel);
     plantCare.takeCareOfPlant();
+//    delay(10000);
 }
 

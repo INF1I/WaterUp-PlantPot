@@ -108,7 +108,7 @@ void LedController::setColorBasedOnWaterLevel(int waterLevel){
     current = millis();
     if( current - previous > 1000){
 
-        if( waterLevel < 10 )
+        if( waterLevel < 35 )
         {
             if(previousWaterLevelPosition != 1){
                 for(int i = 0; i < 100;i++){
@@ -119,7 +119,7 @@ void LedController::setColorBasedOnWaterLevel(int waterLevel){
             previousWaterLevelPosition = 1;
             this->setColor( 150, 0, 0 );
         }
-        else if( waterLevel < 30 )
+        else if( waterLevel < 50 )
         {
             if(previousWaterLevelPosition != 2){
                 for(int i = 0; i < 100;i++){

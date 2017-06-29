@@ -1,6 +1,6 @@
 /**
  * Author: Joris Rietveld <jorisrietveld@gmail.com>
- * Author: Alwin Kroezen <alwin.kroesen@student.stenden.com>
+ * Author: Alwin Kroesen <alwin.kroesen@student.stenden.com>
  * Created: 17-06-2017 20:16
  * Licence: GPLv3 - General Public Licence version 3
  */
@@ -13,11 +13,11 @@
 #include <Adafruit_MQTT.h> // Include this library for securely connecting to the internet using WiFi.
 #include <Adafruit_MQTT_Client.h> // Include this library for MQTT communication.
 #include <ArduinoJson.h> // Include this library for parsing incomming json mesages.
-//#include <FS.h> // Include this library for access to the ESP8266's file system.
+#include <FS.h> // Include this library for access to the ESP8266's file system.
 #include <Streaming.h> // Include this library for using the << Streaming operator.
-//#include <EEPROM.h> // Include this library for using the EEPROM flas storage on the huzzah.
+#include <EEPROM.h> // Include this library for using the EEPROM flas storage on the huzzah.
 #include <Configuration.h> // This library contains the code for loading plant pot configuration.
-//#include <Communication.h> // This library contains the code for communication between the pot and broker.
+#include <Communication.h> // This library contains the code for communication between the pot and broker.
 #include <PlantCare.h> // This library contains the code for taking care of the plant.
 
 #define MQTT_BROKER_HOST "mqtt.inf1i.ga" // The address of the MQTT broker.

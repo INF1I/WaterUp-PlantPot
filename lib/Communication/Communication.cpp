@@ -67,7 +67,10 @@ void listenForLedConfiguration(char *data, uint16_t len);
  */
 Communication::Communication( Configuration * potConfiguration )
 {
+    potConfiguration->setup();
+    delay(1000);
     Communication::potConfig = potConfiguration;
+//    Communication::potConfigot->setup();
 }
 
 /**
@@ -203,9 +206,9 @@ void Communication::publishWarning( uint8_t warningType)
  */
 void Communication::listenForConfiguration()
 {
-    ledConfigListener.setCallback( Communication::listenForLedConfiguration );
-    mqttConfigListener.setCallback( Communication::listenForMqttConfiguration );
-    plantCareConfigListener.setCallback( Communication::listenForPlantCareConfiguration );
+    ledConfigListener.setCallback( &Communication::listenForLedConfiguration );
+    mqttConfigListener.setCallback( &Communication::listenForMqttConfiguration );
+    plantCareConfigListener.setCallback( &Communication::listenForPlantCareConfiguration );
 
     mqtt.subscribe(&ledConfigListener);
     mqtt.subscribe(&mqttConfigListener);

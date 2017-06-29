@@ -82,13 +82,13 @@ void Configuration::reset()
     ledSettingsObject.green = (uint8_t) DEFAULT_SETTING_LED_GREEN;
     ledSettingsObject.blue = (uint8_t) DEFAULT_SETTING_LED_BLUE;
 
-    mqttSettingsObject.statisticPublishInterval = (uint16_t) DEFAULT_SETTING_MQTT_STATISTIC_INTERVAL;
-    mqttSettingsObject.resendWarningInterval = (uint16_t) DEFAULT_SETTING_MQTT_WARNING_INTERVAL;
-    mqttSettingsObject.pingBrokerInterval = (uint16_t) DEFAULT_SETTING_MQTT_PING_INTERVAL;
+    mqttSettingsObject.statisticPublishInterval = (uint32_t) DEFAULT_SETTING_MQTT_STATISTIC_INTERVAL;
+    mqttSettingsObject.resendWarningInterval = (uint32_t) DEFAULT_SETTING_MQTT_WARNING_INTERVAL;
+    mqttSettingsObject.pingBrokerInterval = (uint32_t) DEFAULT_SETTING_MQTT_PING_INTERVAL;
     mqttSettingsObject.publishReservoirWarningThreshold = (uint8_t) DEFAULT_SETTING_MQTT_RESERVOIR_WARNING_THRESHOLD;
 
-    plantCareSettingsObject.takeMeasurementInterval = (uint16_t) DEFAULT_SETTING_PLANT_CARE_MEASURE_INTERVAL;
-    plantCareSettingsObject.sleepAfterGivingWater = (uint16_t) DEFAULT_SETTING_PLANT_CARE_SLEEP_AFTER_WATER;
+    plantCareSettingsObject.takeMeasurementInterval = (uint32_t) DEFAULT_SETTING_PLANT_CARE_MEASURE_INTERVAL;
+    plantCareSettingsObject.sleepAfterGivingWater = (uint32_t) DEFAULT_SETTING_PLANT_CARE_SLEEP_AFTER_WATER;
     plantCareSettingsObject.groundMoistureOptimal = (uint8_t) DEFAULT_SETTING_PLANT_CARE_MOISTURE_OPTIMAL;
     this->store();
 }
@@ -130,7 +130,7 @@ void Configuration::setLedSettings(uint8_t red, uint8_t green, uint8_t blue)
  * @param pingBrokerInterval                The interval of pinging to the broker.
  * @param publishReservoirWarningThreshold  The threshold of sending an low water level warning too the user.
  */
-void Configuration::setMQTTSettings(uint16_t statisticPublishInterval, uint16_t resendWarningInterval, uint16_t pingBrokerInterval, uint8_t publishReservoirWarningThreshold)
+void Configuration::setMQTTSettings(uint32_t statisticPublishInterval, uint32_t resendWarningInterval, uint32_t pingBrokerInterval, uint8_t publishReservoirWarningThreshold)
 {
     mqttSettingsObject.statisticPublishInterval = statisticPublishInterval;
     mqttSettingsObject.resendWarningInterval = resendWarningInterval;
@@ -148,7 +148,7 @@ void Configuration::setMQTTSettings(uint16_t statisticPublishInterval, uint16_t 
  * @param sleepAfterGivingWater     The time to wait with giving water after it gave some water.
  * @param groundMoistureOptimal     The optimal percentage of soil moisture for the current plant.
  */
-void Configuration::setPlantCareSettings(uint16_t takeMeasurementInterval, uint16_t sleepAfterGivingWater, uint8_t groundMoistureOptimal)
+void Configuration::setPlantCareSettings(uint32_t takeMeasurementInterval, uint32_t sleepAfterGivingWater, uint8_t groundMoistureOptimal)
 {
     plantCareSettingsObject.takeMeasurementInterval = takeMeasurementInterval;
     plantCareSettingsObject.sleepAfterGivingWater = sleepAfterGivingWater;

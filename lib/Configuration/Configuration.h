@@ -8,14 +8,14 @@
 #define WATERUP_PLANTPOT_CONFIGURATION_H
 
 #include <Arduino.h> // Include this library for using basic system functions and variables.
-/*#include <ESP8266WiFi.h> // Include this library for working with the ESP8266 chip.
+#include <ESP8266WiFi.h> // Include this library for working with the ESP8266 chip.
 #include <WiFiManager.h> // Include this library for dynamically setting up the WiFi connection.
 #include <Adafruit_MQTT.h> // Include this library for securely connecting to the internet using WiFi.
 #include <Adafruit_MQTT_Client.h> // Include this library for MQTT communication.
-#include <FS.h> // Include this library for access to the ESP8266's file system.*/
+#include <FS.h> // Include this library for access to the ESP8266's file system.
 #include <Streaming.h> // Include this library for using the << Streaming operator.
 #include <EEPROM.h> // Include this library for using the EEPROM flas storage on the huzzah.
-//#include <Configuration.h> // This library contains the code for loading plant pot configuration.
+#include <Configuration.h> // This library contains the code for loading plant pot configuration.
 #include <Communication.h> // This library contains the code for communication between the pot and broker.
 #include <PlantCare.h> // This library contains the code for taking care of the plant.
 
@@ -183,7 +183,7 @@ public:
      * @param pingBrokerInterval                The interval of pinging to the broker.
      * @param publishReservoirWarningThreshold  The threshold of sending an low water level warning too the user.
      */
-    void setMQTTSettings(uint16_t statisticPublishInterval, uint16_t resendWarningInterval, uint16_t pingBrokerInterval, uint8_t publishReservoirWarningThreshold);
+    void setMQTTSettings(uint32_t statisticPublishInterval, uint32_t resendWarningInterval, uint32_t pingBrokerInterval, uint8_t publishReservoirWarningThreshold);
 
     /**
      * This function accepts some basic plant care settings as argument and will overwrite them
@@ -193,7 +193,7 @@ public:
      * @param sleepAfterGivingWater     The time to wait with giving water after it gave some water.
      * @param groundMoistureOptimal     The optimal percentage of soil moisture for the current plant.
      */
-    void setPlantCareSettings(uint16_t takeMeasurementInterval, uint16_t sleepAfterGivingWater, uint8_t groundMoistureOptimal);
+    void setPlantCareSettings(uint32_t takeMeasurementInterval, uint32_t sleepAfterGivingWater, uint8_t groundMoistureOptimal);
 
     /**
      * This gets the LedSettings struct address currently in use and stored in ram.

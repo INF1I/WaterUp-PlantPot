@@ -22,7 +22,7 @@ PlantCare::PlantCare( Communication *potCommunication )
     this->communication = potCommunication; // Set the communication instance for communication between the pot and mqtt broker.
     this->configuration = communication->getConfiguration(); // Set tge configuration instance containing mqtt, led and plant care configuration.
     this->currentWarning = this->configuration->WarningType::NO_ERROR;
-    this->publishReservoirWarningThreshold= this->configuration->getMqttSettings()->publishReservoirWarningThreshold;
+    this->publishReservoirWarningThreshold = this->configuration->getMqttSettings()->publishReservoirWarningThreshold;
 
     this->lastPublishStatisticsTime = whatTimeIsIt;
     this->lastPublishWarningTime = whatTimeIsIt;
