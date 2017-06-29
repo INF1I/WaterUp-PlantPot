@@ -137,14 +137,6 @@ private:
     long getDistance();
 
     /**
-     * This function will measure the percentage of resistance of the soil, this resembles
-     * amount of moisture in the ground.
-     *
-     * @return  The percentage of moisture in the ground.
-     */
-    int getMoistureLevel();
-
-    /**
      * This function will switch the water pump on so the plant receives water.
      */
     void activateWaterPump();

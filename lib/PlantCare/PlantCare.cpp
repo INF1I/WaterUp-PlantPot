@@ -52,13 +52,14 @@ PlantCare::PlantCare( Communication *potCommunication )
 }
 
 /**
- * This is the main function of the project. It will take care of the
- * plant and control everything.
+ * Check if there is connection to the mqtt broker. If not attempt to reconnect to the broker.
+ * Start publishing messages and listening for messages from the broker. And take care of the plant.
  */
 void PlantCare::takeCareOfPlant()
 {
     this->currentTime = millis();
     this->communication->connect(); // Are we still connected?
+    this->communication->listenForConfiguration();
     this->publishPotStatistic();
     this->giveWater();
 
@@ -67,6 +68,7 @@ void PlantCare::takeCareOfPlant()
 /**
  * This function will use the ultra sonic sensor to measure percentage
  * of water left in the reservoir.
+ *
  * @return int - The percentage of water left in the reservoir.
  */
 int PlantCare::checkWaterReservoir()
@@ -83,7 +85,10 @@ int PlantCare::checkWaterReservoir()
 
 
 /**
- * Get the distance in centimeters to the water in the water rersorvoir.
+ * Get the distance in centimeters to the water in the water reservoir. It will write can pule
+ * to the trigger pin so an sound signal is send to in the reservoir then it will measure the
+ * time it took for the echo pin to receive the signal.
+ *
  * @return long The distance to the water.
  */
 long PlantCare::getDistance()
@@ -100,29 +105,19 @@ long PlantCare::getDistance()
 }
 
 /**
- * Get the soil resistance mesured by the soil moisture sensor.
- * @return int The resistance of the soil.
- */
-int PlantCare::getMoistureLevel()
-{
-    int v = analogRead(IO_PIN_SOIL_MOISTURE);
-    return v;
-}
-
-/**
  * This function will use the ground moisture sensor to measure the resistance
  * of the soil. If its wet the resistance is les so we know how wet the ground is.
  * @return int - The percentage resistance the soil has.
  */
 int PlantCare::checkMoistureLevel()
 {
-    return (int)this->getMoistureLevel();
-    //return (int)(1024/analogRead( IO_PIN_SOIL_MOISTURE ) )*100;
+    int soilResistance = analogRead(IO_PIN_SOIL_MOISTURE);
+    return soilResistance;
 }
 
 /**
- * This function will take care of giving the plant water. It will give water based on the
- * configured interval and sleep time.
+ *Take care of giving the plant water. Give water based on the interval configured and wait for an certain
+ * time after giving water so the water has time to spread through the soil.
  */
 void PlantCare::giveWater()
 {
@@ -144,7 +139,8 @@ void PlantCare::giveWater()
 }
 
 /**
- * This function will switch the water pump on so the plant receives water.
+ * Write an voltage on the water pump pin so the transistor will allow the 12v current
+ * to flow through the water pump.
  */
 void PlantCare::activateWaterPump()
 {
@@ -153,7 +149,7 @@ void PlantCare::activateWaterPump()
 }
 
 /**
- * This function will switch the water pump off so the plant stops receiving water.
+ * Switch the transistor off so the power to the water pump gets cut.
  */
 void PlantCare::deactivateWaterPump()
 {
@@ -162,8 +158,8 @@ void PlantCare::deactivateWaterPump()
 }
 
 /**
- * This function will take care of publishing pot statistics to the broker based on
- * the configured interval and previous published message.
+ * Take care of publishing pot statistics to the broker based on the configured
+ * interval and previous tine an message was published.
  */
 void PlantCare::publishPotStatistic()
 {
@@ -183,8 +179,8 @@ void PlantCare::publishPotStatistic()
 }
 
 /**
- * This function will take care of publishing pot warnings to the broker based on
- * the configured republish intervals and previous published message.
+ * Take care of publishing pot warnings to the broker based on the configured republish
+ * intervals and previously send warning message.
  *
  * @param warningType   The type of warning to publish like an empty or near empty reservoir.
  */

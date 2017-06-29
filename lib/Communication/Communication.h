@@ -42,19 +42,19 @@ class Configuration; //  Forward declare the configuration library.
 class PlantCare; // Forward declare the plant care library.
 
 class Communication
-{
-public:
-    /**
-     * An pointer to the pot configuration object.
-     */
-    Configuration *potConfig;
+    {
+    public:
+        /**
+         * An pointer to the pot configuration object.
+         */
+        Configuration *potConfig;
 
-    /**
-     * The constructor will initiate the communication library with some default
-     * values and will save an reference to the configuration library.
-     * @param potConfiguration  An pointer to the configuration library.
-     */
-    Communication( Configuration * potConfiguration );
+        /**
+         * The constructor will initiate the communication library with some default
+         * values and will save an reference to the configuration library.
+         * @param potConfiguration  An pointer to the configuration library.
+         */
+        Communication( Configuration * potConfiguration );
 
     /**
      * This function is used to initiate the Arduino/Huzzah board. It gets

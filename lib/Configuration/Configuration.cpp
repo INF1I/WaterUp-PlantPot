@@ -6,10 +6,25 @@
  */
 #include "Configuration.h"
 
+/**
+ * Create the data structure that contains LED configuration.
+ */
 LedSettings ledSettingsObject;
+
+/**
+ * Create the data structure that contains MQTT configuration.
+ */
 MQTTSettings mqttSettingsObject;
+
+/**
+ * Create the data structure that contains plant care configuration.
+ */
 PlantCareSettings plantCareSettingsObject;
 
+/**
+ * Initiate the configuration library, set the eeprom size
+ * and default memory addresses used to store configuration.
+ */
 Configuration::Configuration()
 {
     this->ledSettingsAddress = DEFAULT_EEPROM_ADDRESS_OFFSET;
@@ -21,6 +36,9 @@ Configuration::Configuration()
     this->eepromSize = EEPROM_MEMORY_SIZE;
 }
 
+/**
+ * Initiate the EEPROM library and load the stored settings into ram.
+ */
 void Configuration::setup()
 {
     EEPROM.begin(this->eepromSize);
@@ -31,6 +49,10 @@ void Configuration::setup()
 //    this->store();
 }
 
+/**
+ * Write the settings stored in ram to eeprom memory for persisting configuration
+ * through power circles.
+ */
 void Configuration::store()
 {
     writeSettings(this->getLedSettingsAddress(), ledSettingsObject);
@@ -38,6 +60,10 @@ void Configuration::store()
     writeSettings(this->getPlantCareSettingsAddress(), plantCareSettingsObject);
 }
 
+/**
+ * Read the settings stored in eeprom and load it into ram so we can configure and
+ * update the pot during its use.
+ */
 void Configuration::load()
 {
     readSettings(this->getLedSettingsAddress(), ledSettingsObject);
@@ -45,6 +71,10 @@ void Configuration::load()
     readSettings(this->getPlantCareSettingsAddress(), plantCareSettingsObject);
 }
 
+/**
+ *  Load the default configuration and overwrite it with the configuration stored
+ *  in ram and persist the new settings to the eeprom memory.
+ */
 void Configuration::reset()
 {
     Serial << F("[debug] - Reseting the configuration to the defaults") << endl;
@@ -63,6 +93,10 @@ void Configuration::reset()
     this->store();
 }
 
+/**
+* Iterate through all eeprom memory addresses and write zeros to every address
+* effectively clearing all stored data on the eeprom.
+*/
 void Configuration::clear()
 {
     for (int i = 0; i<this->eepromSize; i++)
@@ -72,6 +106,12 @@ void Configuration::clear()
     EEPROM.end();
 }
 
+/**
+ * Update the current led configuration stored in ram and persist the settings
+ * to the eeprom memory.
+ *
+ * @param settings  The new LedSettings to be used.
+ */
 void Configuration::setLedSettings(uint8_t red, uint8_t green, uint8_t blue)
 {
     ledSettingsObject.red = red;
@@ -81,6 +121,15 @@ void Configuration::setLedSettings(uint8_t red, uint8_t green, uint8_t blue)
     writeSettings(this->getLedSettingsAddress(), ledSettingsObject);
 }
 
+/**
+ * Update the current mqtt configuration stored in ram and persist the settings
+ * to the eeprom memory.
+ *
+ * @param statisticPublishInterval          The interval of publishing statistic messages.
+ * @param resendWarningInterval             The interval of republishing warnings to the user.
+ * @param pingBrokerInterval                The interval of pinging to the broker.
+ * @param publishReservoirWarningThreshold  The threshold of sending an low water level warning too the user.
+ */
 void Configuration::setMQTTSettings(uint16_t statisticPublishInterval, uint16_t resendWarningInterval, uint16_t pingBrokerInterval, uint8_t publishReservoirWarningThreshold)
 {
     mqttSettingsObject.statisticPublishInterval = statisticPublishInterval;
@@ -91,6 +140,14 @@ void Configuration::setMQTTSettings(uint16_t statisticPublishInterval, uint16_t 
     writeSettings(this->getMqttSettingsAddress(), mqttSettingsObject);
 }
 
+/**
+ * Update the current plant care configuration stored in ram and persist the settings
+ * to the eeprom memory.
+ *
+ * @param takeMeasurementInterval   The interval of taking soil moisture and water reservoir level measurements.
+ * @param sleepAfterGivingWater     The time to wait with giving water after it gave some water.
+ * @param groundMoistureOptimal     The optimal percentage of soil moisture for the current plant.
+ */
 void Configuration::setPlantCareSettings(uint16_t takeMeasurementInterval, uint16_t sleepAfterGivingWater, uint8_t groundMoistureOptimal)
 {
     plantCareSettingsObject.takeMeasurementInterval = takeMeasurementInterval;
@@ -100,16 +157,31 @@ void Configuration::setPlantCareSettings(uint16_t takeMeasurementInterval, uint1
     writeSettings(this->getPlantCareSettingsAddress(), plantCareSettingsObject);
 }
 
+/**
+ * Returns an pointer to the led settings struct.
+ *
+ * @return LedSettings* an pointer to the led settings struct.
+ */
 LedSettings* Configuration::getLedSettings()
 {
     return &ledSettingsObject;
 }
 
+/**
+ * Returns an pointer to the mqtt settings struct.
+ *
+ * @return MQTTSettings* an pointer to the mqtt settings struct.
+ */
 MQTTSettings* Configuration::getMqttSettings()
 {
     return &mqttSettingsObject;
 }
 
+/**
+ * Returns an pointer to the plant care struct.
+ *
+ * @return PlantCareSettings* an pointer to the plant care settings struct.
+ */
 PlantCareSettings* Configuration::getPlantCareSettings()
 {
     return &plantCareSettingsObject;

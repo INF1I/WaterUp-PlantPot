@@ -153,24 +153,16 @@ public:
     void load();
 
     /**
-     *  This will load the default configuration to the configuration stored in ram and
-     *  persist the settings to the eeprom memory.
+     *  This will load the default configuration and overwrite it with the configuration
+     *  stored in ram and persist the new settings to the eeprom memory.
      */
     void reset();
 
     /**
-     * This will iterate through the complete eeprom and write zeros to every address
+     * This will iterate through all eeprom memory addresses and write zeros to every address
      * effectively clearing all stored data on the eeprom.
      */
     void clear();
-
-    /**
-     * This function accepts an LedSettings struct as argument and will overwrite the current
-     * configuration stored in ram with the one passed as argument.
-     *
-     * @param settings  The new LedSettings to be used.
-     */
-    void setLedSettings( LedSettings settings);
 
     /**
      * This function accepts the setting for red, green and blue luminosity strength and
@@ -183,14 +175,6 @@ public:
     void setLedSettings(uint8_t red, uint8_t green, uint8_t blue);
 
     /**
-     * This function accepts an MWTTSettings struct as argument and will overwrite the current
-     * configuration stored in ram with the one passed as argument.
-     *
-     * @param settings MQTT settings tored in the MQTTSettings struct.
-     */
-    void setMQTTSettings(MQTTSettings settings);
-
-    /**
      * This function accepts multiple settings about the mqtt communication interval and overwrite
      * the ones stored in ram with it.
      *
@@ -200,14 +184,6 @@ public:
      * @param publishReservoirWarningThreshold  The threshold of sending an low water level warning too the user.
      */
     void setMQTTSettings(uint16_t statisticPublishInterval, uint16_t resendWarningInterval, uint16_t pingBrokerInterval, uint8_t publishReservoirWarningThreshold);
-
-    /**
-     * This function accepts an PlantCare struct as argument and will overwrite the current
-     * configuration stored in ram with the one passed as argument.
-     *
-     * @param settings The plant care settings stored in an PlantCare struct.
-     */
-    void setPlantCareSettings(PlantCareSettings settings);
 
     /**
      * This function accepts some basic plant care settings as argument and will overwrite them
