@@ -256,6 +256,13 @@ void Communication::verifyFingerprint()
  */
 void Communication::listenForLedConfiguration(char *data, uint16_t len)
 {
+    StaticJsonBuffer<200> jsonBuffer;
+    JsonObject& root = jsonBuffer.parseObject(data);
+
+    const char* sensor = root["mac"];
+    long time          = root["potplant-conf"];
+    double latitude    = root["data"][0];
+    double longitude   = root["data"][1];
     //todo parse json
     //todo check if correct mac address.
     //todo insert received config into settings

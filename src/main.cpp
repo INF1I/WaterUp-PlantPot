@@ -11,6 +11,7 @@
 #include <FS.h> // Include this library for access to the ESP8266's file system.*/
 #include <Streaming.h> // Include this library for using the << Streaming operator.
 #include <EEPROM.h> // Include this library for using the EEPROM flas storage on the huzzah.
+#include <ArduinoJson.h> // Include this library for parsing incomming json mesages.
 #include <Configuration.h> // This library contains the code for loading plant pot configuration.
 #include <Communication.h> // This library contains the code for communication between the pot and broker.
 #include <PlantCare.h> // This library contains the code for taking care of the plant.
