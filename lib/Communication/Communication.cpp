@@ -70,7 +70,6 @@ Communication::Communication( Configuration * potConfiguration )
     potConfiguration->setup();
     delay(1000);
     Communication::potConfig = potConfiguration;
-//    Communication::potConfigot->setup();
 }
 
 /**
@@ -248,6 +247,34 @@ void Communication::verifyFingerprint()
         }
     }
 }
+/*
+void Communication::parseJsonData( char* messageData, uint16_t dataLength, uint8_t receivedMessageType )
+{
+    StaticJsonBuffer<200> staticJsonReceiveBuffer;;
+    JsonObject jsonRoot = staticJsonReceiveBuffer.parseObject( messageData );
+
+    if( jsonRoot.invalid() )
+    {
+        Serial << "[error] - Error receiving json data the json data send by the broker is invalid" << endl;
+        return;
+    }
+
+    if( jsonRoot["mac"] == false or JsonObject["type"] == false )
+    {
+        Serial << "[error] - Error receiving json data the mac and type nodes are missing." << endl;
+        return;
+    }
+
+    String messageMacAddress = jsonRoot["mac"];
+    String messageName = jsonRoot["type"];
+
+    if( not messageMacAddress.equals( WiFi.macAddress() ) )
+    {
+        Serial << "[debug] - The message received is not for us." << endl;
+        return;
+    }
+}
+*/
 
 /**
  * This function callback will be subscribed to the plant care configuration topic.
@@ -258,8 +285,8 @@ void Communication::verifyFingerprint()
  * @param length    The length of the json string.
  */
 void Communication::listenForLedConfiguration(char *data, uint16_t len)
-{
-    /*Serial << F("[debug] - Incoming led configuration message.") << endl << data << endl;
+{/*
+    Serial << F("[debug] - Incoming led configuration message.") << endl << data << endl;
     StaticJsonBuffer<200> jsonBuffer;
     JsonObject& root = jsonBuffer.parseObject(data);
 
@@ -275,10 +302,10 @@ void Communication::listenForLedConfiguration(char *data, uint16_t len)
     else
     {
         Serial << F("[debug] - The mac address is not valid") << endl;
-    }*/
+    }
     //todo parse json
     //todo check if correct mac address.
-    //todo insert received config into settings
+    //todo insert received config into settings*/
     //Communication::potConfig->setLedSettings();
 }
 

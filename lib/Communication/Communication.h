@@ -8,17 +8,17 @@
 #define WATERUP_PLANTPOT_COMMUNICATION_H
 
 #include <Arduino.h> // Include this library for using basic system functions and variables.
+#include <Streaming.h> // Include this library for using the << Streaming operator.
 #include <ESP8266WiFi.h> // Include this library for working with the ESP8266 chip.
+#include <EEPROM.h> // Include this library for using the EEPROM flas storage on the huzzah.
 #include <WiFiManager.h> // Include this library for dynamically setting up the WiFi connection.
 #include <Adafruit_MQTT.h> // Include this library for securely connecting to the internet using WiFi.
 #include <Adafruit_MQTT_Client.h> // Include this library for MQTT communication.
 #include <ArduinoJson.h> // Include this library for parsing incomming json mesages.
-#include <FS.h> // Include this library for access to the ESP8266's file system.
-#include <Streaming.h> // Include this library for using the << Streaming operator.
-#include <EEPROM.h> // Include this library for using the EEPROM flas storage on the huzzah.
 #include <Configuration.h> // This library contains the code for loading plant pot configuration.
-#include <Communication.h> // This library contains the code for communication between the pot and broker.
+//#include <Communication.h> // This library contains the code for communication between the pot and broker.
 #include <PlantCare.h> // This library contains the code for taking care of the plant.
+#include <LedController.h> // This library contains the code for taking care of the plant.
 
 #define MQTT_BROKER_HOST "mqtt.inf1i.ga" // The address of the MQTT broker.
 #define MQTT_BROKER_PORT 8883 // The port to connect to at the MQTT broker.
@@ -48,7 +48,7 @@ class Communication
         /**
          * An pointer to the pot configuration object.
          */
-        Configuration *potConfig;
+        static Configuration *potConfig;
 
         /**
          * The constructor will initiate the communication library with some default
