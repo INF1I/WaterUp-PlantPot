@@ -12,6 +12,7 @@
 #include <Configuration.h> // This library contains the code for loading plant pot configuration.
 #include <Communication.h> // This library contains the code for communication between the pot and broker.
 #include <LedController.h> // This library contains the code for taking care of the plant.
+#include "../PotDebugUtitities.h" // This header contains some debug utilities.
 
 #define RESERVOIR_TOP_HEIGHT 30 // The height of the top of the reservoir.
 #define RESERVOIR_TOP_1CM3 500// 1cm = 500cm³
