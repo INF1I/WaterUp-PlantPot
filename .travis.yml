@@ -34,5 +34,4 @@ install:
     - platformio lib -g install ArduinoJson
 script:
      # Build the project with platformio for the Huzzah board.
-    - pwd
-    - platformio ci --project-conf="./platformio.ini"
+    - platformio run -d "src/main.cpp"
