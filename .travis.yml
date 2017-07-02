@@ -23,7 +23,7 @@ install:
     # Install platformio with pip so we can test if the project compiles.
     - pip install -U platformio
     # Install an library for MQTT communication to our broker specifically written for the Adafruit Huzzah board.
-    - platformio lib -g install Adafruit MQTT Library
+    - platformio lib -g install "Adafruit MQTT Library"
     # Install an library for streaming C++ style output with operator <<
     - platformio lib -g install Streaming
     # Install an library for controlling the led's
