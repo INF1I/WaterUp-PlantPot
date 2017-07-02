@@ -23,10 +23,15 @@ install:
     # Install platformio with pip so we can test if the project compiles.
     - pip install -U platformio
     # Install an library for MQTT communication to our broker specifically written for the Adafruit Huzzah board.
-    - platformio lib -g install "Adafruit MQTT Library"
+    - platformio lib -g install Adafruit MQTT Library
     # Install an library for streaming C++ style output with operator <<
     - platformio lib -g install Streaming
-
+    # Install an library for controlling the led's
+    - platformio lib -g installAdafruit NeoPixel
+    # Install an library configuring wifi connection parameters.
+    - platformio lib -g install WifiManager
+    # Install an library for parsing incoming mqtt messages containing configuration.
+    - platformio lib -g install ArduinoJson
 script:
      # Build the project with platformio for the Huzzah board.
-     - platformio ci --board=huzzah
+    - platformio ci --project-conf=./platoformio.ini
