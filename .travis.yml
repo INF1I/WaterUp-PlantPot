@@ -27,7 +27,7 @@ install:
     # Install an library for streaming C++ style output with operator <<
     - platformio lib -g install Streaming
     # Install an library for controlling the led's
-    - platformio lib -g installAdafruit NeoPixel
+    - platformio lib -g install "Adafruit NeoPixel"
     # Install an library configuring wifi connection parameters.
     - platformio lib -g install WifiManager
     # Install an library for parsing incoming mqtt messages containing configuration.
