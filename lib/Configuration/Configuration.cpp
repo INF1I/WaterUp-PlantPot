@@ -27,6 +27,9 @@ PlantCareSettings plantCareSettingsObject;
  */
 Configuration::Configuration()
 {
+#if defined(POT_DEBUG) or defined(POT_ERROR) //
+    Serial.begin(115200);
+#endif
     this->ledSettingsAddress = DEFAULT_EEPROM_ADDRESS_OFFSET;
     this->mqttSettingsAddress = this->ledSettingsAddress+sizeof(LedSettings);
     this->plantCareSettingsAddress = this->mqttSettingsAddress+sizeof(MQTTSettings);

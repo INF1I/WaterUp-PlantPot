@@ -50,9 +50,9 @@ Adafruit_MQTT_Publish warningPublisher = Adafruit_MQTT_Publish( &mqtt, MQTT_BROK
  * Create the required subscribe clients that listen for incoming configuration messages send by the
  * mqtt broker.
  */
-Adafruit_MQTT_Subscribe ledConfigListener = Adafruit_MQTT_Subscribe( &mqtt, TOPIC_SUBSCRIBE_LED_CONFIG );
-Adafruit_MQTT_Subscribe mqttConfigListener = Adafruit_MQTT_Subscribe( &mqtt, TOPIC_SUBSCRIBE_MQTT_CONFIG );
-Adafruit_MQTT_Subscribe plantCareConfigListener = Adafruit_MQTT_Subscribe( &mqtt, TOPIC_SUBSCRIBE_PLANT_CARE_CONFIG );
+Adafruit_MQTT_Subscribe ledConfigListener = Adafruit_MQTT_Subscribe( &mqtt,  MQTT_BROKER_USERNAME TOPIC_SUBSCRIBE_LED_CONFIG );
+Adafruit_MQTT_Subscribe mqttConfigListener = Adafruit_MQTT_Subscribe( &mqtt, MQTT_BROKER_USERNAME TOPIC_SUBSCRIBE_MQTT_CONFIG );
+Adafruit_MQTT_Subscribe plantCareConfigListener = Adafruit_MQTT_Subscribe( &mqtt, MQTT_BROKER_USERNAME TOPIC_SUBSCRIBE_PLANT_CARE_CONFIG );
 
 Configuration *Communication::potConfig = nullptr; // Initiate the static config variable with null.
 
@@ -79,7 +79,9 @@ void Communication::setup()
     Serial << endl;
     POT_DEBUG_PRINTLN( F( "[debug] - Setting up the communication library" ))
 
+#ifdef POT_DEBUG
     WiFi.printDiag( Serial );
+#endif
 
     WiFiManager wifiManager;
     wifiManager.autoConnect();
@@ -98,6 +100,7 @@ void Communication::setup()
 
     verifyFingerprint(); // Check SHA1 fingerprint of the MQTT broker.
     potMacAddress = WiFi.macAddress();
+    this->listenForConfiguration();
 }
 
 /**
@@ -204,6 +207,10 @@ void Communication::publishWarning( uint8_t warningType )
  */
 void Communication::listenForConfiguration()
 {
+    POT_DEBUG_PRINTLN(
+            F("[debug] - Start listening to configuration messages") NEW_LINE
+            F("[debug] - Listening on:") APPEND MQTT_BROKER_USERNAME APPEND TOPIC_SUBSCRIBE_PLANT_CARE_CONFIG)
+
     ledConfigListener.setCallback( &Communication::listenForLedConfiguration );
     mqttConfigListener.setCallback( &Communication::listenForMqttConfiguration );
     plantCareConfigListener.setCallback( &Communication::listenForPlantCareConfiguration );
@@ -248,11 +255,18 @@ void Communication::verifyFingerprint()
     }
 }
 
-void Communication::parseJsonData( char *messageData, uint16_t dataLength, uint8_t receivedOnListener )
+void Communication::listen()
 {
-    StaticJsonBuffer<JSON_BUFFER_SIZE> staticJsonReceiveBuffer;;
-    JsonObject &jsonRoot = staticJsonReceiveBuffer.parseObject( messageData );
+    mqtt.processPackets(10);
+}
 
+void Communication::parseJsonData( char *messageData, uint16_t messageLength, uint8_t receivedOnListener )
+{
+    /*StaticJsonBuffer<JSON_BUFFER_SIZE> staticJsonReceiveBuffer;
+    JsonObject &jsonRoot = staticJsonReceiveBuffer.parseObject( messageData );
+    Serial.println(messageData);
+    POT_ERROR_PRINTLN( F( "[debug] - Received data from the mqtt broker:" ) APPEND messageData )
+    POT_ERROR_PRINTLN( F( "[debug] - Received data length" ) APPEND dataLength )
     if ( jsonRoot.success())
     {
         POT_ERROR_PRINTLN( F( "[error] - Error receiving json data the json data send by the broker is invalid" ))
@@ -311,7 +325,7 @@ void Communication::parseJsonData( char *messageData, uint16_t dataLength, uint8
         default:
             POT_ERROR_PRINTLN( F("[error] - Unknown configuration type." ))
             break;
-    }
+    }*/
 }
 
 /**
@@ -322,9 +336,40 @@ void Communication::parseJsonData( char *messageData, uint16_t dataLength, uint8
  * @param data      An json string containing plant care configuration.
  * @param messageLength    The length of the json string.
  */
-void Communication::listenForLedConfiguration( char *data, uint16_t messageLength )
+void Communication::listenForLedConfiguration( char *messageData, uint16_t messageLength )
 {
-    Communication::parseJsonData( data, messageLength, Communication::LED_LISTENER );
+    POT_ERROR_PRINTLN( F( "[debug] - Received data from the mqtt broker:" ) APPEND messageData )
+    POT_ERROR_PRINTLN( F( "[debug] - Received data length" ) APPEND messageLength )
+
+    StaticJsonBuffer<JSON_BUFFER_SIZE> staticJsonReceiveBuffer;
+    JsonObject &jsonRoot = staticJsonReceiveBuffer.parseObject( messageData );
+
+    if ( jsonRoot.success())
+    {
+        POT_ERROR_PRINTLN( F( "[error] - Error receiving json data the json data send by the broker is invalid" ))
+        return;
+    }
+
+    if ( jsonRoot[ "mac" ] == false )
+    {
+        POT_ERROR_PRINTLN( F("[error] - Error receiving json data the mac and type nodes are missing." ))
+        return;
+    }
+
+    String messageMacAddress = jsonRoot[ "mac" ];
+
+    if ( not messageMacAddress.equals( WiFi.macAddress()))
+    {
+        POT_DEBUG_PRINTLN( F( "[debug] - The message received is not for us." ))
+        return;
+    }
+
+    Communication::potConfig->setPlantCareSettings(
+            ( uint8_t ) jsonRoot[ "moisture-need" ],
+            ( uint32_t ) jsonRoot[ "interval" ],
+            ( uint32_t ) jsonRoot[ "sleep-after-water" ],
+            ( uint8_t ) jsonRoot[ "contains-plant" ]
+    );
 }
 
 /**
@@ -335,9 +380,40 @@ void Communication::listenForLedConfiguration( char *data, uint16_t messageLengt
  * @param data      An json string containing mqtt configuration.
  * @param length    The length of the json string.
  */
-void Communication::listenForMqttConfiguration( char *data, uint16_t messageLength )
+void Communication::listenForMqttConfiguration( char *messageData, uint16_t messageLength )
 {
-    Communication::parseJsonData( data, messageLength, Communication::MQTT_LISTENER );
+    POT_ERROR_PRINTLN( F( "[debug] - Received data from the mqtt broker:" ) APPEND messageData )
+    POT_ERROR_PRINTLN( F( "[debug] - Received data length" ) APPEND messageLength )
+
+    StaticJsonBuffer<JSON_BUFFER_SIZE> staticJsonReceiveBuffer;
+    JsonObject &jsonRoot = staticJsonReceiveBuffer.parseObject( messageData );
+
+    if ( jsonRoot.success())
+    {
+        POT_ERROR_PRINTLN( F( "[error] - Error receiving json data the json data send by the broker is invalid" ))
+        return;
+    }
+
+    if ( jsonRoot[ "mac" ] == false )
+    {
+        POT_ERROR_PRINTLN( F("[error] - Error receiving json data the mac and type nodes are missing." ))
+        return;
+    }
+
+    String messageMacAddress = jsonRoot[ "mac" ];
+
+    if ( not messageMacAddress.equals( WiFi.macAddress()))
+    {
+        POT_DEBUG_PRINTLN( F( "[debug] - The message received is not for us." ))
+        return;
+    }
+
+    Communication::potConfig->setPlantCareSettings(
+            ( uint8_t ) jsonRoot[ "moisture-need" ],
+            ( uint32_t ) jsonRoot[ "interval" ],
+            ( uint32_t ) jsonRoot[ "sleep-after-water" ],
+            ( uint8_t ) jsonRoot[ "contains-plant" ]
+    );
 }
 
 /**
@@ -348,9 +424,40 @@ void Communication::listenForMqttConfiguration( char *data, uint16_t messageLeng
   * @param data      An json string containing led configuration.
   * @param length    The length of the json string.
   */
-void Communication::listenForPlantCareConfiguration( char *data, uint16_t messageLength )
+void Communication::listenForPlantCareConfiguration( char *messageData, uint16_t messageLength )
 {
-    Communication::parseJsonData( data, messageLength, Communication::PLANT_CARE_LISTENER );
+    POT_ERROR_PRINTLN( F( "[debug] - Received data from the mqtt broker:" ) APPEND messageData )
+    POT_ERROR_PRINTLN( F( "[debug] - Received data length" ) APPEND messageLength )
+
+    StaticJsonBuffer<JSON_BUFFER_SIZE> staticJsonReceiveBuffer;
+    JsonObject &jsonRoot = staticJsonReceiveBuffer.parseObject( messageData );
+
+    if ( jsonRoot.success())
+    {
+        POT_ERROR_PRINTLN( F( "[error] - Error receiving json data the json data send by the broker is invalid" ))
+        return;
+    }
+
+    if ( jsonRoot[ "mac" ] == false )
+    {
+        POT_ERROR_PRINTLN( F("[error] - Error receiving json data the mac and type nodes are missing." ))
+        return;
+    }
+
+    String messageMacAddress = jsonRoot[ "mac" ];
+
+    if ( not messageMacAddress.equals( WiFi.macAddress()))
+    {
+        POT_DEBUG_PRINTLN( F( "[debug] - The message received is not for us." ))
+        return;
+    }
+
+    Communication::potConfig->setPlantCareSettings(
+            ( uint8_t ) jsonRoot[ "moisture-need" ],
+            ( uint32_t ) jsonRoot[ "interval" ],
+            ( uint32_t ) jsonRoot[ "sleep-after-water" ],
+            ( uint8_t ) jsonRoot[ "contains-plant" ]
+    );
 }
 
 

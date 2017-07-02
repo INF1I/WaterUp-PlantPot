@@ -1,0 +1,5 @@
+{
+  "plant-config": {"mac":"5e:70:4b:5b:13:0e","moisture-need":50,"interval":3600,"contains-plant":1},
+  "led-config": {"mac":"5e:70:4b:5b:13:0e","red":255,"green": 255,"blue":255},
+  "mqtt-config": {"mac": "5e:70:4b:5b:13:0e","stat-interval": 60,"resend-interval": 7200,"ping-interval": 60,"publish-threshold":30}
+}

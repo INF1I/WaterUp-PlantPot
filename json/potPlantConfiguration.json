@@ -3,7 +3,7 @@
     "mac": "5e:70:4b:5b:13:0e",
     "moisture-need" : 50,
     "interval" : 3600,
-    "contains-plant" : true
+    "contains-plant" : 1
   },
   "led-config" : {
     "mac":"5e:70:4b:5b:13:0e",
@@ -19,3 +19,4 @@
     "publish-threshold" : 30
     }
 }
+

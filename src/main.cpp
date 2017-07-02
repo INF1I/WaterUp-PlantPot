@@ -41,9 +41,6 @@ LedController ledController;
  */
 void setup()
 {
-#if defined(POT_DEBUG) or defined(POT_ERROR) //
-    Serial.begin(115200);
-#endif
     communication.setup();
     ledController.setup();
 }

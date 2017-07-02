@@ -16,6 +16,7 @@
 #include <Arduino.h> // Include this library for using basic system functions and variables.
 #include <Streaming.h> // Include this library for using the << Streaming operator.
 #include "../PotDebugUtitities.h" // This header contains some debug utilities.
+#include "../CommonDataTypes.h" // This header contains some data structures that are shared between libraries.
 #include <ESP8266WiFi.h> // Include this library for working with the ESP8266 chip.
 #include <WiFiManager.h> // Include this library for dynamically setting up the WiFi connection.
 #include <Adafruit_MQTT.h> // Include this library for securely connecting to the internet using WiFi.
@@ -37,7 +38,11 @@
 #define TOPIC_SUBSCRIBE_LED_CONFIG "/subscribe/config/led" // This is the MQTT topic used to listen for led configuration.
 #define TOPIC_SUBSCRIBE_MQTT_CONFIG "/subscribe/config/mqtt" // This is the MQTT topic used to listen for mqtt configuration.
 #define TOPIC_SUBSCRIBE_PLANT_CARE_CONFIG "/subscribe/config/plant-care" // This is the MQTT topic used to listen for plant care configuration.
+#define SUBSCRIBE_QOS_LEVEL 0
 
+//inf1i-plantpot/subscribe/config/led
+//inf1i-plantpot/subscribe/config/mqtt
+//inf1i-plantpot/subscribe/config/plant-care
 #define JSON_BUFFER_SIZE 200 // This holds the default string buffer size of json messages.
 
 class Communication; // Forward declare the communication library.
@@ -102,6 +107,8 @@ public:
      * This function will start listening for configuration send by the mqtt broker.
      */
     void listenForConfiguration();
+
+    void listen();
 
 private:
     static const uint8_t LED_LISTENER = 0;

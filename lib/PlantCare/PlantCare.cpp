@@ -64,7 +64,7 @@ void PlantCare::takeCareOfPlant()
 {
     this->currentTime = millis();
     this->communication->connect(); // Are we still connected?
-    this->communication->listenForConfiguration();
+    this->communication->listen();
 
     if( this->containsPlant == 1 )
     {
@@ -81,9 +81,6 @@ void PlantCare::takeCareOfPlant()
  */
 int PlantCare::checkWaterReservoir()
 {
-    long startTime = millis();
-    POT_DEBUG_PRINTLN( F("[debug] - Checking the water reservoir") )
-
     // Clear the trigger pin.
     digitalWrite(IO_PIN_SONAR_TRIGGER, LOW);
     delayMicroseconds(2);
@@ -99,7 +96,7 @@ int PlantCare::checkWaterReservoir()
 
     // Convert response time in microseconds to distance in centimeters.
     long cmDistanceToWaterSurface  = responseTime * SOUND_SPEED_CM_PER_MICRO_SECOND / 2;
-    POT_DEBUG_PRINTLN( F("[debug] - The distance from the ultrasonic sensor to the water surface is: ") APPEND cmDistanceToWaterSurface )
+    //POT_DEBUG_PRINTLN( F("[debug] - The distance from the ultrasonic sensor to the water surface is: ") APPEND cmDistanceToWaterSurface )
 
     // Calculate how much water is left in the reservoir.
     uint16_t waterLeftInReservoir = RESERVOIR_CONTENT_CM_3 - (RESERVOIR_1_CM_CONTENT_CM_3 * cmDistanceToWaterSurface );
@@ -118,8 +115,8 @@ int PlantCare::checkMoistureLevel()
     uint16_t soilResistance = analogRead(IO_PIN_SOIL_MOISTURE);
     uint8_t percentageOfSoilMoisture = soilResistance / (1024/100);
 
-    POT_DEBUG_PRINTLN( F("[debug] - Checking the soil moisture level") NEW_LINE
-    F("[debug] - Measured ") APPEND soilResistance F( "/1024 so the percentage is: " ) APPEND percentageOfSoilMoisture)
+    /*POT_DEBUG_PRINTLN( F("[debug] - Checking the soil moisture level") NEW_LINE
+    F("[debug] - Measured ") APPEND soilResistance APPEND F( "/1024 so the percentage is: " ) APPEND percentageOfSoilMoisture)*/
 
     return percentageOfSoilMoisture;
 }
@@ -132,7 +129,7 @@ void PlantCare::giveWater()
 {
     if( this->currentTime - this->lastMeasurementTime > this->takeMeasurementInterval && this->currentTime - this->lastGivingWaterTime > sleepAfterGivingWaterTime)
     {
-        Serial << F("[debug] - Giving water to the plant.") << endl;
+        POT_DEBUG_PRINTLN( F("[debug] - Giving water to the plant."))
         this->lastMeasurementTime = currentTime;
         int currentGroundMoisture = checkMoistureLevel();
 
@@ -152,7 +149,7 @@ void PlantCare::giveWater()
  */
 void PlantCare::activateWaterPump()
 {
-    Serial << F("[debug] Activating the water pump.") << endl;
+    POT_DEBUG_PRINTLN( F("[debug] Activating the water pump."))
     digitalWrite(IO_PIN_WATER_PUMP, HIGH );
 }
 
@@ -161,7 +158,7 @@ void PlantCare::activateWaterPump()
  */
 void PlantCare::deactivateWaterPump()
 {
-    Serial << F("[debug] Deactivating the water pump.") << endl;
+    POT_DEBUG_PRINTLN( F("[debug] Deactivating the water pump."))
     digitalWrite(IO_PIN_WATER_PUMP, LOW );
 }
 
@@ -173,10 +170,12 @@ void PlantCare::publishPotStatistic()
 {
     if( this->currentTime - this->lastPublishStatisticsTime > this->publishStatisticInterval )
     {
+        POT_DEBUG_PRINTLN( F("[debug] - Publishing statistic message to the mqtt broker.") )
         this->lastPublishStatisticsTime = this->currentTime;
         int waterLevel = this->checkWaterReservoir();
         if(waterLevel == 0) waterLevel = 1;
-        if( waterLevel < this->publishReservoirWarningThreshold )
+
+        if( waterLevel < this->publishReservoirWarningThreshold ) // Should we send an warning to the user?
         {
             this->currentWarning = waterLevel > 5 ? this->configuration->LOW_RESERVOIR : this->configuration->EMPTY_RESERVOIR;
             this->publishPotWarning( this->currentWarning );
@@ -196,6 +195,7 @@ void PlantCare::publishPotWarning( uint8_t warningType )
 {
     if( this->currentTime - this->lastPublishWarningTime > this->republishWarningInterval && this->currentWarning )
     {
+        POT_DEBUG_PRINTLN( F("[debug] - Publishing warning message to the mqtt broker.") )
         this->lastPublishWarningTime = this->currentTime;
         this->communication->publishWarning(warningType);
     }
