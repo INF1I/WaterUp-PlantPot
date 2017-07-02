@@ -260,14 +260,15 @@ void Communication::listen()
     mqtt.processPackets(10);
 }
 
-void Communication::parseJsonData( char *messageData, uint16_t messageLength, uint8_t receivedOnListener )
+void Communication::parseJsonData( char *messageData, uint16_t dataLength, uint8_t receivedOnListener )
 {
-    /*StaticJsonBuffer<JSON_BUFFER_SIZE> staticJsonReceiveBuffer;
+    StaticJsonBuffer<JSON_BUFFER_SIZE> staticJsonReceiveBuffer;
     JsonObject &jsonRoot = staticJsonReceiveBuffer.parseObject( messageData );
-    Serial.println(messageData);
+
     POT_ERROR_PRINTLN( F( "[debug] - Received data from the mqtt broker:" ) APPEND messageData )
-    POT_ERROR_PRINTLN( F( "[debug] - Received data length" ) APPEND dataLength )
-    if ( jsonRoot.success())
+    POT_ERROR_PRINTLN( F( "[debug] - Received data length" ) APPEND messageData )
+
+    if ( not jsonRoot.success())
     {
         POT_ERROR_PRINTLN( F( "[error] - Error receiving json data the json data send by the broker is invalid" ))
         return;
@@ -325,7 +326,7 @@ void Communication::parseJsonData( char *messageData, uint16_t messageLength, ui
         default:
             POT_ERROR_PRINTLN( F("[error] - Unknown configuration type." ))
             break;
-    }*/
+    }
 }
 
 /**
@@ -336,40 +337,9 @@ void Communication::parseJsonData( char *messageData, uint16_t messageLength, ui
  * @param data      An json string containing plant care configuration.
  * @param messageLength    The length of the json string.
  */
-void Communication::listenForLedConfiguration( char *messageData, uint16_t messageLength )
+void Communication::listenForLedConfiguration( char *data, uint16_t messageLength )
 {
-    POT_ERROR_PRINTLN( F( "[debug] - Received data from the mqtt broker:" ) APPEND messageData )
-    POT_ERROR_PRINTLN( F( "[debug] - Received data length" ) APPEND messageLength )
-
-    StaticJsonBuffer<JSON_BUFFER_SIZE> staticJsonReceiveBuffer;
-    JsonObject &jsonRoot = staticJsonReceiveBuffer.parseObject( messageData );
-
-    if ( jsonRoot.success())
-    {
-        POT_ERROR_PRINTLN( F( "[error] - Error receiving json data the json data send by the broker is invalid" ))
-        return;
-    }
-
-    if ( jsonRoot[ "mac" ] == false )
-    {
-        POT_ERROR_PRINTLN( F("[error] - Error receiving json data the mac and type nodes are missing." ))
-        return;
-    }
-
-    String messageMacAddress = jsonRoot[ "mac" ];
-
-    if ( not messageMacAddress.equals( WiFi.macAddress()))
-    {
-        POT_DEBUG_PRINTLN( F( "[debug] - The message received is not for us." ))
-        return;
-    }
-
-    Communication::potConfig->setPlantCareSettings(
-            ( uint8_t ) jsonRoot[ "moisture-need" ],
-            ( uint32_t ) jsonRoot[ "interval" ],
-            ( uint32_t ) jsonRoot[ "sleep-after-water" ],
-            ( uint8_t ) jsonRoot[ "contains-plant" ]
-    );
+    Communication::parseJsonData( data, messageLength, Communication::LED_LISTENER );
 }
 
 /**
@@ -380,40 +350,9 @@ void Communication::listenForLedConfiguration( char *messageData, uint16_t messa
  * @param data      An json string containing mqtt configuration.
  * @param length    The length of the json string.
  */
-void Communication::listenForMqttConfiguration( char *messageData, uint16_t messageLength )
+void Communication::listenForMqttConfiguration( char *data, uint16_t messageLength )
 {
-    POT_ERROR_PRINTLN( F( "[debug] - Received data from the mqtt broker:" ) APPEND messageData )
-    POT_ERROR_PRINTLN( F( "[debug] - Received data length" ) APPEND messageLength )
-
-    StaticJsonBuffer<JSON_BUFFER_SIZE> staticJsonReceiveBuffer;
-    JsonObject &jsonRoot = staticJsonReceiveBuffer.parseObject( messageData );
-
-    if ( jsonRoot.success())
-    {
-        POT_ERROR_PRINTLN( F( "[error] - Error receiving json data the json data send by the broker is invalid" ))
-        return;
-    }
-
-    if ( jsonRoot[ "mac" ] == false )
-    {
-        POT_ERROR_PRINTLN( F("[error] - Error receiving json data the mac and type nodes are missing." ))
-        return;
-    }
-
-    String messageMacAddress = jsonRoot[ "mac" ];
-
-    if ( not messageMacAddress.equals( WiFi.macAddress()))
-    {
-        POT_DEBUG_PRINTLN( F( "[debug] - The message received is not for us." ))
-        return;
-    }
-
-    Communication::potConfig->setPlantCareSettings(
-            ( uint8_t ) jsonRoot[ "moisture-need" ],
-            ( uint32_t ) jsonRoot[ "interval" ],
-            ( uint32_t ) jsonRoot[ "sleep-after-water" ],
-            ( uint8_t ) jsonRoot[ "contains-plant" ]
-    );
+    Communication::parseJsonData( data, messageLength, Communication::MQTT_LISTENER );
 }
 
 /**
@@ -424,40 +363,9 @@ void Communication::listenForMqttConfiguration( char *messageData, uint16_t mess
   * @param data      An json string containing led configuration.
   * @param length    The length of the json string.
   */
-void Communication::listenForPlantCareConfiguration( char *messageData, uint16_t messageLength )
+void Communication::listenForPlantCareConfiguration( char *data, uint16_t messageLength )
 {
-    POT_ERROR_PRINTLN( F( "[debug] - Received data from the mqtt broker:" ) APPEND messageData )
-    POT_ERROR_PRINTLN( F( "[debug] - Received data length" ) APPEND messageLength )
-
-    StaticJsonBuffer<JSON_BUFFER_SIZE> staticJsonReceiveBuffer;
-    JsonObject &jsonRoot = staticJsonReceiveBuffer.parseObject( const_cast<char*>(messageData) );
-
-    if ( jsonRoot.success())
-    {
-        POT_ERROR_PRINTLN( F( "[error] - Error receiving json data the json data send by the broker is invalid" ))
-        return;
-    }
-
-    if ( jsonRoot[ "mac" ] == false )
-    {
-        POT_ERROR_PRINTLN( F("[error] - Error receiving json data the mac and type nodes are missing." ))
-        return;
-    }
-
-    String messageMacAddress = jsonRoot[ "mac" ];
-
-    if ( not messageMacAddress.equals( WiFi.macAddress()))
-    {
-        POT_DEBUG_PRINTLN( F( "[debug] - The message received is not for us." ))
-        return;
-    }
-
-    Communication::potConfig->setPlantCareSettings(
-            ( uint8_t ) jsonRoot[ "moisture-need" ],
-            ( uint32_t ) jsonRoot[ "interval" ],
-            ( uint32_t ) jsonRoot[ "sleep-after-water" ],
-            ( uint8_t ) jsonRoot[ "contains-plant" ]
-    );
+    Communication::parseJsonData( data, messageLength, Communication::PLANT_CARE_LISTENER );
 }
 
 
