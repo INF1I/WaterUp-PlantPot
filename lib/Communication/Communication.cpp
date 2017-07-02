@@ -430,8 +430,7 @@ void Communication::listenForPlantCareConfiguration( char *messageData, uint16_t
     POT_ERROR_PRINTLN( F( "[debug] - Received data length" ) APPEND messageLength )
 
     StaticJsonBuffer<JSON_BUFFER_SIZE> staticJsonReceiveBuffer;
-
-    JsonObject jsonRoot = staticJsonReceiveBuffer.parseObject( messageData );
+    JsonObject &jsonRoot = staticJsonReceiveBuffer.parseObject( const_cast<char*>(messageData) );
 
     if ( jsonRoot.success())
     {
