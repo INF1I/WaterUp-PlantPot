@@ -54,7 +54,7 @@ Adafruit_MQTT_Subscribe ledConfigListener = Adafruit_MQTT_Subscribe( &mqtt, TOPI
 Adafruit_MQTT_Subscribe mqttConfigListener = Adafruit_MQTT_Subscribe( &mqtt, TOPIC_SUBSCRIBE_MQTT_CONFIG );
 Adafruit_MQTT_Subscribe plantCareConfigListener = Adafruit_MQTT_Subscribe( &mqtt, TOPIC_SUBSCRIBE_PLANT_CARE_CONFIG );
 
-Configuration* Communication::potConfig = nullptr; // Initiate the static config variable with null.
+Configuration *Communication::potConfig = nullptr; // Initiate the static config variable with null.
 
 /**
  * The constructor will initiate the communication library with some default
@@ -77,7 +77,7 @@ void Communication::setup()
 {
     delay( 10 );
     Serial << endl;
-    Serial << "[debug] - Setting up the communication library" << endl;
+    POT_DEBUG_PRINTLN( F( "[debug] - Setting up the communication library" ))
 
     WiFi.printDiag( Serial );
 
@@ -90,10 +90,12 @@ void Communication::setup()
         Serial << F( "." );
     }
 
-    Serial << F( "[info] - Successfully connected to the wifi network." ) << endl;
-    Serial << F( "[debug] - IP address assigned from the router: " ) << WiFi.localIP() << endl;
-    Serial << F( "[info] - Successfully connected to the wifi network." ) << endl;
-    Serial << F( "[debug] - Plant pot mac address: " ) << WiFi.macAddress() << endl;
+    POT_DEBUG_PRINTLN(
+            F( "[info] - Successfully connected to the wifi network.\n" ) NEW_LINE
+            F( "[debug] - IP address assigned from the router: " ) APPEND WiFi.localIP() NEW_LINE
+            F( "[info] - Successfully connected to the wifi network.\n" ) NEW_LINE
+            F( "[debug] - Plant pot mac address: " ) APPEND WiFi.macAddress())
+
     verifyFingerprint(); // Check SHA1 fingerprint of the MQTT broker.
     potMacAddress = WiFi.macAddress();
 }
@@ -116,8 +118,8 @@ void Communication::connect()
 
     while (( ret = mqtt.connect()) != 0 )
     { // connect will return 0 for connected
-        Serial << F( "[error] - Connecting to the MQTT broker failed because: " ) << mqtt.connectErrorString( ret ) << endl; // Print an detailed error message.
-        Serial << F( "[info] - Retrying to connect to the MQTT broker in 5 seconds..." ) << endl;
+        POT_ERROR_PRINTLN( F( "[error] - Connecting to the MQTT broker failed because: " ) APPEND mqtt.connectErrorString( ret )) // Print an detailed error message.
+        POT_DEBUG_PRINTLN( F( "[info] - Retrying to connect to the MQTT broker in 5 seconds..." ))
 
         mqtt.disconnect(); // Send disconnect package.
         delay( 2000 );  // wait 5 seconds
@@ -125,15 +127,15 @@ void Communication::connect()
 
         if ( maxRetries == 0 )
         {
-            Serial << F( "[error] - Connecting to the MQTT broker failed it seems the broker is unavailable." ) << endl;
-            Serial << F( "[info] - Halting the execution of the program." ) << endl;
+            POT_ERROR_PRINTLN( F( "[error] - Connecting to the MQTT broker failed it seems the broker is unavailable." ))
+            POT_DEBUG_PRINTLN( F( "[info] - Halting the execution of the program." ))
             while ( 1 ) // You shall not pass! Seriously this effectively kills the pot and you have to reset it or wait to the death of the universe.
             {
             }
         }
     }
 
-    Serial << "[info] - Successfully connected to the MQTT broker." << endl;
+    POT_DEBUG_PRINTLN( F("[info] - Successfully connected to the MQTT broker." ))
 }
 
 /**
@@ -161,13 +163,14 @@ void Communication::publishStatistic( int groundMoistureLevel, int waterReservoi
     snprintf( jsonMessageSendBuffer, JSON_BUFFER_SIZE, potStatisticJsonFormat, WiFi.macAddress().c_str(), potStatisticCounter++, groundMoistureLevel, waterReservoirLevel );
     if ( !statisticPublisher.publish( jsonMessageSendBuffer )) // Did we publish the message to the broker?
     {
-        Serial << F( "[error] - Unable to send message: " ) << jsonMessageSendBuffer << endl;
+        POT_ERROR_PRINTLN( F( "[error] - Unable to send message: " ) APPEND jsonMessageSendBuffer )
     }
     else
     {
-        Serial << F( "[debug] - Message with id: " ) << potStatisticCounter << F( " content: " ) << jsonMessageSendBuffer << endl;
-        Serial << F( "[info] - Successfully published message to the MQTT broker." ) << endl;
-        Serial << F( "[debug] - Publish topic: " ) << MQTT_BROKER_USERNAME << TOPIC_PUBLISH_STATISTIC;
+        POT_DEBUG_PRINTLN(
+                F( "[debug] - Message with id: " ) APPEND potStatisticCounter APPEND F( " content: " ) APPEND jsonMessageSendBuffer NEW_LINE
+                F( "[info] - Successfully published message to the MQTT broker." ) NEW_LINE
+                F( "[debug] - Publish topic: " ) APPEND MQTT_BROKER_USERNAME APPEND TOPIC_PUBLISH_STATISTIC )
     }
 }
 
@@ -184,12 +187,13 @@ void Communication::publishWarning( uint8_t warningType )
     snprintf( jsonMessageSendBuffer, JSON_BUFFER_SIZE, potWarningJsonFormat, WiFi.macAddress().c_str(), potWarningCounter++, warningType );
     if ( !statisticPublisher.publish( jsonMessageSendBuffer )) // Did we publish the message to the broker?
     {
-        Serial << F( "[error] - Unable to send message: " ) << jsonMessageSendBuffer << endl;
+        POT_ERROR_PRINTLN( F( "[error] - Unable to send message: " ) APPEND jsonMessageSendBuffer )
     }
     else
     {
-        Serial << F( "[debug] - Message with id: " ) << potStatisticCounter << F( " content: " ) << jsonMessageSendBuffer << endl;
-        Serial << F( "[info] - Successfully published message to the MQTT broker." ) << endl;
+        POT_DEBUG_PRINTLN(
+                F( "[debug] - Message with id: " ) APPEND potStatisticCounter APPEND F( " content: " ) APPEND jsonMessageSendBuffer NEW_LINE
+                F( "[info] - Successfully published message to the MQTT broker." ))
     }
 }
 
@@ -217,12 +221,12 @@ void Communication::listenForConfiguration()
  */
 void Communication::verifyFingerprint()
 {
-    Serial << F( "[info] - Attempting to open an secure connection to the MQTT broker at:" ) << MQTT_BROKER_HOST << endl;
+    POT_DEBUG_PRINTLN( F( "[info] - Attempting to open an secure connection to the MQTT broker at:" ) APPEND MQTT_BROKER_HOST)
 
     if ( !client.connect( MQTT_BROKER_HOST, MQTT_BROKER_PORT ))
     {
-        Serial << F( "[error] - Connecting to the MQTT broker failed because we can't reach it." ) << endl;
-        Serial << F( "[info] - Halting the execution of the program." ) << endl;
+        POT_ERROR_PRINTLN( F( "[error] - Connecting to the MQTT broker failed because we can't reach it." ))
+        POT_DEBUG_PRINTLN( F( "[info] - Halting the execution of the program." ))
         while ( 1 ) // You shall not pass! Seriously this effectively kills the pot and you have to reset it or wait to the death of the universe.
         {
         }
@@ -230,13 +234,14 @@ void Communication::verifyFingerprint()
 
     if ( client.verify( MQTT_BROKER_FINGERPRINT, MQTT_BROKER_HOST ))
     {
-        Serial << "[info] - Successfully verified the integrity of the TLS/SSL certificate send by the broker." << endl;
+        POT_DEBUG_PRINTLN( "[info] - Successfully verified the integrity of the TLS/SSL certificate send by the broker." )
     }
     else
     {
-        Serial << F( "[error] - Connecting to the MQTT broker failed because the TLS/SSL certificate could not be verified." ) << endl;
-        Serial << F( "[debug] - TLS/SSL SHA1 certificate fingerprint allowed: " ) << MQTT_BROKER_FINGERPRINT << endl;
-        Serial << F( "[info] - Halting the execution of the program." ) << endl;
+        POT_ERROR_PRINTLN( F("[error] - Connecting to the MQTT broker failed because the TLS/SSL certificate could not be verified." ))
+        POT_DEBUG_PRINTLN(
+                F( "[debug] - TLS/SSL SHA1 certificate fingerprint allowed: " ) APPEND MQTT_BROKER_FINGERPRINT NEW_LINE
+                F( "[info] - Halting the execution of the program." ))
         while ( 1 ) // You shall not pass! Seriously this effectively kills the pot and you have to reset it or wait to the death of the universe.
         {
         }
@@ -246,17 +251,17 @@ void Communication::verifyFingerprint()
 void Communication::parseJsonData( char *messageData, uint16_t dataLength, uint8_t receivedOnListener )
 {
     StaticJsonBuffer<JSON_BUFFER_SIZE> staticJsonReceiveBuffer;;
-    JsonObject& jsonRoot = staticJsonReceiveBuffer.parseObject( messageData );
+    JsonObject &jsonRoot = staticJsonReceiveBuffer.parseObject( messageData );
 
     if ( jsonRoot.success())
     {
-        Serial << "[error] - Error receiving json data the json data send by the broker is invalid" << endl;
+        POT_ERROR_PRINTLN( F( "[error] - Error receiving json data the json data send by the broker is invalid" ))
         return;
     }
 
     if ( jsonRoot[ "mac" ] == false )
     {
-        Serial << "[error] - Error receiving json data the mac and type nodes are missing." << endl;
+        POT_ERROR_PRINTLN( F("[error] - Error receiving json data the mac and type nodes are missing." ))
         return;
     }
 
@@ -265,30 +270,24 @@ void Communication::parseJsonData( char *messageData, uint16_t dataLength, uint8
 
     if ( not messageMacAddress.equals( WiFi.macAddress()))
     {
-        Serial << "[debug] - The message received is not for us." << endl;
+        POT_DEBUG_PRINTLN( F( "[debug] - The message received is not for us." ))
         return;
     }
 
     switch ( receivedOnListener )
     {
         case LED_LISTENER:
-            Serial << "[debug] - Parsing json led configuration message." << endl;
-            Serial << "[debug] - Old led configuration:" << endl;
-            Communication::potConfig->printLedConfiguration();
+            POT_DEBUG_PRINTLN( F( "[debug] - Parsing json led configuration message." ))
 
             Communication::potConfig->setLedSettings(
                     ( uint8_t ) jsonRoot[ "red" ], // The new red led luminosity
                     ( uint8_t ) jsonRoot[ "green" ], // The new green led luminosity
                     ( uint8_t ) jsonRoot[ "blue" ] // The new blue led luminosity
             );
-            Serial << "[debug] - New led configuration received:" << endl;
-            Communication::potConfig->printLedConfiguration();
             break;
 
         case MQTT_LISTENER:
-            Serial << "[debug] - Parsing json mqtt configuration message." << endl;
-            Serial << "[debug] - Old mqtt configuration:" << endl;
-            Communication::potConfig->printMqttConfiguration();
+            POT_ERROR_PRINTLN( F( "[debug] - Parsing json mqtt configuration message." ))
 
             Communication::potConfig->setMQTTSettings(
                     ( uint32_t ) jsonRoot[ "stat-interval" ], // The new MQTT statistic publish interval
@@ -296,27 +295,21 @@ void Communication::parseJsonData( char *messageData, uint16_t dataLength, uint8
                     ( uint32_t ) jsonRoot[ "ping-interval" ], // The new MQTT ping interval
                     ( uint8_t ) jsonRoot[ "publish-threshold" ] // The new
             );
-            Serial << "[debug] - New mqtt configuration received:" << endl;
-            Communication::potConfig->printMqttConfiguration();
             break;
 
         case PLANT_CARE_LISTENER:
-            Serial << "[debug] - Parsing json plant care configuration message." << endl;
-            Serial << "[debug] - Old plant care configuration:" << endl;
-            Communication::potConfig->printPlantCareConfiguration();
+            POT_ERROR_PRINTLN( F( "[debug] - Parsing json plant care configuration message." ))
 
             Communication::potConfig->setPlantCareSettings(
                     ( uint8_t ) jsonRoot[ "moisture-need" ],
                     ( uint32_t ) jsonRoot[ "interval" ],
                     ( uint32_t ) jsonRoot[ "sleep-after-water" ],
-                    (uint8_t) jsonRoot["contains-plant"]
+                    ( uint8_t ) jsonRoot[ "contains-plant" ]
             );
-            Serial << "[debug] - New plant care configuration received:" << endl;
-            Communication::potConfig->printPlantCareConfiguration();
             break;
 
         default:
-            Serial << "[error] - Unknown configuration type." << endl;
+            POT_ERROR_PRINTLN( F("[error] - Unknown configuration type." ))
             break;
     }
 }

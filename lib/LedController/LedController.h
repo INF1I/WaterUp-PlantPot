@@ -14,6 +14,7 @@
 #include <Arduino.h> // Include this library so we can use the arduino system functions and variables.
 #include <Adafruit_NeoPixel.h> // Include this library for handling leds.
 #include <Streaming.h>
+#include "../PotDebugUtitities.h" // This header contains some debug utilities.
 
 #define PIXEL_PIN 14    // Digital IO pin connected to the NeoPixels.
 #define PIXEL_COUNT 25  // Number of led's

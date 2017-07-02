@@ -8,6 +8,8 @@
 #define WATERUP_PLANTPOT_CONFIGURATION_H
 
 #include <Arduino.h> // Include this library for using basic system functions and variables.
+#include "../PotDebugUtitities.h" // This header contains some debug utilities.
+#include "../CommonDataTypes.h"
 #include <Streaming.h> // Include this library for using the << Streaming operator.
 #include <EEPROM.h> // Include this library for using the EEPROM flas storage on the huzzah.
 
@@ -42,7 +44,8 @@ class PlantCare; // Forward declare the plant care library.
  */
 template<class T> int writeSettings(int startAddress, const T& value)
 {
-    Serial << "[debug] - Write operation" << endl;
+    POT_DEBUG_PRINTLN( "[debug] - Write operation"  )
+
     const byte* p = (const byte*) (const void*) &value;
     unsigned int currentAddress;
 
@@ -72,38 +75,6 @@ template<class T> int readSettings(int startAddress, T& value)
     }
     return currentAddress;
 }
-/**
- * Data structure that contains LED configuration.
- */
-struct LedSettings
-{
-    uint8_t red;
-    uint8_t green;
-    uint8_t blue;
-};
-
-/**
- * Data structure that contains MQTT configuration.
- */
-struct MQTTSettings
-{
-    uint32_t statisticPublishInterval;
-    uint32_t resendWarningInterval;
-    uint32_t pingBrokerInterval;
-    uint8_t publishReservoirWarningThreshold;
-};
-
-/**
- * Data structure that contains plant care configuration.
- */
-struct PlantCareSettings
-{
-    uint32_t takeMeasurementInterval;
-    uint32_t sleepAfterGivingWater;
-    uint8_t groundMoistureOptimal;
-    uint8_t containsPlant;
-};
-
 
 /**
  * This class is used to store pot configuration to the EEPROM so it persists

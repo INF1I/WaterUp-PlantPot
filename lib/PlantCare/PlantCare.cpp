@@ -81,35 +81,31 @@ void PlantCare::takeCareOfPlant()
  */
 int PlantCare::checkWaterReservoir()
 {
-    float distance = getDistance();
-    long surface = (potLength * potWidth) - (innerPotLength * innerPotWidth);
-    float content = surface * potHeight;
+    long startTime = millis();
+    POT_DEBUG_PRINTLN( F("[debug] - Checking the water reservoir") )
 
-    float waterContent = surface * ( potHeight - distance );
-    int waterLevel = (int) (waterContent / content * 100);
-    if(waterLevel < 0) waterLevel = 0;
-    return (int)waterLevel;
-}
-
-
-/**
- * Get the distance in centimeters to the water in the water reservoir. It will write can pule
- * to the trigger pin so an sound signal is send to in the reservoir then it will measure the
- * time it took for the echo pin to receive the signal.
- *
- * @return long The distance to the water.
- */
-long PlantCare::getDistance()
-{
+    // Clear the trigger pin.
     digitalWrite(IO_PIN_SONAR_TRIGGER, LOW);
     delayMicroseconds(2);
+
+    // Send short pulse to the trigger pin
     digitalWrite(IO_PIN_SONAR_TRIGGER, HIGH);
     delayMicroseconds(10);
     digitalWrite(IO_PIN_SONAR_TRIGGER, LOW);
 
-    long Duration = pulseIn(IO_PIN_SONAR_ECHO, HIGH); //Listening and waiting for wave
+    // Measure the time it took for the sound wave to return to the sensor.
+    long responseTime = pulseIn(IO_PIN_SONAR_ECHO, HIGH); //Listening and waiting for wave
     delay(10);
-    return (Duration * 0.034 / 2);//Converting the reported number to CM
+
+    // Convert response time in microseconds to distance in centimeters.
+    long cmDistanceToWaterSurface  = responseTime * SOUND_SPEED_CM_PER_MICRO_SECOND / 2;
+    POT_DEBUG_PRINTLN( F("[debug] - The distance from the ultrasonic sensor to the water surface is: ") APPEND cmDistanceToWaterSurface )
+
+    // Calculate how much water is left in the reservoir.
+    uint16_t waterLeftInReservoir = RESERVOIR_CONTENT_CM_3 - (RESERVOIR_1_CM_CONTENT_CM_3 * cmDistanceToWaterSurface );
+
+    // Convert it to an percentage.
+    return waterLeftInReservoir / (RESERVOIR_CONTENT_CM_3/100);
 }
 
 /**
@@ -119,8 +115,13 @@ long PlantCare::getDistance()
  */
 int PlantCare::checkMoistureLevel()
 {
-    int soilResistance = analogRead(IO_PIN_SOIL_MOISTURE);
-    return soilResistance;
+    uint16_t soilResistance = analogRead(IO_PIN_SOIL_MOISTURE);
+    uint8_t percentageOfSoilMoisture = soilResistance / (1024/100);
+
+    POT_DEBUG_PRINTLN( F("[debug] - Checking the soil moisture level") NEW_LINE
+    F("[debug] - Measured ") APPEND soilResistance F( "/1024 so the percentage is: " ) APPEND percentageOfSoilMoisture)
+
+    return percentageOfSoilMoisture;
 }
 
 /**

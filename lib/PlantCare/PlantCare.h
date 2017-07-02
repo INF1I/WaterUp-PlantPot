@@ -9,28 +9,14 @@
 
 #include <Arduino.h> // Include this library for using basic system functions and variables.
 #include <Streaming.h> // Include this library for using the << Streaming operator.
+#include "../PotDebugUtitities.h" // This header contains some debug utilities.
 #include <Configuration.h> // This library contains the code for loading plant pot configuration.
 #include <Communication.h> // This library contains the code for communication between the pot and broker.
 #include <LedController.h> // This library contains the code for taking care of the plant.
-#include "../PotDebugUtitities.h" // This header contains some debug utilities.
 
-#define RESERVOIR_TOP_HEIGHT 30 // The height of the top of the reservoir.
-#define RESERVOIR_TOP_1CM3 500// 1cm = 500cm³
-#define RESERVOIR_TOP_SIZE 15000 // The cubic centimeter content of top the water reservoir.
-
-#define RESERVOIR_BOTTOM_HEIGHT 10 // The height of the bottom of the reservoir.
-#define RESERVOIR_BOTTOM_1CM3 900 // 1cm = 900cm³
-#define RESERVOIR_BOTTOM_SIZE 9000 // The cubic centimeter content of bottom the water reservoir.
-#define RESERVOIR_SIZE 24000 // The total cubic centimeter content of the reservoir.
-
-#define BOTTOM_CONTENT( cm ) (RESERVOIR_BOTTOM_HEIGHT-cm)*RESERVOIR_BOTTOM_1CM3
-#define TOP_CONTENT( cm ) (RESERVOIR_TOP_HEIGHT-cm)*RESERVOIR_TOP_1CM3
-
-#define potLength 30
-#define potWidth 30
-#define potHeight 40 // Height what the water can reach
-#define innerPotLength 20
-#define innerPotWidth 20
+#define RESERVOIR_CONTENT_CM_3 16000 // The water reservoir content in square centimeters
+#define RESERVOIR_1_CM_CONTENT_CM_3 400 // The content in square centimeters of 1 cm reservoir height.
+#define SOUND_SPEED_CM_PER_MICRO_SECOND 0.034 //An approximation to the amount of centimeters sound travels in one micro second.
 
 #define IO_PIN_SONAR_TRIGGER 13 // The pin connected trigger port of the ultra sonar sensor.
 #define IO_PIN_SONAR_ECHO 12 // The pin connected to the echo port of the ultra sonar sensor.
@@ -110,12 +96,6 @@ private:
     void giveWater();
 
     /**
-     * This function will switch the water pump state if it was on it will be switched off
-     * and vise versa.
-     */
-    //void switchWaterPump();
-
-    /**
      * This function will take care of publishing pot statistics to the broker based on
      * the configured interval and previous published message.
      */
@@ -128,14 +108,6 @@ private:
      * @param warningType   The type of warning to publish like an empty or near empty reservoir.
      */
     void publishPotWarning( uint8_t warningType );
-
-    /**
-     * This function will measure the distance from the top of the water reservoir to the
-     * water level using the ultra sonic sensor.
-     *
-     * @return  The distance to the water surface in centimeters.
-     */
-    long getDistance();
 
     /**
      * This function will switch the water pump on so the plant receives water.

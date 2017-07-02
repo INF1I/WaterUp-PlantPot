@@ -15,6 +15,7 @@
 
 #include <Arduino.h> // Include this library for using basic system functions and variables.
 #include <Streaming.h> // Include this library for using the << Streaming operator.
+#include "../PotDebugUtitities.h" // This header contains some debug utilities.
 #include <ESP8266WiFi.h> // Include this library for working with the ESP8266 chip.
 #include <WiFiManager.h> // Include this library for dynamically setting up the WiFi connection.
 #include <Adafruit_MQTT.h> // Include this library for securely connecting to the internet using WiFi.
@@ -26,9 +27,8 @@
 #define MQTT_BROKER_PORT 8883 // The port to connect to at the MQTT broker.
 #define MQTT_BROKER_USERNAME "inf1i-plantpot" // The pot's username authenticate at the MQTT broker.
 #define MQTT_BROKER_PASSWORD "password" // The pot's password to authenticate at the MQTT broker.
-/**
- * The SHA1 fingerprint taken from the backend server's SSL certificates.
- */
+
+//The SHA1 fingerprint taken from the backend server's SSL certificates.
 #define MQTT_BROKER_FINGERPRINT "A6 E4 A9 8C 92 B3 8D 81 73 CE 5B 33 33 F5 A3 7A 1B 87 E2 F3"
 
 #define TOPIC_PUBLISH_STATISTIC "/publish/statistic" // This MQTT topic is used to publish pot state statistics.
