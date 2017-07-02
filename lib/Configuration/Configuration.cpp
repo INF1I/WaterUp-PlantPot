@@ -45,8 +45,8 @@ void Configuration::setup()
     delay(10);
     this->load();
 //    // HACK remove this!!!!!!!!!!!
-//    this->reset();
-//    this->store();
+   this->reset();
+    this->store();
 }
 
 /**
@@ -90,6 +90,7 @@ void Configuration::reset()
     plantCareSettingsObject.takeMeasurementInterval = (uint32_t) DEFAULT_SETTING_PLANT_CARE_MEASURE_INTERVAL;
     plantCareSettingsObject.sleepAfterGivingWater = (uint32_t) DEFAULT_SETTING_PLANT_CARE_SLEEP_AFTER_WATER;
     plantCareSettingsObject.groundMoistureOptimal = (uint8_t) DEFAULT_SETTING_PLANT_CARE_MOISTURE_OPTIMAL;
+    plantCareSettingsObject.containsPlant = (uint8_t) DEFAULT_SETTING_PLANT_CARE_CONTAINS_PLANT;
     this->store();
 }
 
@@ -148,11 +149,15 @@ void Configuration::setMQTTSettings(uint32_t statisticPublishInterval, uint32_t 
  * @param sleepAfterGivingWater     The time to wait with giving water after it gave some water.
  * @param groundMoistureOptimal     The optimal percentage of soil moisture for the current plant.
  */
-void Configuration::setPlantCareSettings(uint32_t takeMeasurementInterval, uint32_t sleepAfterGivingWater, uint8_t groundMoistureOptimal)
+void Configuration::setPlantCareSettings(uint32_t takeMeasurementInterval, uint32_t sleepAfterGivingWater, uint8_t groundMoistureOptimal, uint8_t containsPlant )
 {
     plantCareSettingsObject.takeMeasurementInterval = takeMeasurementInterval;
     plantCareSettingsObject.sleepAfterGivingWater = sleepAfterGivingWater;
     plantCareSettingsObject.groundMoistureOptimal = groundMoistureOptimal;
+    if( containsPlant != 2) // If default argument is passed don't update this setting.
+    {
+        plantCareSettingsObject.containsPlant = containsPlant;
+    }
 
     writeSettings(this->getPlantCareSettingsAddress(), plantCareSettingsObject);
 }
@@ -207,6 +212,7 @@ void Configuration::printConfiguration()
            << F("\n\ttakeMeasurementInterval:") << plantCareSettingsObject.takeMeasurementInterval
            << F(",\n\tsleepAfterGivingWater:") << plantCareSettingsObject.sleepAfterGivingWater
            << F(",\n\tgroundMoistureOptimal:") << plantCareSettingsObject.groundMoistureOptimal
+           << F(",\n\tcontainsPlant:") << plantCareSettingsObject.containsPlant
            << F("\n};\n");
 }
 
@@ -238,6 +244,7 @@ void Configuration::printPlantCareConfiguration()
            << F("\n\ttakeMeasurementInterval:") << plantCareSettingsObject.takeMeasurementInterval
            << F(",\n\tsleepAfterGivingWater:") << plantCareSettingsObject.sleepAfterGivingWater
            << F(",\n\tgroundMoistureOptimal:") << plantCareSettingsObject.groundMoistureOptimal
+           << F(",\n\tcontainsPlant:") << plantCareSettingsObject.containsPlant
            << F("\n};\n");
 }
 

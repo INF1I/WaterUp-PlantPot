@@ -8,12 +8,12 @@
 /**
  * The json string C-style formatted that will be filled with data and send to the mqtt broker.
  */
-const char* potStatisticJsonFormat = "{\"mac\":\"%s\",\"type\":\"potstats-mesg\",\"counter\":%d,\"moisture\":%lu,\"waterLevel\":%d}";
+const char *potStatisticJsonFormat = "{\"mac\":\"%s\",\"type\":\"potstats-mesg\",\"counter\":%d,\"moisture\":%lu,\"waterLevel\":%d}";
 
 /**
  * The json string C-style formatted that will be filled with data and send to the mqtt broker.
  */
-const char* potWarningJsonFormat = "{\"mac\":\"%s\",\"type\":\"warning-mesg\",\"counter\":%d,\"warning\":\"%lu\"}";
+const char *potWarningJsonFormat = "{\"mac\":\"%s\",\"type\":\"warning-mesg\",\"counter\":%d,\"warning\":\"%lu\"}";
 
 /**
  * The mac address of the plant pot. It is set to an default but will be overwritten after the
@@ -37,38 +37,34 @@ WiFiClientSecure client;
 /**
  * Setup the MQTT client for communicating to the MQTT broker.
  */
-Adafruit_MQTT_Client mqtt(&client, MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_BROKER_USERNAME, MQTT_BROKER_PASSWORD);
+Adafruit_MQTT_Client mqtt( &client, MQTT_BROKER_HOST, MQTT_BROKER_PORT, MQTT_BROKER_USERNAME, MQTT_BROKER_PASSWORD );
 
 /**
  * Create the required publish clients that will be used to send messages to the mqtt broker
  * that will send it to the end users.
  */
-Adafruit_MQTT_Publish statisticPublisher = Adafruit_MQTT_Publish(&mqtt, MQTT_BROKER_USERNAME TOPIC_PUBLISH_STATISTIC);
+Adafruit_MQTT_Publish statisticPublisher = Adafruit_MQTT_Publish( &mqtt, MQTT_BROKER_USERNAME TOPIC_PUBLISH_STATISTIC );
 Adafruit_MQTT_Publish warningPublisher = Adafruit_MQTT_Publish( &mqtt, MQTT_BROKER_USERNAME TOPIC_PUBLISH_WARNING );
 
 /**
  * Create the required subscribe clients that listen for incoming configuration messages send by the
  * mqtt broker.
  */
-Adafruit_MQTT_Subscribe ledConfigListener = Adafruit_MQTT_Subscribe(&mqtt, TOPIC_SUBSCRIBE_LED_CONFIG);
-Adafruit_MQTT_Subscribe mqttConfigListener = Adafruit_MQTT_Subscribe(&mqtt, TOPIC_SUBSCRIBE_MQTT_CONFIG);
-Adafruit_MQTT_Subscribe plantCareConfigListener = Adafruit_MQTT_Subscribe(&mqtt, TOPIC_SUBSCRIBE_PLANT_CARE_CONFIG);
+Adafruit_MQTT_Subscribe ledConfigListener = Adafruit_MQTT_Subscribe( &mqtt, TOPIC_SUBSCRIBE_LED_CONFIG );
+Adafruit_MQTT_Subscribe mqttConfigListener = Adafruit_MQTT_Subscribe( &mqtt, TOPIC_SUBSCRIBE_MQTT_CONFIG );
+Adafruit_MQTT_Subscribe plantCareConfigListener = Adafruit_MQTT_Subscribe( &mqtt, TOPIC_SUBSCRIBE_PLANT_CARE_CONFIG );
 
-/*
-void listenForPlantCareConfiguration(char *data, uint16_t len);
-void listenForMqttConfiguration(char *data, uint16_t len);
-void listenForLedConfiguration(char *data, uint16_t len);
-*/
+Configuration* Communication::potConfig = nullptr; // Initiate the static config variable with null.
 
 /**
  * The constructor will initiate the communication library with some default
  * values and will save an reference to the configuration library.
  * @param potConfiguration  An pointer to the configuration library.
  */
-Communication::Communication( Configuration * potConfiguration )
+Communication::Communication( Configuration *potConfiguration )
 {
     potConfiguration->setup();
-    delay(1000);
+    delay( 1000 );
     Communication::potConfig = potConfiguration;
 }
 
@@ -79,28 +75,27 @@ Communication::Communication( Configuration * potConfiguration )
  */
 void Communication::setup()
 {
-    delay(10);
+    delay( 10 );
     Serial << endl;
     Serial << "[debug] - Setting up the communication library" << endl;
 
-    WiFi.printDiag(Serial);
+    WiFi.printDiag( Serial );
 
     WiFiManager wifiManager;
     wifiManager.autoConnect();
 
-    while (WiFi.waitForConnectResult()!=WL_CONNECTED)
+    while ( WiFi.waitForConnectResult() != WL_CONNECTED )
     {
-        delay(500);
-        Serial << F(".");
+        delay( 500 );
+        Serial << F( "." );
     }
 
-    Serial << F("[info] - Successfully connected to the wifi network.") << endl;
-    Serial << F("[debug] - IP address assigned from the router: ") << WiFi.localIP() << endl;
-    Serial << F("[info] - Successfully connected to the wifi network.") << endl;
-    Serial << F("[debug] - Plant pot mac address: ") << WiFi.macAddress() << endl;
+    Serial << F( "[info] - Successfully connected to the wifi network." ) << endl;
+    Serial << F( "[debug] - IP address assigned from the router: " ) << WiFi.localIP() << endl;
+    Serial << F( "[info] - Successfully connected to the wifi network." ) << endl;
+    Serial << F( "[debug] - Plant pot mac address: " ) << WiFi.macAddress() << endl;
     verifyFingerprint(); // Check SHA1 fingerprint of the MQTT broker.
     potMacAddress = WiFi.macAddress();
-    //this->listenForConfiguration();// Subscribe mqtt configuration listeners.
 }
 
 /**
@@ -112,27 +107,27 @@ void Communication::connect()
     int8_t ret;
     uint8_t maxRetries = 50;
 
-    if (mqtt.connected())
+    if ( mqtt.connected())
     {
         return;
     }
 
-    Serial << F("[info] - Attempting to connect to the MQTT broker.") << endl;
+    Serial << F( "[info] - Attempting to connect to the MQTT broker." ) << endl;
 
-    while ((ret = mqtt.connect())!=0)
+    while (( ret = mqtt.connect()) != 0 )
     { // connect will return 0 for connected
-        Serial << F("[error] - Connecting to the MQTT broker failed because: ") << mqtt.connectErrorString(ret) << endl; // Print an detailed error message.
-        Serial << F("[info] - Retrying to connect to the MQTT broker in 5 seconds...") << endl;
+        Serial << F( "[error] - Connecting to the MQTT broker failed because: " ) << mqtt.connectErrorString( ret ) << endl; // Print an detailed error message.
+        Serial << F( "[info] - Retrying to connect to the MQTT broker in 5 seconds..." ) << endl;
 
         mqtt.disconnect(); // Send disconnect package.
-        delay(2000);  // wait 5 seconds
+        delay( 2000 );  // wait 5 seconds
         maxRetries--;
 
-        if (maxRetries==0)
+        if ( maxRetries == 0 )
         {
-            Serial << F("[error] - Connecting to the MQTT broker failed it seems the broker is unavailable.") << endl;
-            Serial << F("[info] - Halting the execution of the program.") << endl;
-            while (1) // You shall not pass! Seriously this effectively kills the pot and you have to reset it or wait to the death of the universe.
+            Serial << F( "[error] - Connecting to the MQTT broker failed it seems the broker is unavailable." ) << endl;
+            Serial << F( "[info] - Halting the execution of the program." ) << endl;
+            while ( 1 ) // You shall not pass! Seriously this effectively kills the pot and you have to reset it or wait to the death of the universe.
             {
             }
         }
@@ -147,7 +142,7 @@ void Communication::connect()
  *
  * @return *Configuration
  */
-Configuration* Communication::getConfiguration()
+Configuration *Communication::getConfiguration()
 {
     return Communication::potConfig;
 }
@@ -161,18 +156,18 @@ Configuration* Communication::getConfiguration()
  * @param groundMoistureLevel   The current percentage of moisture in the ground.
  * @param waterReservoirLevel   The current percentage of water left in the reservoir.
  */
-void Communication::publishStatistic(int groundMoistureLevel, int waterReservoirLevel)
+void Communication::publishStatistic( int groundMoistureLevel, int waterReservoirLevel )
 {
-    snprintf(jsonMessageSendBuffer, JSON_BUFFER_SIZE, potStatisticJsonFormat, WiFi.macAddress().c_str(), potStatisticCounter++, groundMoistureLevel, waterReservoirLevel);
-    if (!statisticPublisher.publish(jsonMessageSendBuffer)) // Did we publish the message to the broker?
+    snprintf( jsonMessageSendBuffer, JSON_BUFFER_SIZE, potStatisticJsonFormat, WiFi.macAddress().c_str(), potStatisticCounter++, groundMoistureLevel, waterReservoirLevel );
+    if ( !statisticPublisher.publish( jsonMessageSendBuffer )) // Did we publish the message to the broker?
     {
-        Serial << F("[error] - Unable to send message: ") << jsonMessageSendBuffer << endl;
+        Serial << F( "[error] - Unable to send message: " ) << jsonMessageSendBuffer << endl;
     }
     else
     {
-        Serial << F("[debug] - Message with id: ") << potStatisticCounter << F(" content: ") << jsonMessageSendBuffer << endl;
-        Serial << F("[info] - Successfully published message to the MQTT broker.") << endl;
-        Serial << F("[debug] - Publish topic: ") << MQTT_BROKER_USERNAME << TOPIC_PUBLISH_STATISTIC;
+        Serial << F( "[debug] - Message with id: " ) << potStatisticCounter << F( " content: " ) << jsonMessageSendBuffer << endl;
+        Serial << F( "[info] - Successfully published message to the MQTT broker." ) << endl;
+        Serial << F( "[debug] - Publish topic: " ) << MQTT_BROKER_USERNAME << TOPIC_PUBLISH_STATISTIC;
     }
 }
 
@@ -184,17 +179,17 @@ void Communication::publishStatistic(int groundMoistureLevel, int waterReservoir
  *
  * @param warningType   The type of warning to be send.
  */
-void Communication::publishWarning( uint8_t warningType)
+void Communication::publishWarning( uint8_t warningType )
 {
-    snprintf(jsonMessageSendBuffer, JSON_BUFFER_SIZE, potWarningJsonFormat, WiFi.macAddress().c_str(), potWarningCounter++, warningType);
-    if (!statisticPublisher.publish(jsonMessageSendBuffer)) // Did we publish the message to the broker?
+    snprintf( jsonMessageSendBuffer, JSON_BUFFER_SIZE, potWarningJsonFormat, WiFi.macAddress().c_str(), potWarningCounter++, warningType );
+    if ( !statisticPublisher.publish( jsonMessageSendBuffer )) // Did we publish the message to the broker?
     {
-        Serial << F("[error] - Unable to send message: ") << jsonMessageSendBuffer << endl;
+        Serial << F( "[error] - Unable to send message: " ) << jsonMessageSendBuffer << endl;
     }
     else
     {
-        Serial << F("[debug] - Message with id: ") << potStatisticCounter << F(" content: ") << jsonMessageSendBuffer << endl;
-        Serial << F("[info] - Successfully published message to the MQTT broker.") << endl;
+        Serial << F( "[debug] - Message with id: " ) << potStatisticCounter << F( " content: " ) << jsonMessageSendBuffer << endl;
+        Serial << F( "[info] - Successfully published message to the MQTT broker." ) << endl;
     }
 }
 
@@ -209,9 +204,9 @@ void Communication::listenForConfiguration()
     mqttConfigListener.setCallback( &Communication::listenForMqttConfiguration );
     plantCareConfigListener.setCallback( &Communication::listenForPlantCareConfiguration );
 
-    mqtt.subscribe(&ledConfigListener);
-    mqtt.subscribe(&mqttConfigListener);
-    mqtt.subscribe(&plantCareConfigListener);
+    mqtt.subscribe( &ledConfigListener );
+    mqtt.subscribe( &mqttConfigListener );
+    mqtt.subscribe( &plantCareConfigListener );
 }
 
 /**
@@ -222,59 +217,109 @@ void Communication::listenForConfiguration()
  */
 void Communication::verifyFingerprint()
 {
-    Serial << F("[info] - Attempting to open an secure connection to the MQTT broker at:") << MQTT_BROKER_HOST << endl;
+    Serial << F( "[info] - Attempting to open an secure connection to the MQTT broker at:" ) << MQTT_BROKER_HOST << endl;
 
-    if (!client.connect(MQTT_BROKER_HOST, MQTT_BROKER_PORT))
+    if ( !client.connect( MQTT_BROKER_HOST, MQTT_BROKER_PORT ))
     {
-        Serial << F("[error] - Connecting to the MQTT broker failed because we can't reach it.") << endl;
-        Serial << F("[info] - Halting the execution of the program.") << endl;
-        while (1) // You shall not pass! Seriously this effectively kills the pot and you have to reset it or wait to the death of the universe.
+        Serial << F( "[error] - Connecting to the MQTT broker failed because we can't reach it." ) << endl;
+        Serial << F( "[info] - Halting the execution of the program." ) << endl;
+        while ( 1 ) // You shall not pass! Seriously this effectively kills the pot and you have to reset it or wait to the death of the universe.
         {
         }
     }
 
-    if (client.verify(MQTT_BROKER_FINGERPRINT, MQTT_BROKER_HOST))
+    if ( client.verify( MQTT_BROKER_FINGERPRINT, MQTT_BROKER_HOST ))
     {
         Serial << "[info] - Successfully verified the integrity of the TLS/SSL certificate send by the broker." << endl;
     }
     else
     {
-        Serial << F("[error] - Connecting to the MQTT broker failed because the TLS/SSL certificate could not be verified.") << endl;
-        Serial << F("[debug] - TLS/SSL SHA1 certificate fingerprint allowed: ") << MQTT_BROKER_FINGERPRINT << endl;
-        Serial << F("[info] - Halting the execution of the program.") << endl;
-        while (1) // You shall not pass! Seriously this effectively kills the pot and you have to reset it or wait to the death of the universe.
+        Serial << F( "[error] - Connecting to the MQTT broker failed because the TLS/SSL certificate could not be verified." ) << endl;
+        Serial << F( "[debug] - TLS/SSL SHA1 certificate fingerprint allowed: " ) << MQTT_BROKER_FINGERPRINT << endl;
+        Serial << F( "[info] - Halting the execution of the program." ) << endl;
+        while ( 1 ) // You shall not pass! Seriously this effectively kills the pot and you have to reset it or wait to the death of the universe.
         {
         }
     }
 }
-/*
-void Communication::parseJsonData( char* messageData, uint16_t dataLength, uint8_t receivedMessageType )
-{
-    StaticJsonBuffer<200> staticJsonReceiveBuffer;;
-    JsonObject jsonRoot = staticJsonReceiveBuffer.parseObject( messageData );
 
-    if( jsonRoot.invalid() )
+void Communication::parseJsonData( char *messageData, uint16_t dataLength, uint8_t receivedOnListener )
+{
+    StaticJsonBuffer<JSON_BUFFER_SIZE> staticJsonReceiveBuffer;;
+    JsonObject& jsonRoot = staticJsonReceiveBuffer.parseObject( messageData );
+
+    if ( jsonRoot.success())
     {
         Serial << "[error] - Error receiving json data the json data send by the broker is invalid" << endl;
         return;
     }
 
-    if( jsonRoot["mac"] == false or JsonObject["type"] == false )
+    if ( jsonRoot[ "mac" ] == false )
     {
         Serial << "[error] - Error receiving json data the mac and type nodes are missing." << endl;
         return;
     }
 
-    String messageMacAddress = jsonRoot["mac"];
-    String messageName = jsonRoot["type"];
+    String messageMacAddress = jsonRoot[ "mac" ];
+    String messageName = jsonRoot[ "type" ];
 
-    if( not messageMacAddress.equals( WiFi.macAddress() ) )
+    if ( not messageMacAddress.equals( WiFi.macAddress()))
     {
         Serial << "[debug] - The message received is not for us." << endl;
         return;
     }
+
+    switch ( receivedOnListener )
+    {
+        case LED_LISTENER:
+            Serial << "[debug] - Parsing json led configuration message." << endl;
+            Serial << "[debug] - Old led configuration:" << endl;
+            Communication::potConfig->printLedConfiguration();
+
+            Communication::potConfig->setLedSettings(
+                    ( uint8_t ) jsonRoot[ "red" ], // The new red led luminosity
+                    ( uint8_t ) jsonRoot[ "green" ], // The new green led luminosity
+                    ( uint8_t ) jsonRoot[ "blue" ] // The new blue led luminosity
+            );
+            Serial << "[debug] - New led configuration received:" << endl;
+            Communication::potConfig->printLedConfiguration();
+            break;
+
+        case MQTT_LISTENER:
+            Serial << "[debug] - Parsing json mqtt configuration message." << endl;
+            Serial << "[debug] - Old mqtt configuration:" << endl;
+            Communication::potConfig->printMqttConfiguration();
+
+            Communication::potConfig->setMQTTSettings(
+                    ( uint32_t ) jsonRoot[ "stat-interval" ], // The new MQTT statistic publish interval
+                    ( uint32_t ) jsonRoot[ "resend-interval" ], // The new MQTT resend warning interval
+                    ( uint32_t ) jsonRoot[ "ping-interval" ], // The new MQTT ping interval
+                    ( uint8_t ) jsonRoot[ "publish-threshold" ] // The new
+            );
+            Serial << "[debug] - New mqtt configuration received:" << endl;
+            Communication::potConfig->printMqttConfiguration();
+            break;
+
+        case PLANT_CARE_LISTENER:
+            Serial << "[debug] - Parsing json plant care configuration message." << endl;
+            Serial << "[debug] - Old plant care configuration:" << endl;
+            Communication::potConfig->printPlantCareConfiguration();
+
+            Communication::potConfig->setPlantCareSettings(
+                    ( uint8_t ) jsonRoot[ "moisture-need" ],
+                    ( uint32_t ) jsonRoot[ "interval" ],
+                    ( uint32_t ) jsonRoot[ "sleep-after-water" ],
+                    (uint8_t) jsonRoot["contains-plant"]
+            );
+            Serial << "[debug] - New plant care configuration received:" << endl;
+            Communication::potConfig->printPlantCareConfiguration();
+            break;
+
+        default:
+            Serial << "[error] - Unknown configuration type." << endl;
+            break;
+    }
 }
-*/
 
 /**
  * This function callback will be subscribed to the plant care configuration topic.
@@ -282,31 +327,11 @@ void Communication::parseJsonData( char* messageData, uint16_t dataLength, uint8
  * pot's configuration.
  *
  * @param data      An json string containing plant care configuration.
- * @param length    The length of the json string.
+ * @param messageLength    The length of the json string.
  */
-void Communication::listenForLedConfiguration(char *data, uint16_t len)
-{/*
-    Serial << F("[debug] - Incoming led configuration message.") << endl << data << endl;
-    StaticJsonBuffer<200> jsonBuffer;
-    JsonObject& root = jsonBuffer.parseObject(data);
-
-    const char* mac = root["mac"];
-    const char* type = root["type"];
-    long optimalMoisture = root["moistureneed"];
-    long measurementInterval = root["interval"];
-
-    if( strcmp( potMacAddress.c_str(), mac))
-    {
-        Serial << F("[debug] - The mac address is valid") << endl;
-    }
-    else
-    {
-        Serial << F("[debug] - The mac address is not valid") << endl;
-    }
-    //todo parse json
-    //todo check if correct mac address.
-    //todo insert received config into settings*/
-    //Communication::potConfig->setLedSettings();
+void Communication::listenForLedConfiguration( char *data, uint16_t messageLength )
+{
+    Communication::parseJsonData( data, messageLength, Communication::LED_LISTENER );
 }
 
 /**
@@ -317,30 +342,9 @@ void Communication::listenForLedConfiguration(char *data, uint16_t len)
  * @param data      An json string containing mqtt configuration.
  * @param length    The length of the json string.
  */
-void Communication::listenForMqttConfiguration(char *data, uint16_t len)
+void Communication::listenForMqttConfiguration( char *data, uint16_t messageLength )
 {
-    /*Serial << F("[debug] - Incoming mqtt configuration message.") << endl << data << endl;
-    StaticJsonBuffer<200> jsonBuffer;
-    JsonObject& root = jsonBuffer.parseObject(data);
-
-    const char* mac = root["mac"];
-    const char* type = root["type"];
-    uint8_t optimalMoisture = root["red"];
-    uint8_t optimalMoisture = root["green"];
-    uint8_t optimalMoisture = root["blue"];
-
-    if( strcmp( potMacAddress.c_str(), mac))
-    {
-        Serial << F("[debug] - The mac address is valid") << endl;
-    }
-    else
-    {
-        Serial << F("[debug] - The mac address is not valid") << endl;
-    }*/
-    //todo parse json
-    //todo check if correct mac address.
-    //todo insert received config into settings
-    //Communication::potConfig->setLedSettings();
+    Communication::parseJsonData( data, messageLength, Communication::MQTT_LISTENER );
 }
 
 /**
@@ -351,31 +355,9 @@ void Communication::listenForMqttConfiguration(char *data, uint16_t len)
   * @param data      An json string containing led configuration.
   * @param length    The length of the json string.
   */
-void Communication::listenForPlantCareConfiguration(char *data, uint16_t len)
+void Communication::listenForPlantCareConfiguration( char *data, uint16_t messageLength )
 {
-   /* Serial << F("[debug] - Incoming plant care configuration message.") << endl << data << endl;
-    StaticJsonBuffer<200> jsonBuffer;
-    JsonObject& root = jsonBuffer.parseObject(data);
-
-    const char* mac = root["mac"];
-    const char* type = root["type"];
-    long optimalMoisture = root["stat-interval"];
-    long optimalMoisture = root["resend-interval"];
-    long optimalMoisture = root["ping-interval"];
-    uint8_t optimalMoisture = root["publish-threshold"];
-
-    if( strcmp( potMacAddress.c_str(), mac))
-    {
-        Serial << F("[debug] - The mac address is valid") << endl;
-    }
-    else
-    {
-        Serial << F("[debug] - The mac address is not valid") << endl;
-    }*/
-    //todo parse json
-    //todo check if correct mac address.
-    //todo insert received config into settings
-    //Communication::potConfig->setLedSettings();
+    Communication::parseJsonData( data, messageLength, Communication::PLANT_CARE_LISTENER );
 }
 
 

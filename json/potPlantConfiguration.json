@@ -1,20 +1,18 @@
 {
   "plant-config" : {
     "mac": "5e:70:4b:5b:13:0e",
-    "type": "potplant-conf",
     "moisture-need" : 50,
-    "interval" : 3600
+    "interval" : 3600,
+    "contains-plant" : true
   },
   "led-config" : {
     "mac":"5e:70:4b:5b:13:0e",
-    "type":"led-conf",
     "red": 255,
     "green" : 255,
     "blue" : 255
   },
   "mqtt-config" : {
     "mac":"5e:70:4b:5b:13:0e",
-    "type":"mqtt-conf",
     "stat-interval" : 60,
     "resend-interval" : 7200,
     "ping-interval" : 60,

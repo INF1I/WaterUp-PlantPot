@@ -9,16 +9,7 @@
 
 #include <Arduino.h> // Include this library for using basic system functions and variables.
 #include <Streaming.h> // Include this library for using the << Streaming operator.
-#include <ESP8266WiFi.h> // Include this library for working with the ESP8266 chip.
 #include <EEPROM.h> // Include this library for using the EEPROM flas storage on the huzzah.
-#include <WiFiManager.h> // Include this library for dynamically setting up the WiFi connection.
-#include <Adafruit_MQTT.h> // Include this library for securely connecting to the internet using WiFi.
-#include <Adafruit_MQTT_Client.h> // Include this library for MQTT communication.
-#include <ArduinoJson.h> // Include this library for parsing incomming json mesages.
-//#include <Configuration.h> // This library contains the code for loading plant pot configuration.
-#include <Communication.h> // This library contains the code for communication between the pot and broker.
-#include <PlantCare.h> // This library contains the code for taking care of the plant.
-#include <LedController.h> // This library contains the code for taking care of the plant.
 
 #define EEPROM_MEMORY_SIZE 512 // The size in bytes of the EEPROM memory (512 for the huzzah).
 #define DEFAULT_EEPROM_ADDRESS_OFFSET 0 // The addess offset of the config storage.
@@ -35,6 +26,7 @@
 #define DEFAULT_SETTING_PLANT_CARE_MEASURE_INTERVAL 60000 // The default pot measurement interval setting.
 #define DEFAULT_SETTING_PLANT_CARE_SLEEP_AFTER_WATER 3600000 // The default sleep time after giving water setting.
 #define DEFAULT_SETTING_PLANT_CARE_MOISTURE_OPTIMAL 30 // The default optimal ground moisture level setting.
+#define DEFAULT_SETTING_PLANT_CARE_CONTAINS_PLANT 1 // The default setting to enable or disable plant care.
 
 class Communication; // Forward declare the communication library.
 class Configuration; //  Forward declare the configuration library.
@@ -109,6 +101,7 @@ struct PlantCareSettings
     uint32_t takeMeasurementInterval;
     uint32_t sleepAfterGivingWater;
     uint8_t groundMoistureOptimal;
+    uint8_t containsPlant;
 };
 
 
@@ -193,8 +186,9 @@ public:
      * @param takeMeasurementInterval   The interval of taking soil moisture and water reservoir level measurements.
      * @param sleepAfterGivingWater     The time to wait with giving water after it gave some water.
      * @param groundMoistureOptimal     The optimal percentage of soil moisture for the current plant.
+     * @param containsPlant             Boolean to store if there is an plant present in the pot.
      */
-    void setPlantCareSettings(uint32_t takeMeasurementInterval, uint32_t sleepAfterGivingWater, uint8_t groundMoistureOptimal);
+    void setPlantCareSettings(uint32_t takeMeasurementInterval, uint32_t sleepAfterGivingWater, uint8_t groundMoistureOptimal, uint8_t containsPlant = 2);
 
     /**
      * This gets the LedSettings struct address currently in use and stored in ram.

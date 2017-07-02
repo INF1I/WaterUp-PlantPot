@@ -9,15 +9,8 @@
 
 #include <Arduino.h> // Include this library for using basic system functions and variables.
 #include <Streaming.h> // Include this library for using the << Streaming operator.
-#include <ESP8266WiFi.h> // Include this library for working with the ESP8266 chip.
-#include <EEPROM.h> // Include this library for using the EEPROM flas storage on the huzzah.
-#include <WiFiManager.h> // Include this library for dynamically setting up the WiFi connection.
-#include <Adafruit_MQTT.h> // Include this library for securely connecting to the internet using WiFi.
-#include <Adafruit_MQTT_Client.h> // Include this library for MQTT communication.
-#include <ArduinoJson.h> // Include this library for parsing incomming json mesages.
 #include <Configuration.h> // This library contains the code for loading plant pot configuration.
 #include <Communication.h> // This library contains the code for communication between the pot and broker.
-//#include <PlantCare.h> // This library contains the code for taking care of the plant.
 #include <LedController.h> // This library contains the code for taking care of the plant.
 
 #define RESERVOIR_TOP_HEIGHT 30 // The height of the top of the reservoir.
@@ -75,26 +68,32 @@ private:
     bool waterPumpState; // The current state of the water pump, either on or off.
     Configuration* configuration; // An configuration instance containing mqtt, led and plant care configuration.
     Communication* communication; // An communication instance for communication between the pot and mqtt broker.
-    uint32_t currentTime; // The current milliseconds since the last reset.
-    uint8_t currentWarning; // The current warning code.
-    uint8_t publishReservoirWarningThreshold; // The time to wait after publishing warning messages.
 
+    uint32_t currentTime; // The current milliseconds since the last reset.
     uint32_t lastPublishStatisticsTime; // The time in milliseconds we published statistics to the broker.
     uint32_t lastPublishWarningTime; // The last time in milliseconds we published an warning to the broker.
     uint32_t lastPingTime; // The last time in milliseconds we pinged to the broker.
     uint32_t lastMeasurementTime; // The last time in milliseconds we took an measurement.
     uint32_t lastGivingWaterTime; // The last time in milliseconds we gave water.
 
-    uint32_t publishStatisticInterval; // The interval in milliseconds we publish statistics to the broker.
-    uint32_t republishWarningInterval; // The interval in milliseconds to republish warning messages to the broker.
-    uint32_t pingInterval; // The interval in milliseconds to ping to the broker.
-    uint32_t takeMeasurementInterval; // The interval in milliseconds to take pot measurements.
-    uint32_t sleepAfterGivingWaterTime; // The time to wait before giving water to the pant again.
-    uint8_t groundMoistureOptimal; // The optimal ground moisture level.
+    uint8_t currentWarning; // The current warning code.
 
+    // Led settings
     uint8_t red; // The luminosity strength of the red led in the reservoir.
     uint8_t green; // The luminosity strength of the green led in the reservoir.
     uint8_t blue; // The luminosity strength of the blue led in the reservoir.
+
+    // MQTT settings
+    uint32_t publishStatisticInterval; // The interval in milliseconds we publish statistics to the broker.
+    uint32_t republishWarningInterval; // The interval in milliseconds to republish warning messages to the broker.
+    uint32_t pingInterval; // The interval in milliseconds to ping to the broker.
+    uint8_t publishReservoirWarningThreshold; // The time to wait after publishing warning messages.
+
+    // Plant care settings.
+    uint32_t takeMeasurementInterval; // The interval in milliseconds to take pot measurements.
+    uint32_t sleepAfterGivingWaterTime; // The time to wait before giving water to the pant again.
+    uint8_t groundMoistureOptimal; // The optimal ground moisture level.
+    uint8_t containsPlant; // Boolean to check if the pot contains an plant.
 
     /**
      * This function will use the ground moisture sensor to measure the resistance

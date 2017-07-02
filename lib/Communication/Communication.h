@@ -3,6 +3,12 @@
  * Author: Alwin Kroesen <alwin.kroesen@student.stenden.com>
  * Created: 17-06-2017 20:16
  * Licence: GPLv3 - General Public Licence version 3
+ *
+ * This library handles the communication between the plant pot and MQTT broker.
+ *
+ * TODOS:
+ * todo: Remove multiple subscribers to an single subscriber.
+ * todo: Alter subscribe json message to include an type so we know what config to save.
  */
 #ifndef WATERUP_PLANTPOT_COMMUNICATION_H
 #define WATERUP_PLANTPOT_COMMUNICATION_H
@@ -10,15 +16,11 @@
 #include <Arduino.h> // Include this library for using basic system functions and variables.
 #include <Streaming.h> // Include this library for using the << Streaming operator.
 #include <ESP8266WiFi.h> // Include this library for working with the ESP8266 chip.
-#include <EEPROM.h> // Include this library for using the EEPROM flas storage on the huzzah.
 #include <WiFiManager.h> // Include this library for dynamically setting up the WiFi connection.
 #include <Adafruit_MQTT.h> // Include this library for securely connecting to the internet using WiFi.
 #include <Adafruit_MQTT_Client.h> // Include this library for MQTT communication.
 #include <ArduinoJson.h> // Include this library for parsing incomming json mesages.
 #include <Configuration.h> // This library contains the code for loading plant pot configuration.
-//#include <Communication.h> // This library contains the code for communication between the pot and broker.
-#include <PlantCare.h> // This library contains the code for taking care of the plant.
-#include <LedController.h> // This library contains the code for taking care of the plant.
 
 #define MQTT_BROKER_HOST "mqtt.inf1i.ga" // The address of the MQTT broker.
 #define MQTT_BROKER_PORT 8883 // The port to connect to at the MQTT broker.
@@ -43,19 +45,19 @@ class Configuration; //  Forward declare the configuration library.
 class PlantCare; // Forward declare the plant care library.
 
 class Communication
-    {
-    public:
-        /**
-         * An pointer to the pot configuration object.
-         */
-        static Configuration *potConfig;
+{
+public:
+    /**
+     * An pointer to the pot configuration object.
+     */
+    static Configuration *potConfig;
 
-        /**
-         * The constructor will initiate the communication library with some default
-         * values and will save an reference to the configuration library.
-         * @param potConfiguration  An pointer to the configuration library.
-         */
-        Communication( Configuration * potConfiguration );
+    /**
+     * The constructor will initiate the communication library with some default
+     * values and will save an reference to the configuration library.
+     * @param potConfiguration  An pointer to the configuration library.
+     */
+    Communication( Configuration *potConfiguration );
 
     /**
      * This function is used to initiate the Arduino/Huzzah board. It gets
@@ -77,7 +79,7 @@ class Communication
      *
      * @return *Configuration
      */
-    Configuration* getConfiguration();
+    Configuration *getConfiguration();
 
     /**
      * This function will publish statistics about the pot's current state to the
@@ -86,7 +88,7 @@ class Communication
      * @param groundMoistureLevel   The current percentage of moisture in the ground.
      * @param waterReservoirLevel   The current percentage of water left in the reservoir.
      */
-    void publishStatistic(int groundMoistureLevel, int waterReservoirLevel);
+    void publishStatistic( int groundMoistureLevel, int waterReservoirLevel );
 
     /**
      * This function will publish warnings about the reservoir water level to the mqtt
@@ -94,7 +96,7 @@ class Communication
      *
      * @param warningType   The type of warning to be send.
      */
-    void publishWarning( uint8_t warningType);
+    void publishWarning( uint8_t warningType );
 
     /**
      * This function will start listening for configuration send by the mqtt broker.
@@ -102,6 +104,10 @@ class Communication
     void listenForConfiguration();
 
 private:
+    static const uint8_t LED_LISTENER = 0;
+    static const uint8_t MQTT_LISTENER = 1;
+    static const uint8_t PLANT_CARE_LISTENER = 2;
+
     /**
       * This function will attempt to verify the TLS/SSL certificate send from the MQTT broker by its SHA1 fingerprint.
       * If the fingerprint doesn't match the one saved in the mqttInf1iGaFingerprint variable it will halt the execution
@@ -110,14 +116,23 @@ private:
     void verifyFingerprint();
 
     /**
+     * This will attempt to parse the incomming json data and update the stored configuration.
+     *
+     * @param messageData           String containing json data.
+     * @param dataLength            The length of the json string.
+     * @param receivedMessageType   The type of listener that received the message.
+     */
+    static void parseJsonData( char *messageData, uint16_t dataLength, uint8_t receivedOnListener );
+
+    /**
      * This function callback will be subscribed to the plant care configuration topic.
      * When new plant care configuration gets published on this topic it will update the
      * pot's configuration.
      *
      * @param data      An json string containing plant care configuration.
-     * @param length    The length of the json string.
+     * @param messageLength    The length of the json string.
      */
-    static void listenForPlantCareConfiguration( char *data, uint16_t length );
+    static void listenForPlantCareConfiguration( char *data, uint16_t messageLength );
 
     /**
     * This function callback will be subscribed to the mqtt configuration topic.
@@ -125,9 +140,9 @@ private:
     * pot's configuration.
     *
     * @param data      An json string containing mqtt configuration.
-    * @param length    The length of the json string.
+    * @param messageLength    The length of the json string.
     */
-    static void listenForMqttConfiguration(char *data, uint16_t length);
+    static void listenForMqttConfiguration( char *data, uint16_t messageLength );
 
     /**
     * This function callback will be subscribed to the led configuration topic.
@@ -135,9 +150,9 @@ private:
     * pot configuration.
     *
     * @param data      An json string containing led configuration.
-    * @param length    The length of the json string.
+    * @param messageLength    The length of the json string.
     */
-    static void listenForLedConfiguration(char *data, uint16_t length );
+    static void listenForLedConfiguration( char *data, uint16_t messageLength );
 };
 
 #endif //WATERUP_PLANTPOT_COMMUNICATION_H

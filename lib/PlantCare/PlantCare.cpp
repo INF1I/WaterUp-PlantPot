@@ -18,28 +18,33 @@ PlantCare::PlantCare( Communication *potCommunication )
      * and save it to this object attributes.
      */
     long whatTimeIsIt = millis(); // The current milliseconds since the last reset.
-    this->waterPumpState = LOW; // Set the current state of the water pump to LOW so its off when we start.
-    this->communication = potCommunication; // Set the communication instance for communication between the pot and mqtt broker.
-    this->configuration = communication->getConfiguration(); // Set tge configuration instance containing mqtt, led and plant care configuration.
-    this->currentWarning = this->configuration->WarningType::NO_ERROR;
-    this->publishReservoirWarningThreshold = this->configuration->getMqttSettings()->publishReservoirWarningThreshold;
-
     this->lastPublishStatisticsTime = whatTimeIsIt;
     this->lastPublishWarningTime = whatTimeIsIt;
     this->lastPingTime = whatTimeIsIt;
     this->lastMeasurementTime = whatTimeIsIt;
     this->lastGivingWaterTime = whatTimeIsIt;
 
-    this->publishStatisticInterval = configuration->getMqttSettings()->statisticPublishInterval;
-    this->republishWarningInterval = configuration->getMqttSettings()->resendWarningInterval;
-    this->pingInterval = configuration->getMqttSettings()->pingBrokerInterval;
-    this->takeMeasurementInterval = configuration->getPlantCareSettings()->takeMeasurementInterval;
-    this->sleepAfterGivingWaterTime = configuration->getPlantCareSettings()->sleepAfterGivingWater;
-    this->groundMoistureOptimal = configuration->getPlantCareSettings()->groundMoistureOptimal;
+    this->waterPumpState = LOW; // Set the current state of the water pump to LOW so its off when we start.
+    this->communication = potCommunication; // Set the communication instance for communication between the pot and mqtt broker.
+    this->configuration = communication->getConfiguration(); // Set tge configuration instance containing mqtt, led and plant care configuration.
+    this->currentWarning = this->configuration->WarningType::NO_ERROR;
 
+    // Led settings
     this->red = configuration->getLedSettings()->red;
     this->green = configuration->getLedSettings()->green;
     this->blue = configuration->getLedSettings()->blue;
+
+    // MQTT settings
+    this->publishStatisticInterval = configuration->getMqttSettings()->statisticPublishInterval;
+    this->republishWarningInterval = configuration->getMqttSettings()->resendWarningInterval;
+    this->pingInterval = configuration->getMqttSettings()->pingBrokerInterval;
+    this->publishReservoirWarningThreshold = this->configuration->getMqttSettings()->publishReservoirWarningThreshold;
+
+    // Plant care settings
+    this->takeMeasurementInterval = configuration->getPlantCareSettings()->takeMeasurementInterval;
+    this->sleepAfterGivingWaterTime = configuration->getPlantCareSettings()->sleepAfterGivingWater;
+    this->groundMoistureOptimal = configuration->getPlantCareSettings()->groundMoistureOptimal;
+    this->containsPlant = configuration->getPlantCareSettings()->containsPlant;
 
     /**
      * The pim mode function calls below will setup the I/O pin modes to either input or output.
@@ -60,9 +65,12 @@ void PlantCare::takeCareOfPlant()
     this->currentTime = millis();
     this->communication->connect(); // Are we still connected?
     this->communication->listenForConfiguration();
-    this->publishPotStatistic();
-    this->giveWater();
 
+    if( this->containsPlant == 1 )
+    {
+        this->publishPotStatistic();
+        this->giveWater();
+    }
 }
 
 /**
@@ -123,9 +131,8 @@ void PlantCare::giveWater()
 {
     if( this->currentTime - this->lastMeasurementTime > this->takeMeasurementInterval && this->currentTime - this->lastGivingWaterTime > sleepAfterGivingWaterTime)
     {
-        Serial << F("[debug] - ") << endl;
+        Serial << F("[debug] - Giving water to the plant.") << endl;
         this->lastMeasurementTime = currentTime;
-
         int currentGroundMoisture = checkMoistureLevel();
 
         if( currentGroundMoisture < this->groundMoistureOptimal )
