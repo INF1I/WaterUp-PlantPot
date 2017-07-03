@@ -262,26 +262,26 @@ void Communication::listen()
 
 void Communication::parseJsonData( char *messageData, uint16_t dataLength, uint8_t receivedOnListener )
 {
-    StaticJsonBuffer<JSON_BUFFER_SIZE> staticJsonReceiveBuffer;
-    JsonObject &jsonRoot = staticJsonReceiveBuffer.parseObject( messageData );
+    const size_t bufferSize = JSON_OBJECT_SIZE(4) + 80;
+    DynamicJsonBuffer jsonBuffer(bufferSize);
+    JsonObject& root = jsonBuffer.parseObject(messageData);
 
     POT_ERROR_PRINTLN( F( "[debug] - Received data from the mqtt broker:" ) APPEND messageData )
     POT_ERROR_PRINTLN( F( "[debug] - Received data length" ) APPEND messageData )
 
-    if ( not jsonRoot.success())
+    if ( not root.success())
     {
         POT_ERROR_PRINTLN( F( "[error] - Error receiving json data the json data send by the broker is invalid" ))
         return;
     }
 
-    if ( jsonRoot[ "mac" ] == false )
+    if ( root["mac"] == false )
     {
         POT_ERROR_PRINTLN( F("[error] - Error receiving json data the mac and type nodes are missing." ))
         return;
     }
 
-    String messageMacAddress = jsonRoot[ "mac" ];
-    String messageName = jsonRoot[ "type" ];
+    String messageMacAddress = root[ "mac" ];
 
     if ( not messageMacAddress.equals( WiFi.macAddress()))
     {
@@ -295,9 +295,9 @@ void Communication::parseJsonData( char *messageData, uint16_t dataLength, uint8
             POT_DEBUG_PRINTLN( F( "[debug] - Parsing json led configuration message." ))
 
             Communication::potConfig->setLedSettings(
-                    ( uint8_t ) jsonRoot[ "red" ], // The new red led luminosity
-                    ( uint8_t ) jsonRoot[ "green" ], // The new green led luminosity
-                    ( uint8_t ) jsonRoot[ "blue" ] // The new blue led luminosity
+                    ( uint8_t ) root[ "red" ], // The new red led luminosity
+                    ( uint8_t ) root[ "green" ], // The new green led luminosity
+                    ( uint8_t ) root[ "blue" ] // The new blue led luminosity
             );
             break;
 
@@ -305,10 +305,10 @@ void Communication::parseJsonData( char *messageData, uint16_t dataLength, uint8
             POT_ERROR_PRINTLN( F( "[debug] - Parsing json mqtt configuration message." ))
 
             Communication::potConfig->setMQTTSettings(
-                    ( uint32_t ) jsonRoot[ "stat-interval" ], // The new MQTT statistic publish interval
-                    ( uint32_t ) jsonRoot[ "resend-interval" ], // The new MQTT resend warning interval
-                    ( uint32_t ) jsonRoot[ "ping-interval" ], // The new MQTT ping interval
-                    ( uint8_t ) jsonRoot[ "publish-threshold" ] // The new
+                    ( uint32_t ) root[ "stat-interval" ], // The new MQTT statistic publish interval
+                    ( uint32_t ) root[ "resend-interval" ], // The new MQTT resend warning interval
+                    ( uint32_t ) root[ "ping-interval" ], // The new MQTT ping interval
+                    ( uint8_t ) root[ "publish-threshold" ] // The new
             );
             break;
 
@@ -316,10 +316,10 @@ void Communication::parseJsonData( char *messageData, uint16_t dataLength, uint8
             POT_ERROR_PRINTLN( F( "[debug] - Parsing json plant care configuration message." ))
 
             Communication::potConfig->setPlantCareSettings(
-                    ( uint8_t ) jsonRoot[ "moisture-need" ],
-                    ( uint32_t ) jsonRoot[ "interval" ],
-                    ( uint32_t ) jsonRoot[ "sleep-after-water" ],
-                    ( uint8_t ) jsonRoot[ "contains-plant" ]
+                    ( uint8_t ) root["moisture-need"],
+                    ( uint32_t ) root["interval"],
+                    ( uint32_t ) 3600,
+                    ( uint8_t ) root["contains-plant"]
             );
             break;
 
